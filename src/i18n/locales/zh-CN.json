@@ -1,0 +1,153 @@
+{
+  "app": {
+    "title": "Qiuye Canvas",
+    "fullTitle": "Qiuye Canvas"
+  },
+  "common": {
+    "loading": "加载中...",
+    "cancel": "取消"
+  },
+  "nav": {
+    "canvas": "画布",
+    "menu": "菜单",
+    "navigation": "导航"
+  },
+  "theme": {
+    "switchToDark": "切换到暗色模式",
+    "switchToLight": "切换到亮色模式",
+    "languageSelect": "语言选择",
+    "appearance": "外观",
+    "language": "语言"
+  },
+  "language": {
+    "chinese": "中文",
+    "english": "English"
+  },
+  "toast": {
+    "coordinateCopied": "坐标已复制",
+    "currentCoordinate": "当前坐标: ({{x}}, {{y}})",
+    "copyFailed": "复制失败"
+  },
+  "pages": {
+    "notFound": {
+      "title": "页面未找到",
+      "description": "抱歉，您访问的页面不存在",
+      "backHome": "返回首页"
+    },
+    "canvas": {
+      "colorPicker": {
+        "colorLabel": "颜色:",
+        "currentColor": "当前颜色",
+        "defaultPalette": "默认色卡:",
+        "hexInputLabel": "16进制颜色:",
+        "recentUsed": "最近使用:"
+      },
+      "toolbar": {
+        "gridSize": "网格大小:",
+        "mode": "绘制模式:",
+        "modeDraw": "绘制模式",
+        "modeErase": "橡皮擦模式",
+        "modeLocate": "坐标定位模式",
+        "modePicker": "取色器模式",
+                  "import": "文件:",
+          "fileOps": "文件操作",
+          "importImage": "导入图片",
+        "importTip": "导入图片文件并转换为像素",
+        "zoom": "缩放:",
+        "reset": "重置",
+        "grid": "网格:",
+        "hide": "隐藏",
+        "show": "显示",
+        "hideGrid": "隐藏网格线",
+        "showGrid": "显示网格线",
+        "clearCanvas": "清空画布",
+        "clearUser": "清空用户绘制",
+        "saveImage": "保存图片",
+        "exportPngTip": "导出为 PNG（不包含网格线）",
+        "largeDataTest": "大数据量测试:",
+        "history": "历史:",
+        "undo": "撤销",
+        "redo": "重做",
+        "undoTip": "撤销上一次笔触或导入",
+        "redoTip": "重做最近一次被撤销的操作"
+      },
+      "canvas": {
+        "currentPosition": "当前坐标",
+        "clickToCopy": "点击复制坐标",
+        "instructionsTitle": "使用说明:",
+        "instructions": {
+          "draw": "左键点击或拖拽绘制像素",
+          "pan": "右键拖拽移动视图",
+          "wheelZoom": "滚轮缩放：以鼠标位置为中心进行缩放",
+          "buttonZoom": "按钮缩放：以画布中心为基准进行缩放",
+          "preventScroll": "在画板区域滚轮不会触发页面滚动",
+          "gridToggle": "网格显示：可通过网格按钮控制是否显示网格线（缩放大于200%时可见）",
+          "currentMode": "当前绘制模式",
+          "locateMode": "坐标定位模式：鼠标悬停显示像素坐标，单击复制坐标到剪贴板",
+          "pickerMode": "取色器模式：单击画布中的像素获取其颜色，自动设置为当前绘制颜色",
+          "importNote": "导入的图片将作为用户绘制数据，可以被橡皮擦擦除和清空"
+        }
+      },
+      "import": {
+        "title": "导入图片",
+        "preview": "预览",
+        "previewHint": "红色边框显示图片在画布中的位置",
+        "originalSize": "原始尺寸",
+        "scaledSize": "缩放后尺寸",
+        "pixelCount": "像素数量",
+        "position": "位置",
+        "scale": "缩放比例",
+        "offsetX": "X轴位置",
+        "offsetY": "Y轴位置",
+        "opacity": "不透明度",
+        "quickPosition": "快速位置",
+        "topLeft": "左上角",
+        "topCenter": "顶部中心",
+        "topRight": "右上角",
+        "leftCenter": "左侧中心",
+        "center": "居中",
+        "rightCenter": "右侧中心",
+        "bottomLeft": "左下角",
+        "bottomCenter": "底部中心",
+        "bottomRight": "右下角",
+        "confirm": "导入图片",
+        "pasteFromClipboard": "从剪贴板导入坐标"
+      },
+      "page": {
+        "title": "像素画板演示",
+        "subtitle": "高性能像素画板：支持100万数据量超大网格、丝滑缩放/平移、图片导入、操作历史与数据导出",
+        "testPanel": {
+          "title": "功能测试面板",
+          "importSmile": "导入测试数据（笑脸）",
+          "getCurrent": "获取完整画布数据",
+          "getUser": "获取用户绘制数据",
+          "getHistory": "获取操作历史记录",
+          "clearCanvas": "清空画布",
+          "clearUser": "清空用户绘制",
+          "initColors": "初始化测试颜色",
+          "opCount": "当前绘制操作数: {{count}}",
+          "userPixelCount": "用户绘制像素数: {{count}}"
+        },
+        "history": {
+          "title": "绘制操作记录 ({{count}} 个操作)",
+          "op": { "draw": "绘制", "erase": "擦除" },
+          "position": "位置",
+          "color": "颜色",
+          "time": "时间",
+          "showRecent": "... 显示最近10个操作"
+        },
+        "console": {
+          "currentData": "当前画布数据（初始+用户）:",
+          "userData": "用户最终实际绘制数据:",
+          "operations": "绘制操作记录:"
+        },
+        "alert": {
+          "currentData": "当前画布共有 {{count}} 个像素点，详情请查看控制台",
+          "userData": "用户实际绘制了 {{count}} 个像素点，详情请查看控制台",
+          "operations": "共记录了 {{count}} 个绘制操作，详情请查看控制台",
+          "initTestColors": "选择不同颜色进行绘制，它们会自动添加到最近使用列表中！\n\n💡 颜色选择器功能：\n• 点击颜色按钮打开选择器\n• 30种默认色卡快捷选择\n• 16进制颜色输入框（支持#RGB或#RRGGBB格式）\n• 最近使用颜色自动记录\n\n推荐颜色：#FF5722、#4CAF50、#2196F3、#FF9800、#9C27B0"
+        }
+      }
+    }
+  }
+}

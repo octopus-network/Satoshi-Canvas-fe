@@ -1,0 +1,153 @@
+{
+  "app": {
+    "title": "Qiuye Canvas",
+    "fullTitle": "Qiuye Canvas"
+  },
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel"
+  },
+  "nav": {
+    "canvas": "Canvas",
+    "menu": "Menu",
+    "navigation": "Navigation"
+  },
+  "theme": {
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
+    "languageSelect": "Language selection",
+    "appearance": "Appearance",
+    "language": "Language"
+  },
+  "language": {
+    "chinese": "中文",
+    "english": "English"
+  },
+  "toast": {
+    "coordinateCopied": "Coordinates copied",
+    "currentCoordinate": "Current coordinates: ({{x}}, {{y}})",
+    "copyFailed": "Copy failed"
+  },
+  "pages": {
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "Sorry, the page you visited does not exist",
+      "backHome": "Back to Home"
+    },
+    "canvas": {
+      "colorPicker": {
+        "colorLabel": "Color:",
+        "currentColor": "Current Color",
+        "defaultPalette": "Default Palette:",
+        "hexInputLabel": "Hex Color:",
+        "recentUsed": "Recently Used:"
+      },
+      "toolbar": {
+        "gridSize": "Grid Size:",
+        "mode": "Mode:",
+        "modeDraw": "Draw Mode",
+        "modeErase": "Eraser Mode",
+        "modeLocate": "Locate Mode",
+        "modePicker": "Color Picker Mode",
+                  "import": "File:",
+          "fileOps": "File",
+          "importImage": "Import Image",
+        "importTip": "Import image and convert to pixels",
+        "zoom": "Zoom:",
+        "reset": "Reset",
+        "grid": "Grid:",
+        "hide": "Hide",
+        "show": "Show",
+        "hideGrid": "Hide grid lines",
+        "showGrid": "Show grid lines",
+        "clearCanvas": "Clear Canvas",
+        "clearUser": "Clear User Drawing",
+        "saveImage": "Save Image",
+        "exportPngTip": "Export as PNG (without grid lines)",
+        "largeDataTest": "Large Data Test:",
+        "history": "History:",
+        "undo": "Undo",
+        "redo": "Redo",
+        "undoTip": "Undo last stroke or import",
+        "redoTip": "Redo the last undone operation"
+      },
+      "canvas": {
+        "currentPosition": "Current Position",
+        "clickToCopy": "Click to copy coordinates",
+        "instructionsTitle": "Instructions:",
+        "instructions": {
+          "draw": "Left click or drag to draw pixels",
+          "pan": "Right drag to move view",
+          "wheelZoom": "Mouse wheel zoom: centered on mouse position",
+          "buttonZoom": "Button zoom: centered on canvas center",
+          "preventScroll": "Mouse wheel won't trigger page scroll in canvas area",
+          "gridToggle": "Grid display: toggle grid lines visibility (visible when zoom > 200%)",
+          "currentMode": "Current drawing mode",
+          "locateMode": "Locate mode: hover to show pixel coordinates, click to copy coordinates to clipboard",
+          "pickerMode": "Color picker mode: click on canvas pixels to pick their color and set as current drawing color",
+          "importNote": "Imported images will be treated as user drawing data, can be erased and cleared"
+        }
+      },
+      "import": {
+        "title": "Import Image",
+        "preview": "Preview",
+        "previewHint": "Red border shows the image position on canvas",
+        "originalSize": "Original Size",
+        "scaledSize": "Scaled Size",
+        "pixelCount": "Pixel Count",
+        "position": "Position",
+        "scale": "Scale",
+        "offsetX": "Offset X",
+        "offsetY": "Offset Y",
+        "opacity": "Opacity",
+        "quickPosition": "Quick Position",
+        "topLeft": "Top Left",
+        "topCenter": "Top Center",
+        "topRight": "Top Right",
+        "leftCenter": "Left Center",
+        "center": "Center",
+        "rightCenter": "Right Center",
+        "bottomLeft": "Bottom Left",
+        "bottomCenter": "Bottom Center",
+        "bottomRight": "Bottom Right",
+        "confirm": "Import Image",
+        "pasteFromClipboard": "Paste coordinates from clipboard"
+      },
+      "page": {
+        "title": "Canvas Demo",
+        "subtitle": "A pixel canvas supporting data import and operation history",
+        "testPanel": {
+          "title": "Test Panel",
+          "importSmile": "Import test data (smile)",
+          "getCurrent": "Get full canvas data",
+          "getUser": "Get user drawing data",
+          "getHistory": "Get operation history",
+          "clearCanvas": "Clear canvas",
+          "clearUser": "Clear user drawing",
+          "initColors": "Init test colors",
+          "opCount": "Operations: {{count}}",
+          "userPixelCount": "User pixels: {{count}}"
+        },
+        "history": {
+          "title": "Operation History ({{count}})",
+          "op": { "draw": "Draw", "erase": "Erase" },
+          "position": "Position",
+          "color": "Color",
+          "time": "Time",
+          "showRecent": "... show latest 10 ops"
+        },
+        "console": {
+          "currentData": "Current canvas data (initial + user):",
+          "userData": "User final drawing data:",
+          "operations": "Drawing operations:"
+        },
+        "alert": {
+          "currentData": "Canvas has {{count}} pixels, check console for details",
+          "userData": "User drew {{count}} pixels, check console for details",
+          "operations": "Recorded {{count}} operations, check console for details",
+          "initTestColors": "Pick different colors to draw, they will be added to recent automatically!\n\nTips:\n• Click color button to open picker\n• 30 default palette presets\n• Hex input (#RGB/#RRGGBB)\n• Recent colors are recorded\n\nRecommended: #FF5722, #4CAF50, #2196F3, #FF9800, #9C27B0"
+        }
+      }
+    }
+  }
+}
