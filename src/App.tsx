@@ -6,7 +6,7 @@ import PixelCanvas from "@/components/PixelCanvas";
 
 function App() {
   const { theme: themeConfig } = useThemeStore();
-  const [gridSize, setGridSize] = useState<100 | 1000>(100);
+  const [gridSize, setGridSize] = useState<100 | 1000>(1000);
 
   return (
     <ThemeProvider>

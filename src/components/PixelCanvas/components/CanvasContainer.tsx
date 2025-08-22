@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import type { DrawingMode, CanvasSize } from "../types";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 
 interface CanvasContainerProps {
   // Canvas引用
@@ -19,6 +20,12 @@ interface CanvasContainerProps {
   // 滚轮缩放
   onWheel: (e: WheelEvent) => void;
 
+  // 缩放控制（悬浮面板）
+  scale: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onResetView: () => void;
+
   // 绘制模式
   drawingMode: DrawingMode;
 
@@ -35,6 +42,10 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   onMouseUp,
   onMouseLeave,
   onWheel,
+  scale,
+  onZoomIn,
+  onZoomOut,
+  onResetView,
   drawingMode,
   currentHoverPixel,
 }) => {
@@ -44,6 +55,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   const wasInsidePanelRef = useRef<boolean>(false);
   const lastSwitchAtRef = useRef<number>(0);
   const { t } = useTranslation();
+  const [isHoveringCanvas, setIsHoveringCanvas] = useState(false);
+  const [isHoveringZoomPanel, setIsHoveringZoomPanel] = useState(false);
 
   // 监听容器尺寸变化，自适应画布大小
   useEffect(() => {
@@ -168,6 +181,15 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     wasInsidePanelRef.current = inside;
   };
 
+  const handleCanvasMouseEnter = () => {
+    setIsHoveringCanvas(true);
+  };
+
+  const handleCanvasMouseLeave = () => {
+    setIsHoveringCanvas(false);
+    onMouseLeave();
+  };
+
   return (
     <div className="flex flex-col gap-3 w-full h-full min-h-0">
       {/* 画布容器 */}
@@ -184,9 +206,51 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
           onMouseDown={onMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={onMouseUp}
-          onMouseLeave={onMouseLeave}
+          onMouseEnter={handleCanvasMouseEnter}
+          onMouseLeave={handleCanvasMouseLeave}
           onContextMenu={(e) => e.preventDefault()}
         />
+
+        {/* 缩放控制浮窗：仅在画布悬停或面板自身悬停时显示 */}
+        <div
+          className={`absolute bottom-2 left-2 z-10 transition-opacity duration-150 ${
+            isHoveringCanvas || isHoveringZoomPanel
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }`}
+          onMouseEnter={() => setIsHoveringZoomPanel(true)}
+          onMouseLeave={() => setIsHoveringZoomPanel(false)}
+        >
+          <div className="bg-background/90 border border-border rounded-md shadow-lg px-2 py-2 flex items-center gap-2">
+            <Button
+              className="cursor-pointer"
+              variant="outline"
+              size="sm"
+              onClick={onZoomOut}
+            >
+              -
+            </Button>
+            <span className="text-xs min-w-[48px] text-center text-foreground">
+              {Math.round(scale * 100)}%
+            </span>
+            <Button
+              className="cursor-pointer"
+              variant="outline"
+              size="sm"
+              onClick={onZoomIn}
+            >
+              +
+            </Button>
+            <Button
+              className="cursor-pointer"
+              variant="outline"
+              size="sm"
+              onClick={onResetView}
+            >
+              {t("pages.canvas.toolbar.reset")}
+            </Button>
+          </div>
+        </div>
 
         {/* 坐标显示 */}
         {drawingMode === "locate" && currentHoverPixel && (

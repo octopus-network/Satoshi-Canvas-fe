@@ -528,10 +528,6 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           drawingMode={drawingMode}
           onDrawingModeChange={setDrawingMode}
           onImageFileSelect={handleImageFileSelect}
-          scale={scale}
-          onZoomIn={zoomIn}
-          onZoomOut={zoomOut}
-          onResetView={resetView}
           showGrid={showGrid}
           onToggleGrid={() => setShowGrid(!showGrid)}
           onUndo={undo}
@@ -567,6 +563,10 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
             onWheel={handleWheelZoom}
+            scale={scale}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            onResetView={resetView}
             drawingMode={drawingMode}
             currentHoverPixel={currentHoverPixel}
           />

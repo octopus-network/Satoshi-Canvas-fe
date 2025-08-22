@@ -46,12 +46,6 @@ interface ToolbarProps {
   // 图片导入
   onImageFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
 
-  // 缩放控制
-  scale: number;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
-  onResetView: () => void;
-
   // 网格显示
   showGrid: boolean;
   onToggleGrid: () => void;
@@ -83,17 +77,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   drawingMode,
   onDrawingModeChange,
   onImageFileSelect,
-  scale,
-  onZoomIn,
-  onZoomOut,
-  onResetView,
   showGrid,
   onToggleGrid,
   onUndo,
   onRedo,
   canUndo,
   canRedo,
-  onClearCanvas,
   onClearUserDrawing,
   onExportPNG,
 }) => {
@@ -101,8 +90,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="flex flex-nowrap gap-4 items-center bg-muted/50 p-4 rounded-lg border border-border min-w-fit">
+    <div className="w-full">
+      <div className="w-full overflow-x-auto flex flex-nowrap gap-4 items-center bg-muted/50 p-4 rounded-lg border border-border">
         {/* 全局隐藏文件输入，保证 Dropdown 关闭后仍可触发 change */}
         <input
           ref={fileInputRef}
@@ -223,17 +212,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           </span>
           <TooltipProvider>
             <Tooltip delayDuration={350}>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <Button
-                  className="min-w-20 cursor-pointer"
+                  className="cursor-pointer"
                   variant={showGrid ? "default" : "outline"}
                   size="sm"
                   onClick={onToggleGrid}
                 >
-                  <Grid3X3 className="w-4 h-4 mr-1" />
-                  {showGrid
-                    ? t("pages.canvas.toolbar.hide")
-                    : t("pages.canvas.toolbar.show")}
+                  <Grid3X3 className="w-4 h-4" />
+                  <span className="ml-1">
+                    {showGrid
+                      ? t("pages.canvas.toolbar.hide")
+                      : t("pages.canvas.toolbar.show")}
+                  </span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -248,41 +239,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         <Separator orientation="vertical" className="h-6" />
-
-        {/* 缩放控制（含重置外露） */}
-        <div className="flex gap-2 items-center">
-          <span className="text-sm font-medium text-foreground">
-            {t("pages.canvas.toolbar.zoom")}
-          </span>
-          <Button
-            className="cursor-pointer"
-            variant="outline"
-            size="sm"
-            onClick={onZoomOut}
-          >
-            -
-          </Button>
-          <span className="text-sm min-w-[60px] text-center text-foreground">
-            {Math.round(scale * 100)}%
-          </span>
-          <Button
-            className="cursor-pointer"
-            variant="outline"
-            size="sm"
-            onClick={onZoomIn}
-          >
-            +
-          </Button>
-          <Button
-            className="cursor-pointer"
-            variant="outline"
-            size="sm"
-            onClick={onResetView}
-          >
-            {t("pages.canvas.toolbar.reset")}
-          </Button>
-        </div>
-
         <Separator orientation="vertical" className="h-6" />
 
         {/* 历史（撤销/重做） */}
@@ -335,14 +291,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         {/* 操作按钮（清理） */}
         <div className="flex gap-2">
-          <Button
-            className="cursor-pointer"
-            variant="destructive"
-            size="sm"
-            onClick={onClearCanvas}
-          >
-            {t("pages.canvas.toolbar.clearCanvas")}
-          </Button>
           <Button
             className="cursor-pointer"
             variant="outline"
