@@ -226,7 +226,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <Tooltip delayDuration={350}>
               <TooltipTrigger>
                 <Button
-                  className="cursor-pointer"
+                  className="cursor-pointer min-w-22"
                   variant={showGrid ? "default" : "outline"}
                   size="sm"
                   onClick={onToggleGrid}
