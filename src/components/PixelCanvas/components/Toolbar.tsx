@@ -28,6 +28,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface ToolbarProps {
   // 网格相关
@@ -292,15 +303,34 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         {/* 操作按钮（清理） */}
         <div className="flex gap-2">
-          <Button
-            className="cursor-pointer"
-            variant="destructive"
-            size="sm"
-            onClick={onClearUserDrawing}
-          >
-            <Trash className="w-4 h-4 mr-1" />
-            {t("pages.canvas.toolbar.clearUser")}
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                className="cursor-pointer"
+                variant="destructive"
+                size="sm"
+              >
+                <Trash className="w-4 h-4 mr-1" />
+                {t("pages.canvas.toolbar.clearUser")}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {t("pages.canvas.toolbar.confirmClearUserTitle")}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t("pages.canvas.toolbar.confirmClearUserDesc")}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                <AlertDialogAction onClick={onClearUserDrawing}>
+                  {t("pages.canvas.toolbar.clearUser")}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
 
         <Separator orientation="vertical" className="h-6" />

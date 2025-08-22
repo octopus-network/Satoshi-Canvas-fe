@@ -69,7 +69,9 @@
         "undo": "撤销",
         "redo": "重做",
         "undoTip": "撤销上一次笔触或导入",
-        "redoTip": "重做最近一次被撤销的操作"
+        "redoTip": "重做最近一次被撤销的操作",
+        "confirmClearUserTitle": "确认清空用户绘制",
+        "confirmClearUserDesc": "此操作将清空用户绘制数据，且不可撤销。是否继续？"
       },
       "canvas": {
         "currentPosition": "当前坐标",

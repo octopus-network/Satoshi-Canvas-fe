@@ -69,7 +69,9 @@
         "undo": "Undo",
         "redo": "Redo",
         "undoTip": "Undo last stroke or import",
-        "redoTip": "Redo the last undone operation"
+        "redoTip": "Redo the last undone operation",
+        "confirmClearUserTitle": "Confirm Clear",
+        "confirmClearUserDesc": "This will clear all user drawing data and cannot be undone. Continue?"
       },
       "canvas": {
         "currentPosition": "Current Position",
