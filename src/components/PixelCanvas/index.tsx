@@ -37,7 +37,6 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     {
       gridSize,
       pixelSize = DEFAULT_PIXEL_SIZE,
-      onGridSizeChange,
       initialData,
       onDrawingChange,
       onUserPixelCountChange,
@@ -520,7 +519,6 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         {/* 工具栏 */}
         <Toolbar
           gridSize={gridSize}
-          onGridSizeChange={onGridSizeChange}
           currentColor={currentColor}
           onColorChange={handleColorChange}
           recentColors={recentColors}

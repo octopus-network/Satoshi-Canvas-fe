@@ -14,6 +14,7 @@ import {
   Grid3X3,
   File,
   Pipette,
+  Trash,
 } from "lucide-react";
 import { Download } from "lucide-react";
 import { Undo2, Redo2 } from "lucide-react";
@@ -293,10 +294,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <div className="flex gap-2">
           <Button
             className="cursor-pointer"
-            variant="outline"
+            variant="destructive"
             size="sm"
             onClick={onClearUserDrawing}
           >
+            <Trash className="w-4 h-4 mr-1" />
             {t("pages.canvas.toolbar.clearUser")}
           </Button>
         </div>
@@ -311,7 +313,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               {t("pages.canvas.toolbar.fileOps")}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="p-1">
+          <DropdownMenuContent align="start" className="p-1">
             <DropdownMenuItem asChild>
               <button
                 className="flex w-full items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-accent text-sm"

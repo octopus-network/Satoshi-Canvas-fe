@@ -61,7 +61,7 @@
         "hideGrid": "Hide grid lines",
         "showGrid": "Show grid lines",
         "clearCanvas": "Clear Canvas",
-        "clearUser": "Clear User Drawing",
+        "clearUser": "Clear",
         "saveImage": "Save Image",
         "exportPngTip": "Export as PNG (without grid lines)",
         "largeDataTest": "Large Data Test:",
