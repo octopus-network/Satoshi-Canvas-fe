@@ -2,13 +2,13 @@
 export type SupportedLanguage = "zh-CN" | "en-US";
 
 // 语言设置的localStorage键名
-const LANGUAGE_KEY = "qiuye-canvas-language";
+const LANGUAGE_KEY = "pixel-lab-language";
 
 // 支持的语言列表
 const SUPPORTED_LANGUAGES: SupportedLanguage[] = ["zh-CN", "en-US"];
 
 // 默认语言
-const DEFAULT_LANGUAGE: SupportedLanguage = "zh-CN";
+const DEFAULT_LANGUAGE: SupportedLanguage = "en-US";
 
 /**
  * 检查是否为支持的语言
@@ -82,7 +82,10 @@ export const getInitialLanguage = (): SupportedLanguage => {
   }
 
   // 2. 使用浏览器语言
-  return getBrowserLanguage();
+  // return getBrowserLanguage();
+
+  // 3. 默认语言
+  return DEFAULT_LANGUAGE;
 };
 
 /**

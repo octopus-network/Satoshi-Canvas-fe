@@ -108,23 +108,29 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       return {
         cursor:
           "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><rect x='2' y='8' width='12' height='8' rx='2' fill='%23ff6b6b' stroke='%23333' stroke-width='1'/><path d='M14 8L18 4' stroke='%23333' stroke-width='2' stroke-linecap='round'/></svg>\") 10 10, pointer",
-      };
+      } as const;
     }
     if (drawingMode === "picker") {
       return {
         cursor:
           "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path d='M3 17l4-4m0 0l1.5-1.5a2 2 0 0 1 2.83 0l.17.17a2 2 0 0 1 0 2.83L10 16m-3-3l9-9a2.12 2.12 0 0 1 3 3l-9 9m-3-3l3 3' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/><path d='M3 17l4-4m0 0l1.5-1.5a2 2 0 0 1 2.83 0l.17.17a2 2 0 0 1 0 2.83L10 16m-3-3l9-9a2.12 2.12 0 0 1 3 3l-9 9m-3-3l3 3' stroke='%23333' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='4' cy='16' r='1.5' fill='white'/><circle cx='4' cy='16' r='1' fill='%234f46e5'/></svg>\") 10 10, pointer",
-      };
+      } as const;
     }
-    return {};
+    if (drawingMode === "draw" || drawingMode === "locate") {
+      return { cursor: "crosshair" } as const;
+    }
+    return { cursor: "pointer" } as const;
   };
 
   const getCanvasCursor = () => {
     switch (drawingMode) {
       case "draw":
       case "locate":
-      case "picker":
         return "cursor-crosshair";
+      case "picker":
+        return ""; // 由内联样式覆盖
+      case "erase":
+        return ""; // 由内联样式覆盖
       default:
         return "cursor-pointer";
     }
@@ -163,11 +169,11 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-3 w-full h-full min-h-0">
       {/* 画布容器 */}
       <div
         ref={containerRef}
-        className="border border-border rounded-lg overflow-hidden bg-card w-full h-[60vh] min-h-[400px] max-h-[80vh] relative"
+        className="border border-border rounded-lg overflow-hidden bg-card w-full h-full min-h-[300px] relative"
       >
         <canvas
           ref={canvasRef}
@@ -201,32 +207,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
         )}
       </div>
 
-      {/* 使用说明 */}
-      <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg border border-border">
-        <p>
-          <strong className="text-foreground">
-            {t("pages.canvas.canvas.instructionsTitle")}
-          </strong>
-        </p>
-        <ul className="list-disc list-inside mt-1 space-y-1">
-          <li>{t("pages.canvas.canvas.instructions.draw")}</li>
-          <li>{t("pages.canvas.canvas.instructions.pan")}</li>
-          <li>{t("pages.canvas.canvas.instructions.wheelZoom")}</li>
-          <li>{t("pages.canvas.canvas.instructions.buttonZoom")}</li>
-          <li>{t("pages.canvas.canvas.instructions.preventScroll")}</li>
-          <li>{t("pages.canvas.canvas.instructions.gridToggle")}</li>
-          <li>
-            {t("pages.canvas.canvas.instructions.currentMode")}:
-            {drawingMode === "draw"
-              ? t("pages.canvas.toolbar.modeDraw")
-              : drawingMode === "erase"
-                ? t("pages.canvas.toolbar.modeErase")
-                : t("pages.canvas.toolbar.modeLocate")}
-          </li>
-          <li>{t("pages.canvas.canvas.instructions.locateMode")}</li>
-          <li>{t("pages.canvas.canvas.instructions.importNote")}</li>
-        </ul>
-      </div>
+      {/* 使用说明移除以便画布更大 */}
     </div>
   );
 };

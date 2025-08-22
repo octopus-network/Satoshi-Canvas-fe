@@ -38,7 +38,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       gridSize,
       pixelSize = DEFAULT_PIXEL_SIZE,
       onGridSizeChange,
-      initialData = [],
+      initialData,
       onDrawingChange,
       onUserPixelCountChange,
     },
@@ -418,6 +418,8 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
     // 处理初始数据导入
     useEffect(() => {
+      // 仅在初次挂载或传入了非空 initialData 时初始化，避免每次渲染都重置
+      if (isInitialized) return;
       if (initialData && initialData.length > 0) {
         importData(initialData);
       } else {
@@ -426,7 +428,8 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         setUndoStack([]);
         setRedoStack([]);
       }
-    }, [initialData]); // 只依赖initialData，不依赖importData函数
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isInitialized, initialData]);
 
     // 初始化和重绘
     useEffect(() => {
@@ -448,6 +451,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
     // 重置画布当网格大小改变时
     useEffect(() => {
+      // 仅在 gridSize 变化时重置；initialData 不参与依赖，避免父组件传入 [] 导致反复重置
       setInitialPixels(new Map());
       const emptyUserPixels = new Map<string, string>();
       setUserPixels(() => emptyUserPixels);
@@ -456,7 +460,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       setIsInitialized(false);
       setUndoStack([]);
       setRedoStack([]);
-      setIsViewInitialized(false); // 重置视图初始化状态
+      setIsViewInitialized(false);
 
       if (initialData && initialData.length > 0) {
         setTimeout(() => {
@@ -464,13 +468,13 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         }, 0);
       } else {
         setIsInitialized(true);
-        // 延迟调用回调，避免无限循环
         setTimeout(() => {
           onDrawingChange?.([]);
           onUserPixelCountChange?.(emptyUserPixels.size);
         }, 0);
       }
-    }, [gridSize, initialData]); // 移除importData和resetView依赖
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gridSize]);
 
     // 暴露给外部的方法
     useImperativeHandle(ref, () => ({
@@ -512,7 +516,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     }));
 
     return (
-      <div className="flex flex-col gap-4 p-4 w-full">
+      <div className="flex flex-col gap-4 p-4 w-full h-full min-h-0 overflow-hidden">
         {/* 工具栏 */}
         <Toolbar
           gridSize={gridSize}
@@ -553,18 +557,20 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         />
 
         {/* 画布容器 */}
-        <CanvasContainer
-          canvasRef={canvasRef}
-          canvasSize={canvasSize}
-          onCanvasSizeChange={setCanvasSize}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-          onWheel={handleWheelZoom}
-          drawingMode={drawingMode}
-          currentHoverPixel={currentHoverPixel}
-        />
+        <div className="flex-1 min-h-0">
+          <CanvasContainer
+            canvasRef={canvasRef}
+            canvasSize={canvasSize}
+            onCanvasSizeChange={setCanvasSize}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+            onWheel={handleWheelZoom}
+            drawingMode={drawingMode}
+            currentHoverPixel={currentHoverPixel}
+          />
+        </div>
       </div>
     );
   }

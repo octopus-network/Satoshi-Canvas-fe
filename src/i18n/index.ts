@@ -22,7 +22,7 @@ const initialLanguage = getInitialLanguage();
 i18n.use(initReactI18next).init({
   resources,
   lng: initialLanguage,
-  fallbackLng: "zh-CN",
+  fallbackLng: "en-US",
   interpolation: {
     escapeValue: false,
   },
