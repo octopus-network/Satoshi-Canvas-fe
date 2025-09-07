@@ -1,15 +1,49 @@
 import { useState } from "react";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 import { useThemeStore } from "@/store/useThemeStore";
+import { useWalletStore } from "@/store/useWalletStore";
 import PixelCanvas from "@/components/PixelCanvas";
 import ParticipantsList from "@/components/ParticipantsList";
 import ConnectWalletButton from "@/components/ui/connect-wallet-button";
+import WalletInfo from "@/components/ui/wallet-info";
 import type { Participant, CanvasInfo } from "@/types/canvas";
 import type { PixelData } from "@/components/PixelCanvas/types";
 
 function HomePage() {
   const { theme: themeConfig } = useThemeStore();
+  const { isConnected, connect } = useWalletStore();
   const [gridSize] = useState<100 | 1000>(1000);
+
+  // Mock钱包连接逻辑
+  const mockWalletAddresses = [
+    "0x1234567890abcdef1234567890abcdef12345678",
+    "0xabcdef1234567890abcdef1234567890abcdef12",
+    "0x9876543210fedcba9876543210fedcba98765432",
+    "0xfedcba0987654321fedcba0987654321fedcba09",
+    "0x1111222233334444555566667777888899990000",
+  ];
+
+  const handleConnectWallet = async () => {
+    try {
+      // Mock连接延迟
+      toast.loading("正在连接钱包...", { id: "wallet-connect" });
+
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // 随机选择一个地址进行模拟
+      const randomAddress =
+        mockWalletAddresses[
+          Math.floor(Math.random() * mockWalletAddresses.length)
+        ];
+      const randomBalance = Math.random() * 10 + 0.1; // 0.1-10.1 ETH
+
+      connect(randomAddress, randomBalance, 1); // 连接到主网
+
+      toast.success("钱包连接成功！", { id: "wallet-connect" });
+    } catch (error) {
+      toast.error("钱包连接失败，请重试", { id: "wallet-connect" });
+    }
+  };
 
   // Mock Participants leaderboard data
   const participants: Participant[] = [
@@ -306,14 +340,15 @@ function HomePage() {
     <div className="min-h-screen h-screen bg-background text-foreground flex">
       {/* Left Sidebar (Participants Leaderboard) */}
       <aside className="hidden md:flex w-64 h-full min-h-0 flex-col border-r bg-sidebar text-sidebar-foreground">
-        <div className="h-16 px-3 shrink-0 flex items-center justify-center border-b">
-          <ConnectWalletButton
-            onClick={() => {
-              console.log("Connect wallet clicked");
-              // TODO: 实现钱包连接逻辑
-            }}
-            className="text-xs w-full"
-          />
+        <div className="shrink-0 p-3 border-b">
+          {isConnected ? (
+            <WalletInfo className="w-full" />
+          ) : (
+            <ConnectWalletButton
+              onClick={handleConnectWallet}
+              className="text-xs w-full"
+            />
+          )}
         </div>
         <ParticipantsList participants={participants} />
       </aside>
