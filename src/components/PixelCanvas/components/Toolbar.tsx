@@ -12,22 +12,15 @@ import {
   ImagePlus,
   LocateFixed,
   // Grid3X3,
-  File,
   Pipette,
   Trash,
+  Undo2,
+  Redo2,
 } from "lucide-react";
-import { Download } from "lucide-react";
-import { Undo2, Redo2 } from "lucide-react";
 import type { DrawingMode } from "../types";
 import { ColorPicker } from "./ColorPicker";
 import { useTranslation } from "react-i18next";
 import { Separator } from "@/components/ui/separator";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   AlertDialog,
@@ -97,7 +90,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   canUndo,
   canRedo,
   onClearUserDrawing,
-  onExportPNG,
+  // onExportPNG, // 移除导出功能
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -268,6 +261,26 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           <Separator orientation="vertical" className="h-6" />
 
+          {/* 图片导入按钮 */}
+          <TooltipProvider>
+            <Tooltip delayDuration={350}>
+              <TooltipTrigger asChild>
+                <Button
+                  className="cursor-pointer"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <ImagePlus className="w-4 h-4 mr-1" />
+                  {t("pages.canvas.toolbar.importImage")}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t("pages.canvas.toolbar.importImage")}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           {/* 网格显示控制（外露） */}
           {/* <div className="flex gap-2 items-center">
             <span className="text-sm font-medium text-foreground">
@@ -301,7 +314,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </TooltipProvider>
           </div> */}
 
-          <Separator orientation="vertical" className="h-6" />
           <Separator orientation="vertical" className="h-6" />
 
           {/* 历史（撤销/重做） */}
@@ -383,38 +395,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </AlertDialogContent>
             </AlertDialog>
           </div>
-
-          <Separator orientation="vertical" className="h-6" />
-
-          {/* 文件操作（DropdownMenu） */}
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button className="cursor-pointer" variant="outline" size="sm">
-                <File className="w-4 h-4 mr-1" />
-                {t("pages.canvas.toolbar.fileOps")}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="p-1">
-              <DropdownMenuItem asChild>
-                <button
-                  className="flex w-full items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-accent text-sm"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <ImagePlus className="w-4 h-4" />
-                  {t("pages.canvas.toolbar.importImage")}
-                </button>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <button
-                  className="flex w-full items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-accent text-sm"
-                  onClick={onExportPNG}
-                >
-                  <Download className="w-4 h-4" />
-                  {t("pages.canvas.toolbar.saveImage")}
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
           <div className="pr-4" />
         </div>
         <ScrollBar orientation="horizontal" />

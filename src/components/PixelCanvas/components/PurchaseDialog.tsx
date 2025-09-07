@@ -72,7 +72,10 @@ export function PurchaseDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 max-h-[85vh] max-w-md flex flex-col">
+      <DialogContent
+        className="p-0 max-h-[85vh] max-w-md flex flex-col"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         {/* Fixed Header */}
         <div className="flex-shrink-0 border-b px-4 py-4">
           <DialogHeader>
@@ -96,54 +99,62 @@ export function PurchaseDialog({
                   Drawing Summary
                 </CardTitle>
               </CardHeader>
-               <CardContent className="pt-0 space-y-2">
-                 {pricing.emptyPixelCount > 0 && (
-                   <div className="flex items-center justify-between">
-                     <span className="text-sm text-muted-foreground">
-                       Empty Pixels
-                     </span>
-                     <Badge variant="outline" className="px-2 py-1">
-                       {pricing.emptyPixelCount}
-                     </Badge>
-                   </div>
-                 )}
+              <CardContent className="pt-0 space-y-2">
+                {pricing.emptyPixelCount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Empty Pixels
+                    </span>
+                    <Badge variant="outline" className="px-2 py-1">
+                      {pricing.emptyPixelCount}
+                    </Badge>
+                  </div>
+                )}
 
-                 {pricing.repaintPixelCount > 0 && (
-                   <div className="flex items-center justify-between">
-                     <span className="text-sm text-muted-foreground">
-                       Repaint Pixels
-                     </span>
-                     <Badge variant="outline" className="px-2 py-1">
-                       {pricing.repaintPixelCount}
-                     </Badge>
-                   </div>
-                 )}
+                {pricing.repaintPixelCount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Repaint Pixels
+                    </span>
+                    <Badge variant="outline" className="px-2 py-1">
+                      {pricing.repaintPixelCount}
+                    </Badge>
+                  </div>
+                )}
 
-                 {/* 分隔线和总计 */}
-                 {(pricing.emptyPixelCount > 0 || pricing.repaintPixelCount > 0) && (
-                   <div className="border-t pt-2 mt-3">
-                     <div className="flex items-center justify-between">
-                       <span className="text-sm font-medium text-foreground">
-                         Total Pixels
-                       </span>
-                       <Badge variant="secondary" className="px-3 py-1 font-medium">
-                         {userPixelData.length}
-                       </Badge>
-                     </div>
-                   </div>
-                 )}
+                {/* 分隔线和总计 */}
+                {(pricing.emptyPixelCount > 0 ||
+                  pricing.repaintPixelCount > 0) && (
+                  <div className="border-t pt-2 mt-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">
+                        Total Pixels
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="px-2 py-1 font-medium"
+                      >
+                        {userPixelData.length}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
 
-                 {/* 如果没有子项，直接显示总计 */}
-                 {pricing.emptyPixelCount === 0 && pricing.repaintPixelCount === 0 && (
-                   <div className="flex items-center justify-between">
-                     <span className="text-sm font-medium text-foreground">
-                       Total Pixels
-                     </span>
-                     <Badge variant="secondary" className="px-3 py-1 font-medium">
-                       {userPixelData.length}
-                     </Badge>
-                   </div>
-                 )}
+                {/* 如果没有子项，直接显示总计 */}
+                {pricing.emptyPixelCount === 0 &&
+                  pricing.repaintPixelCount === 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">
+                        Total Pixels
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="px-3 py-1 font-medium"
+                      >
+                        {userPixelData.length}
+                      </Badge>
+                    </div>
+                  )}
               </CardContent>
             </Card>
 
