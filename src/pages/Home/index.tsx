@@ -4,6 +4,7 @@ import { useThemeStore } from "@/store/useThemeStore";
 import PixelCanvas from "@/components/PixelCanvas";
 import ParticipantsList from "@/components/ParticipantsList";
 import type { Participant, CanvasInfo } from "@/types/canvas";
+import type { PixelData } from "@/components/PixelCanvas/types";
 
 function HomePage() {
   const { theme: themeConfig } = useThemeStore();
@@ -67,8 +68,147 @@ function HomePage() {
   const canvasInfo: CanvasInfo = {
     paintedPixelCount: 32769, // Sum of all participants
     totalValue: 0.139, // Sum of all participant values
-    paintedPixelInfoList: [], // TODO: This would be populated by actual pixel data
+    paintedPixelInfoList: [
+      // Mock已绘制的像素数据，包含价格信息
+      
+      // 彩虹色块区域 (50-60, 50-55)
+      { x: 50, y: 50, color: "#ff0000", price: 0.001 }, { x: 51, y: 50, color: "#ff4500", price: 0.0012 },
+      { x: 52, y: 50, color: "#ffa500", price: 0.0008 }, { x: 53, y: 50, color: "#ffff00", price: 0.0015 },
+      { x: 54, y: 50, color: "#9aff9a", price: 0.0011 }, { x: 55, y: 50, color: "#00ff00", price: 0.0009 },
+      { x: 56, y: 50, color: "#00ffff", price: 0.0013 }, { x: 57, y: 50, color: "#0080ff", price: 0.0007 },
+      { x: 58, y: 50, color: "#0000ff", price: 0.0014 }, { x: 59, y: 50, color: "#8000ff", price: 0.0016 },
+      { x: 50, y: 51, color: "#ff0080", price: 0.001 }, { x: 51, y: 51, color: "#ff8000", price: 0.0012 },
+      { x: 52, y: 51, color: "#ffff80", price: 0.0008 }, { x: 53, y: 51, color: "#80ff80", price: 0.0015 },
+      { x: 54, y: 51, color: "#80ffff", price: 0.0011 }, { x: 55, y: 51, color: "#8080ff", price: 0.0009 },
+      
+      // 简单笑脸图案 (150-170, 150-165)
+      // 左眼
+      { x: 155, y: 155, color: "#000000", price: 0.0013 }, { x: 156, y: 155, color: "#000000", price: 0.0007 },
+      { x: 155, y: 156, color: "#000000", price: 0.0014 }, { x: 156, y: 156, color: "#000000", price: 0.0016 },
+      // 右眼
+      { x: 165, y: 155, color: "#000000", price: 0.001 }, { x: 166, y: 155, color: "#000000", price: 0.0012 },
+      { x: 165, y: 156, color: "#000000", price: 0.0008 }, { x: 166, y: 156, color: "#000000", price: 0.0015 },
+      // 嘴巴
+      { x: 158, y: 162, color: "#ff0000", price: 0.0011 }, { x: 159, y: 162, color: "#ff0000", price: 0.0009 },
+      { x: 160, y: 162, color: "#ff0000", price: 0.0013 }, { x: 161, y: 162, color: "#ff0000", price: 0.0007 },
+      { x: 162, y: 162, color: "#ff0000", price: 0.0014 }, { x: 163, y: 162, color: "#ff0000", price: 0.0016 },
+      { x: 157, y: 163, color: "#ff0000", price: 0.001 }, { x: 164, y: 163, color: "#ff0000", price: 0.0012 },
+      
+      // "PIXEL" 文字 (300-350, 200-210)
+      // P
+      { x: 300, y: 200, color: "#0080ff", price: 0.0008 }, { x: 301, y: 200, color: "#0080ff", price: 0.0015 },
+      { x: 302, y: 200, color: "#0080ff", price: 0.0011 }, { x: 300, y: 201, color: "#0080ff", price: 0.0009 },
+      { x: 302, y: 201, color: "#0080ff", price: 0.0013 }, { x: 300, y: 202, color: "#0080ff", price: 0.0007 },
+      { x: 301, y: 202, color: "#0080ff", price: 0.0014 }, { x: 300, y: 203, color: "#0080ff", price: 0.0016 },
+      { x: 302, y: 203, color: "#0080ff", price: 0.001 }, { x: 300, y: 204, color: "#0080ff", price: 0.0012 },
+      { x: 300, y: 205, color: "#0080ff", price: 0.0008 },
+      // I
+      { x: 305, y: 200, color: "#0080ff", price: 0.0015 }, { x: 305, y: 201, color: "#0080ff", price: 0.0011 },
+      { x: 305, y: 202, color: "#0080ff", price: 0.0009 }, { x: 305, y: 203, color: "#0080ff", price: 0.0013 },
+      { x: 305, y: 204, color: "#0080ff", price: 0.0007 }, { x: 305, y: 205, color: "#0080ff", price: 0.0014 },
+      // X
+      { x: 308, y: 200, color: "#0080ff", price: 0.0016 }, { x: 310, y: 200, color: "#0080ff", price: 0.001 },
+      { x: 309, y: 201, color: "#0080ff", price: 0.0012 }, { x: 308, y: 202, color: "#0080ff", price: 0.0008 },
+      { x: 310, y: 202, color: "#0080ff", price: 0.0015 }, { x: 309, y: 203, color: "#0080ff", price: 0.0011 },
+      { x: 308, y: 204, color: "#0080ff", price: 0.0009 }, { x: 310, y: 204, color: "#0080ff", price: 0.0013 },
+      { x: 308, y: 205, color: "#0080ff", price: 0.0007 }, { x: 310, y: 205, color: "#0080ff", price: 0.0014 },
+      // E
+      { x: 313, y: 200, color: "#0080ff", price: 0.0016 }, { x: 314, y: 200, color: "#0080ff", price: 0.001 },
+      { x: 315, y: 200, color: "#0080ff", price: 0.0012 }, { x: 313, y: 201, color: "#0080ff", price: 0.0008 },
+      { x: 313, y: 202, color: "#0080ff", price: 0.0015 }, { x: 314, y: 202, color: "#0080ff", price: 0.0011 },
+      { x: 313, y: 203, color: "#0080ff", price: 0.0009 }, { x: 313, y: 204, color: "#0080ff", price: 0.0013 },
+      { x: 313, y: 205, color: "#0080ff", price: 0.0007 }, { x: 314, y: 205, color: "#0080ff", price: 0.0014 },
+      { x: 315, y: 205, color: "#0080ff", price: 0.0016 },
+      // L
+      { x: 318, y: 200, color: "#0080ff", price: 0.001 }, { x: 318, y: 201, color: "#0080ff", price: 0.0012 },
+      { x: 318, y: 202, color: "#0080ff", price: 0.0008 }, { x: 318, y: 203, color: "#0080ff", price: 0.0015 },
+      { x: 318, y: 204, color: "#0080ff", price: 0.0011 }, { x: 318, y: 205, color: "#0080ff", price: 0.0009 },
+      { x: 319, y: 205, color: "#0080ff", price: 0.0013 }, { x: 320, y: 205, color: "#0080ff", price: 0.0007 },
+      
+      // 随机分布的星星 ⭐
+      { x: 120, y: 80, color: "#ffff00", price: 0.0014 }, { x: 121, y: 79, color: "#ffff00", price: 0.0016 },
+      { x: 121, y: 81, color: "#ffff00", price: 0.001 }, { x: 119, y: 80, color: "#ffff00", price: 0.0012 },
+      { x: 122, y: 80, color: "#ffff00", price: 0.0008 },
+      
+      { x: 380, y: 120, color: "#ffff00", price: 0.0015 }, { x: 381, y: 119, color: "#ffff00", price: 0.0011 },
+      { x: 381, y: 121, color: "#ffff00", price: 0.0009 }, { x: 379, y: 120, color: "#ffff00", price: 0.0013 },
+      { x: 382, y: 120, color: "#ffff00", price: 0.0007 },
+      
+      { x: 250, y: 350, color: "#ffff00", price: 0.0014 }, { x: 251, y: 349, color: "#ffff00", price: 0.0016 },
+      { x: 251, y: 351, color: "#ffff00", price: 0.001 }, { x: 249, y: 350, color: "#ffff00", price: 0.0012 },
+      { x: 252, y: 350, color: "#ffff00", price: 0.0008 },
+      
+      // 紫色花朵图案 (450-470, 300-320)
+      { x: 460, y: 305, color: "#9932cc", price: 0.0015 }, { x: 459, y: 306, color: "#9932cc", price: 0.0011 },
+      { x: 461, y: 306, color: "#9932cc", price: 0.0009 }, { x: 458, y: 307, color: "#9932cc", price: 0.0013 },
+      { x: 462, y: 307, color: "#9932cc", price: 0.0007 }, { x: 459, y: 308, color: "#9932cc", price: 0.0014 },
+      { x: 460, y: 308, color: "#ffff00", price: 0.0016 }, { x: 461, y: 308, color: "#9932cc", price: 0.001 },
+      { x: 460, y: 309, color: "#9932cc", price: 0.0012 }, { x: 459, y: 310, color: "#9932cc", price: 0.0008 },
+      { x: 461, y: 310, color: "#9932cc", price: 0.0015 }, { x: 460, y: 311, color: "#9932cc", price: 0.0011 },
+      
+      // 红心图案 (200-210, 400-410)
+      { x: 202, y: 402, color: "#ff0000", price: 0.0009 }, { x: 203, y: 402, color: "#ff0000", price: 0.0013 },
+      { x: 206, y: 402, color: "#ff0000", price: 0.0007 }, { x: 207, y: 402, color: "#ff0000", price: 0.0014 },
+      { x: 201, y: 403, color: "#ff0000", price: 0.0016 }, { x: 202, y: 403, color: "#ff0000", price: 0.001 },
+      { x: 203, y: 403, color: "#ff0000", price: 0.0012 }, { x: 204, y: 403, color: "#ff0000", price: 0.0008 },
+      { x: 205, y: 403, color: "#ff0000", price: 0.0015 }, { x: 206, y: 403, color: "#ff0000", price: 0.0011 },
+      { x: 207, y: 403, color: "#ff0000", price: 0.0009 }, { x: 208, y: 403, color: "#ff0000", price: 0.0013 },
+      { x: 202, y: 404, color: "#ff0000", price: 0.0007 }, { x: 203, y: 404, color: "#ff0000", price: 0.0014 },
+      { x: 204, y: 404, color: "#ff0000", price: 0.0016 }, { x: 205, y: 404, color: "#ff0000", price: 0.001 },
+      { x: 206, y: 404, color: "#ff0000", price: 0.0012 }, { x: 207, y: 404, color: "#ff0000", price: 0.0008 },
+      { x: 203, y: 405, color: "#ff0000", price: 0.0015 }, { x: 204, y: 405, color: "#ff0000", price: 0.0011 },
+      { x: 205, y: 405, color: "#ff0000", price: 0.0009 }, { x: 206, y: 405, color: "#ff0000", price: 0.0013 },
+      { x: 204, y: 406, color: "#ff0000", price: 0.0007 }, { x: 205, y: 406, color: "#ff0000", price: 0.0014 },
+      
+      // 蓝色方块群 (600-620, 100-120)
+      { x: 605, y: 105, color: "#4169e1", price: 0.0016 }, { x: 606, y: 105, color: "#4169e1", price: 0.001 },
+      { x: 607, y: 105, color: "#4169e1", price: 0.0012 }, { x: 605, y: 106, color: "#4169e1", price: 0.0008 },
+      { x: 606, y: 106, color: "#87ceeb", price: 0.0015 }, { x: 607, y: 106, color: "#4169e1", price: 0.0011 },
+      { x: 605, y: 107, color: "#4169e1", price: 0.0009 }, { x: 606, y: 107, color: "#4169e1", price: 0.0013 },
+      { x: 607, y: 107, color: "#4169e1", price: 0.0007 },
+      
+      { x: 610, y: 110, color: "#4169e1", price: 0.0014 }, { x: 611, y: 110, color: "#4169e1", price: 0.0016 },
+      { x: 612, y: 110, color: "#4169e1", price: 0.001 }, { x: 610, y: 111, color: "#4169e1", price: 0.0012 },
+      { x: 611, y: 111, color: "#87ceeb", price: 0.0008 }, { x: 612, y: 111, color: "#4169e1", price: 0.0015 },
+      { x: 610, y: 112, color: "#4169e1", price: 0.0011 }, { x: 611, y: 112, color: "#4169e1", price: 0.0009 },
+      { x: 612, y: 112, color: "#4169e1", price: 0.0013 },
+      
+      // 绿色植物图案 (80-100, 450-470)
+      { x: 90, y: 455, color: "#228b22", price: 0.0007 }, { x: 90, y: 456, color: "#228b22", price: 0.0014 },
+      { x: 90, y: 457, color: "#228b22", price: 0.0016 }, { x: 90, y: 458, color: "#228b22", price: 0.001 },
+      { x: 90, y: 459, color: "#228b22", price: 0.0012 }, { x: 89, y: 460, color: "#228b22", price: 0.0008 },
+      { x: 90, y: 460, color: "#228b22", price: 0.0015 }, { x: 91, y: 460, color: "#228b22", price: 0.0011 },
+      { x: 88, y: 461, color: "#228b22", price: 0.0009 }, { x: 89, y: 461, color: "#228b22", price: 0.0013 },
+      { x: 90, y: 461, color: "#228b22", price: 0.0007 }, { x: 91, y: 461, color: "#228b22", price: 0.0014 },
+      { x: 92, y: 461, color: "#228b22", price: 0.0016 },
+      
+      // 橙色太阳图案 (700-720, 200-220)
+      { x: 710, y: 205, color: "#ffa500", price: 0.001 }, { x: 709, y: 206, color: "#ffa500", price: 0.0012 },
+      { x: 710, y: 206, color: "#ffff00", price: 0.0008 }, { x: 711, y: 206, color: "#ffa500", price: 0.0015 },
+      { x: 708, y: 207, color: "#ffa500", price: 0.0011 }, { x: 709, y: 207, color: "#ffa500", price: 0.0009 },
+      { x: 710, y: 207, color: "#ffa500", price: 0.0013 }, { x: 711, y: 207, color: "#ffa500", price: 0.0007 },
+      { x: 712, y: 207, color: "#ffa500", price: 0.0014 }, { x: 709, y: 208, color: "#ffa500", price: 0.0016 },
+      { x: 710, y: 208, color: "#ffa500", price: 0.001 }, { x: 711, y: 208, color: "#ffa500", price: 0.0012 },
+      { x: 710, y: 209, color: "#ffa500", price: 0.0008 },
+      
+      // 粉色云朵 (500-530, 50-70)
+      { x: 510, y: 58, color: "#ffb6c1", price: 0.0015 }, { x: 511, y: 58, color: "#ffb6c1", price: 0.0011 },
+      { x: 512, y: 58, color: "#ffb6c1", price: 0.0009 }, { x: 509, y: 59, color: "#ffb6c1", price: 0.0013 },
+      { x: 510, y: 59, color: "#ffb6c1", price: 0.0007 }, { x: 511, y: 59, color: "#ffb6c1", price: 0.0014 },
+      { x: 512, y: 59, color: "#ffb6c1", price: 0.0016 }, { x: 513, y: 59, color: "#ffb6c1", price: 0.001 },
+      { x: 508, y: 60, color: "#ffb6c1", price: 0.0012 }, { x: 509, y: 60, color: "#ffb6c1", price: 0.0008 },
+      { x: 510, y: 60, color: "#ffb6c1", price: 0.0015 }, { x: 511, y: 60, color: "#ffb6c1", price: 0.0011 },
+      { x: 512, y: 60, color: "#ffb6c1", price: 0.0009 }, { x: 513, y: 60, color: "#ffb6c1", price: 0.0013 },
+      { x: 514, y: 60, color: "#ffb6c1", price: 0.0007 },
+    ],
   };
+
+  // 将canvasInfo中的paintedPixelInfoList转换为PixelData格式作为初始数据
+  const initialPixelData: PixelData[] = canvasInfo.paintedPixelInfoList.map(pixel => ({
+    x: pixel.x,
+    y: pixel.y,
+    color: pixel.color
+  }));
 
   return (
     <div className="min-h-screen h-screen bg-background text-foreground flex">
@@ -86,6 +226,7 @@ function HomePage() {
           <PixelCanvas
             gridSize={gridSize}
             pixelSize={gridSize === 100 ? 6 : 2}
+            initialData={initialPixelData}
             canvasInfo={canvasInfo}
           />
         </div>

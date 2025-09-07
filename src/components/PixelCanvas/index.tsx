@@ -29,6 +29,10 @@ import { Toolbar } from "./components/Toolbar";
 import { ImageImportDialog } from "./components/ImageImportDialog";
 import { CanvasContainer } from "./components/CanvasContainer";
 import { CanvasInfo } from "./components/CanvasInfo";
+import { PurchaseDialog } from "./components/PurchaseDialog";
+
+// 导入图标
+import { ShoppingCart } from "lucide-react";
 
 // 导入自定义hooks
 import { useCanvasDrawing } from "./hooks/useCanvasDrawing";
@@ -88,6 +92,11 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     // 历史栈（仅针对用户层变更）
     const [undoStack, setUndoStack] = useState<HistoryEntry[]>([]);
     const [redoStack, setRedoStack] = useState<HistoryEntry[]>([]);
+
+    // 购买相关状态
+    const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
+    const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
+    const [emptyPixelPrice] = useState(0.0005); // mock空白像素单价
 
     // 添加颜色到最近使用列表
     const addToRecentColors = useCallback((color: string) => {
@@ -417,6 +426,34 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       });
     }, [applyHistoryEntry]);
 
+    // 购买相关处理函数
+    const handlePurchase = useCallback(() => {
+      setIsPurchaseDialogOpen(true);
+    }, []);
+
+    const handlePurchaseConfirm = useCallback(async () => {
+      setIsPurchaseLoading(true);
+
+      // Mock购买过程，模拟异步操作
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      setIsPurchaseLoading(false);
+      setIsPurchaseDialogOpen(false);
+
+      // TODO: 这里将来会调用实际的购买API
+      console.log("购买完成！");
+    }, []);
+
+    // 获取用户绘制的像素数据
+    const getUserPixelData = useCallback((): PixelData[] => {
+      const pixelData: PixelData[] = [];
+      userPixels.forEach((color, key) => {
+        const [x, y] = key.split(",").map(Number);
+        pixelData.push({ x, y, color });
+      });
+      return pixelData;
+    }, [userPixels]);
+
     // 处理初始数据导入
     useEffect(() => {
       // 仅在初次挂载或传入了非空 initialData 时初始化，避免每次渲染都重置
@@ -521,7 +558,6 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         {/* Canvas Information Bar */}
         <CanvasInfo canvasInfo={canvasInfo} />
 
-
         {/* 工具栏 */}
         <Toolbar
           gridSize={gridSize}
@@ -557,7 +593,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         />
 
         {/* 画布容器 */}
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 relative">
           <CanvasContainer
             canvasRef={canvasRef}
             canvasSize={canvasSize}
@@ -574,7 +610,31 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             drawingMode={drawingMode}
             currentHoverPixel={currentHoverPixel}
           />
+
+          {/* 悬浮的购买按钮 - 当有用户绘制数据时显示 */}
+          {userPixels.size > 0 && (
+            <div className="absolute bottom-4 right-4">
+              <button
+                onClick={handlePurchase}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center gap-2 font-medium cursor-pointer"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                Purchase ({userPixels.size})
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* 购买对话框 */}
+        <PurchaseDialog
+          isOpen={isPurchaseDialogOpen}
+          onOpenChange={setIsPurchaseDialogOpen}
+          userPixelData={getUserPixelData()}
+          paintedPixelInfoList={canvasInfo?.paintedPixelInfoList || []}
+          emptyPixelPrice={emptyPixelPrice}
+          onConfirm={handlePurchaseConfirm}
+          isLoading={isPurchaseLoading}
+        />
       </div>
     );
   }

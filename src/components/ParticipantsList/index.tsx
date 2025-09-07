@@ -26,11 +26,11 @@ export default function ParticipantsList({
     const iconProps = { size: 14 };
     switch (index) {
       case 0:
-        return <Crown {...iconProps} className="text-yellow-500" />;
+        return <Crown {...iconProps} className="text-amber-600" />;
       case 1:
-        return <Trophy {...iconProps} className="text-slate-400" />;
+        return <Trophy {...iconProps} className="text-zinc-500" />;
       case 2:
-        return <Medal {...iconProps} className="text-amber-600" />;
+        return <Medal {...iconProps} className="text-orange-700" />;
       default:
         return <Award {...iconProps} className="text-muted-foreground" />;
     }
@@ -40,11 +40,11 @@ export default function ParticipantsList({
   const getRankStyling = (index: number) => {
     switch (index) {
       case 0:
-        return "bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200 shadow-sm";
+        return "bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-300 shadow-sm";
       case 1:
-        return "bg-gradient-to-r from-slate-50 to-gray-50 border-slate-200 shadow-sm";
+        return "bg-gradient-to-r from-zinc-50 to-slate-50 border-zinc-300 shadow-sm";
       case 2:
-        return "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-sm";
+        // return "bg-gradient-to-r from-orange-50 to-amber-50 border-orange-300 shadow-sm";
       default:
         return "bg-card hover:bg-muted/50 border-border";
     }
@@ -57,7 +57,7 @@ export default function ParticipantsList({
           <Trophy size={16} className="text-amber-500" />
           Leaderboard
         </h3>
-        <p className="text-xs text-muted-foreground mt-1">Top pixel artists</p>
+        {/* <p className="text-xs text-muted-foreground mt-1">Top pixel artists</p> */}
       </div>
       <ScrollArea className="flex-1 min-h-0 overflow-hidden">
         <div className="px-3 pb-3 space-y-2">

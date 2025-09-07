@@ -32,8 +32,8 @@ export interface PixelInfo {
   y: number;
   /** Pixel color */
   color: string;
-  /** Additional properties to be completed */
-  // TODO: Add more properties as needed
+  /** Current pixel price */
+  price: number;
 }
 
 /**
