@@ -11,7 +11,7 @@ import {
   Eraser,
   ImagePlus,
   LocateFixed,
-  Grid3X3,
+  // Grid3X3,
   File,
   Pipette,
   Trash,
@@ -90,8 +90,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   drawingMode,
   onDrawingModeChange,
   onImageFileSelect,
-  showGrid,
-  onToggleGrid,
+  // showGrid,
+  // onToggleGrid,
   onUndo,
   onRedo,
   canUndo,
@@ -269,7 +269,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           <Separator orientation="vertical" className="h-6" />
 
           {/* 网格显示控制（外露） */}
-          <div className="flex gap-2 items-center">
+          {/* <div className="flex gap-2 items-center">
             <span className="text-sm font-medium text-foreground">
               {t("pages.canvas.toolbar.grid")}
             </span>
@@ -299,7 +299,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </div>
+          </div> */}
 
           <Separator orientation="vertical" className="h-6" />
           <Separator orientation="vertical" className="h-6" />

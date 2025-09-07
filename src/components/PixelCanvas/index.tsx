@@ -28,6 +28,7 @@ import { extractImagePixels } from "./utils";
 import { Toolbar } from "./components/Toolbar";
 import { ImageImportDialog } from "./components/ImageImportDialog";
 import { CanvasContainer } from "./components/CanvasContainer";
+import { CanvasInfo } from "./components/CanvasInfo";
 
 // 导入自定义hooks
 import { useCanvasDrawing } from "./hooks/useCanvasDrawing";
@@ -40,6 +41,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       initialData,
       onDrawingChange,
       onUserPixelCountChange,
+      canvasInfo,
     },
     ref
   ) => {
@@ -516,6 +518,10 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
     return (
       <div className="flex flex-col gap-4 p-4 w-full h-full min-h-0 overflow-hidden">
+        {/* Canvas Information Bar */}
+        <CanvasInfo canvasInfo={canvasInfo} />
+
+
         {/* 工具栏 */}
         <Toolbar
           gridSize={gridSize}

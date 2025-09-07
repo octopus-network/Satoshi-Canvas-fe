@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import { LoadingComponent } from "@/components/Loading";
 
 // 懒加载页面组件
+const HomePage = lazy(() => import("@/pages/Home"));
 const PixelCanvasDebugPage = lazy(() => import("@/pages/PixelCanvasDebug"));
 const NotFoundPage = lazy(() => import("@/pages/NotFound"));
 
@@ -17,7 +18,7 @@ function AppRoutes() {
     <Suspense fallback={<LoadingComponent />}>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<PixelCanvasDebugPage />} />
+          <Route index element={<HomePage />} />
           <Route path="canvas" element={<PixelCanvasDebugPage />} />
           <Route
             path="*"

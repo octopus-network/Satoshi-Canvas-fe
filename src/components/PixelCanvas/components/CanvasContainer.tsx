@@ -195,7 +195,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       {/* 画布容器 */}
       <div
         ref={containerRef}
-        className="border border-border rounded-lg overflow-hidden bg-card w-full h-full min-h-[300px] relative"
+        className="border border-border rounded-lg overflow-hidden bg-card w-full h-full relative"
       >
         <canvas
           ref={canvasRef}
@@ -270,8 +270,6 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
           </div>
         )}
       </div>
-
-      {/* 使用说明移除以便画布更大 */}
     </div>
   );
 };

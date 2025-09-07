@@ -1,3 +1,6 @@
+// Import canvas info types
+import type { CanvasInfo } from "@/types/canvas";
+
 export interface PixelCanvasProps {
   gridSize: 100 | 1000;
   pixelSize?: number;
@@ -8,6 +11,8 @@ export interface PixelCanvasProps {
   onDrawingChange?: (operations: DrawingOperation[]) => void;
   // 新增：用户绘制像素数量变更回调
   onUserPixelCountChange?: (count: number) => void;
+  // 新增：当前画板信息
+  canvasInfo?: CanvasInfo;
 }
 
 export interface PixelData {
