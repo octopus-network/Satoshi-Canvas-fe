@@ -18,14 +18,14 @@ const PixelCanvasDebug: React.FC = () => {
     DrawingOperation[]
   >([]);
   const [initialData, setInitialData] = useState<PixelData[]>([]);
-  const [userPixelCount, setUserPixelCount] = useState(0); // 用户绘制像素数量
+  const [userPixelCount, setUserPixelCount] = useState(0); // User drawn pixel count
   const canvasRef = useRef<PixelCanvasRef>(null);
   const { t } = useTranslation();
 
-  // 生成测试数据
+  // Generate test data
   const generateTestData = () => {
     const testData: PixelData[] = [
-      // 创建一个简单的笑脸图案
+      // Create a simple smiley face pattern
       { x: 30, y: 25, color: "#FFD700" },
       { x: 31, y: 25, color: "#FFD700" },
       { x: 32, y: 25, color: "#FFD700" },
@@ -36,10 +36,10 @@ const PixelCanvasDebug: React.FC = () => {
       { x: 37, y: 25, color: "#FFD700" },
       { x: 38, y: 25, color: "#FFD700" },
       { x: 39, y: 25, color: "#FFD700" },
-      // 眼睛
+      // Eyes
       { x: 33, y: 28, color: "#000000" },
       { x: 37, y: 28, color: "#000000" },
-      // 嘴巴
+      // Mouth
       { x: 32, y: 32, color: "#000000" },
       { x: 33, y: 33, color: "#000000" },
       { x: 34, y: 34, color: "#000000" },
@@ -51,13 +51,13 @@ const PixelCanvasDebug: React.FC = () => {
     return testData;
   };
 
-  // 导入测试数据
+  // Import test data
   const handleImportTestData = () => {
     const testData = generateTestData();
     setInitialData(testData);
   };
 
-  // 获取当前画布数据
+  // Get current canvas data
   const handleGetCurrentData = () => {
     if (canvasRef.current) {
       const currentData = canvasRef.current.getCurrentPixelData();
@@ -68,7 +68,7 @@ const PixelCanvasDebug: React.FC = () => {
     }
   };
 
-  // 获取用户最终绘制数据
+  // Get user final drawing data
   const handleGetUserData = () => {
     if (canvasRef.current) {
       const userData = canvasRef.current.getUserDrawingData();
@@ -77,7 +77,7 @@ const PixelCanvasDebug: React.FC = () => {
     }
   };
 
-  // 获取绘制操作记录
+  // Get drawing operation records
   const handleGetOperations = () => {
     if (canvasRef.current) {
       const operations = canvasRef.current.getDrawingOperations();
@@ -88,7 +88,7 @@ const PixelCanvasDebug: React.FC = () => {
     }
   };
 
-  // 清空画布
+  // Clear canvas
   const handleClearCanvas = () => {
     if (canvasRef.current) {
       canvasRef.current.clearCanvas();
@@ -96,17 +96,17 @@ const PixelCanvasDebug: React.FC = () => {
     }
   };
 
-  // 初始化测试颜色到最近使用列表
+  // Initialize test colors to recently used list
   const handleInitTestColors = () => {
     alert(t("pages.canvas.page.alert.initTestColors"));
   };
 
-  // 处理绘制操作变更
+  // Handle drawing operation changes
   const handleDrawingChange = (operations: DrawingOperation[]) => {
     setDrawingOperations(operations);
   };
 
-  // 处理用户像素数量变更
+  // Handle user pixel count changes
   const handleUserPixelCountChange = (count: number) => {
     setUserPixelCount(count);
   };
@@ -155,13 +155,13 @@ const PixelCanvasDebug: React.FC = () => {
           />
         </div>
 
-        {/* 功能测试面板 */}
+        {/* Feature test panel */}
         <div className="bg-card rounded-lg shadow-md border border-border p-6 mt-8">
           <h2 className="text-xl font-semibold mb-4 text-foreground">
             {t("pages.canvas.page.testPanel.title")}
           </h2>
           <div className="flex flex-wrap gap-3 items-center">
-            {/* 网格大小切换迁移到此 */}
+            {/* Grid size switching migrated here */}
             <span className="text-sm text-foreground">
               {t("pages.canvas.toolbar.gridSize")}
             </span>
@@ -180,7 +180,7 @@ const PixelCanvasDebug: React.FC = () => {
               1000×1000
             </Button>
 
-            {/* 大数据量测试迁移到此 */}
+            {/* Large data testing migrated here */}
             <span className="text-sm text-foreground">
               {t("pages.canvas.toolbar.largeDataTest")}
             </span>
@@ -271,7 +271,7 @@ const PixelCanvasDebug: React.FC = () => {
           </div>
         </div>
 
-        {/* 操作记录显示 */}
+        {/* Operation record display */}
         {drawingOperations.length > 0 && (
           <div className="mt-8 bg-card rounded-lg shadow-md border border-border p-6">
             <h2 className="text-xl font-semibold mb-4 text-foreground">

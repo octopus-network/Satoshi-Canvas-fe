@@ -7,13 +7,13 @@ import {
   LoadingWithTextProps,
 } from "./types";
 
-// 主加载组件 - 全屏遮罩式
+// Main loading component - full screen overlay
 export const LoadingComponent: React.FC<
   LoadingComponentProps & { text?: string }
 > = ({ className, text }) => {
   const { t } = useTranslation();
 
-  // 淡入动画
+  // Fade in animation
   const fadeIn = useSpring({
     from: { opacity: 0, transform: "scale(0.8)" },
     to: { opacity: 1, transform: "scale(1)" },
@@ -21,7 +21,7 @@ export const LoadingComponent: React.FC<
     delay: 150,
   });
 
-  // 脉冲动画
+  // Pulse animation
   const pulse = useSpring({
     from: { transform: "scale(1)", opacity: 0.6 },
     to: { transform: "scale(1.1)", opacity: 1 },
@@ -35,7 +35,7 @@ export const LoadingComponent: React.FC<
       className={`opacity-0 fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex justify-center items-center ${className || ""}`}
     >
       <div className="flex flex-col items-center space-y-4">
-        {/* 主加载动画 */}
+        {/* Main loading animation */}
         <animated.div style={pulse}>
           <div className="relative">
             {/* 外层旋转环 */}

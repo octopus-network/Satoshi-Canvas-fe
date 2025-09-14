@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { toast } from "sonner";
 import { useUserStore } from "@/store/useUserStore";
 
-// 创建axios实例
+// Create axios instance
 const request = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
   timeout: 10000,
@@ -11,7 +11,7 @@ const request = axios.create({
   },
 });
 
-// 请求拦截器
+// Request interceptor
 request.interceptors.request.use(
   (config) => {
     const { token } = useUserStore.getState();
@@ -25,12 +25,12 @@ request.interceptors.request.use(
   }
 );
 
-// 响应拦截器
+// Response interceptor
 request.interceptors.response.use(
   (response: AxiosResponse) => {
     const { data } = response;
 
-    // 根据后端约定处理响应
+    // Handle response according to backend agreement
     if (data.code === 200) {
       return data.data;
     } else {

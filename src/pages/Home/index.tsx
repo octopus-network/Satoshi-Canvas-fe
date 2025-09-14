@@ -14,7 +14,7 @@ function HomePage() {
   const { isConnected, connect } = useWalletStore();
   const [gridSize] = useState<100 | 1000>(1000);
 
-  // Mock钱包连接逻辑
+  // Mock wallet connection logic
   const mockWalletAddresses = [
     "0x1234567890abcdef1234567890abcdef12345678",
     "0xabcdef1234567890abcdef1234567890abcdef12",
@@ -25,23 +25,23 @@ function HomePage() {
 
   const handleConnectWallet = async () => {
     try {
-      // Mock连接延迟
-      toast.loading("正在连接钱包...", { id: "wallet-connect" });
+      // Mock connection delay
+      toast.loading("Connecting wallet...", { id: "wallet-connect" });
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // 随机选择一个地址进行模拟
+      // Randomly select an address for simulation
       const randomAddress =
         mockWalletAddresses[
           Math.floor(Math.random() * mockWalletAddresses.length)
         ];
       const randomBalance = Math.random() * 10 + 0.1; // 0.1-10.1 ETH
 
-      connect(randomAddress, randomBalance, 1); // 连接到主网
+      connect(randomAddress, randomBalance, 1); // Connect to mainnet
 
-      toast.success("钱包连接成功！", { id: "wallet-connect" });
+      toast.success("Wallet connected successfully!", { id: "wallet-connect" });
     } catch (error) {
-      toast.error("钱包连接失败，请重试", { id: "wallet-connect" });
+      toast.error("Wallet connection failed, please try again", { id: "wallet-connect" });
     }
   };
 
@@ -104,9 +104,9 @@ function HomePage() {
     paintedPixelCount: 32769, // Sum of all participants
     totalValue: 0.139, // Sum of all participant values
     paintedPixelInfoList: [
-      // Mock已绘制的像素数据，包含价格信息
+      // Mock painted pixel data with price information
 
-      // 彩虹色块区域 (50-60, 50-55)
+      // Rainbow color block area (50-60, 50-55)
       { x: 50, y: 50, color: "#ff0000", price: 0.001 },
       { x: 51, y: 50, color: "#ff4500", price: 0.0012 },
       { x: 52, y: 50, color: "#ffa500", price: 0.0008 },
@@ -124,18 +124,18 @@ function HomePage() {
       { x: 54, y: 51, color: "#80ffff", price: 0.0011 },
       { x: 55, y: 51, color: "#8080ff", price: 0.0009 },
 
-      // 简单笑脸图案 (150-170, 150-165)
-      // 左眼
+      // Simple smiley face pattern (150-170, 150-165)
+      // Left eye
       { x: 155, y: 155, color: "#000000", price: 0.0013 },
       { x: 156, y: 155, color: "#000000", price: 0.0007 },
       { x: 155, y: 156, color: "#000000", price: 0.0014 },
       { x: 156, y: 156, color: "#000000", price: 0.0016 },
-      // 右眼
+      // Right eye
       { x: 165, y: 155, color: "#000000", price: 0.001 },
       { x: 166, y: 155, color: "#000000", price: 0.0012 },
       { x: 165, y: 156, color: "#000000", price: 0.0008 },
       { x: 166, y: 156, color: "#000000", price: 0.0015 },
-      // 嘴巴
+      // Mouth
       { x: 158, y: 162, color: "#ff0000", price: 0.0011 },
       { x: 159, y: 162, color: "#ff0000", price: 0.0009 },
       { x: 160, y: 162, color: "#ff0000", price: 0.0013 },
@@ -145,7 +145,7 @@ function HomePage() {
       { x: 157, y: 163, color: "#ff0000", price: 0.001 },
       { x: 164, y: 163, color: "#ff0000", price: 0.0012 },
 
-      // "PIXEL" 文字 (300-350, 200-210)
+      // "PIXEL" text (300-350, 200-210)
       // P
       { x: 300, y: 200, color: "#0080ff", price: 0.0008 },
       { x: 301, y: 200, color: "#0080ff", price: 0.0015 },
@@ -198,7 +198,7 @@ function HomePage() {
       { x: 319, y: 205, color: "#0080ff", price: 0.0013 },
       { x: 320, y: 205, color: "#0080ff", price: 0.0007 },
 
-      // 随机分布的星星 ⭐
+      // Randomly distributed stars ⭐
       { x: 120, y: 80, color: "#ffff00", price: 0.0014 },
       { x: 121, y: 79, color: "#ffff00", price: 0.0016 },
       { x: 121, y: 81, color: "#ffff00", price: 0.001 },
@@ -217,7 +217,7 @@ function HomePage() {
       { x: 249, y: 350, color: "#ffff00", price: 0.0012 },
       { x: 252, y: 350, color: "#ffff00", price: 0.0008 },
 
-      // 紫色花朵图案 (450-470, 300-320)
+      // Purple flower pattern (450-470, 300-320)
       { x: 460, y: 305, color: "#9932cc", price: 0.0015 },
       { x: 459, y: 306, color: "#9932cc", price: 0.0011 },
       { x: 461, y: 306, color: "#9932cc", price: 0.0009 },
@@ -231,7 +231,7 @@ function HomePage() {
       { x: 461, y: 310, color: "#9932cc", price: 0.0015 },
       { x: 460, y: 311, color: "#9932cc", price: 0.0011 },
 
-      // 红心图案 (200-210, 400-410)
+      // Heart pattern (200-210, 400-410)
       { x: 202, y: 402, color: "#ff0000", price: 0.0009 },
       { x: 203, y: 402, color: "#ff0000", price: 0.0013 },
       { x: 206, y: 402, color: "#ff0000", price: 0.0007 },
@@ -257,7 +257,7 @@ function HomePage() {
       { x: 204, y: 406, color: "#ff0000", price: 0.0007 },
       { x: 205, y: 406, color: "#ff0000", price: 0.0014 },
 
-      // 蓝色方块群 (600-620, 100-120)
+      // Blue block group (600-620, 100-120)
       { x: 605, y: 105, color: "#4169e1", price: 0.0016 },
       { x: 606, y: 105, color: "#4169e1", price: 0.001 },
       { x: 607, y: 105, color: "#4169e1", price: 0.0012 },
@@ -278,7 +278,7 @@ function HomePage() {
       { x: 611, y: 112, color: "#4169e1", price: 0.0009 },
       { x: 612, y: 112, color: "#4169e1", price: 0.0013 },
 
-      // 绿色植物图案 (80-100, 450-470)
+      // Green plant pattern (80-100, 450-470)
       { x: 90, y: 455, color: "#228b22", price: 0.0007 },
       { x: 90, y: 456, color: "#228b22", price: 0.0014 },
       { x: 90, y: 457, color: "#228b22", price: 0.0016 },
@@ -293,7 +293,7 @@ function HomePage() {
       { x: 91, y: 461, color: "#228b22", price: 0.0014 },
       { x: 92, y: 461, color: "#228b22", price: 0.0016 },
 
-      // 橙色太阳图案 (700-720, 200-220)
+      // Orange sun pattern (700-720, 200-220)
       { x: 710, y: 205, color: "#ffa500", price: 0.001 },
       { x: 709, y: 206, color: "#ffa500", price: 0.0012 },
       { x: 710, y: 206, color: "#ffff00", price: 0.0008 },
@@ -308,7 +308,7 @@ function HomePage() {
       { x: 711, y: 208, color: "#ffa500", price: 0.0012 },
       { x: 710, y: 209, color: "#ffa500", price: 0.0008 },
 
-      // 粉色云朵 (500-530, 50-70)
+      // Pink cloud (500-530, 50-70)
       { x: 510, y: 58, color: "#ffb6c1", price: 0.0015 },
       { x: 511, y: 58, color: "#ffb6c1", price: 0.0011 },
       { x: 512, y: 58, color: "#ffb6c1", price: 0.0009 },
@@ -327,7 +327,7 @@ function HomePage() {
     ],
   };
 
-  // 将canvasInfo中的paintedPixelInfoList转换为PixelData格式作为初始数据
+  // Convert paintedPixelInfoList in canvasInfo to PixelData format as initial data
   const initialPixelData: PixelData[] = canvasInfo.paintedPixelInfoList.map(
     (pixel) => ({
       x: pixel.x,

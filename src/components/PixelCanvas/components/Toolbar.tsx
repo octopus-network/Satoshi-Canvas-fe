@@ -35,41 +35,41 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface ToolbarProps {
-  // 网格相关
+  // Grid related
   gridSize: 100 | 1000;
   onGridSizeChange?: (size: 100 | 1000) => void;
 
-  // 颜色相关
+  // Color related
   currentColor: string;
   onColorChange: (color: string) => void;
   recentColors: string[];
   onAddToRecentColors: (color: string) => void;
 
-  // 绘制模式
+  // Drawing mode
   drawingMode: DrawingMode;
   onDrawingModeChange: (mode: DrawingMode) => void;
 
-  // 图片导入
+  // Image import
   onImageFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
 
-  // 网格显示
+  // Grid display
   showGrid: boolean;
   onToggleGrid: () => void;
 
-  // 历史操作
+  // History operations
   onUndo: () => void;
   onRedo: () => void;
   canUndo: boolean;
   canRedo: boolean;
 
-  // 操作按钮
+  // Action buttons
   onClearCanvas: () => void;
   onClearUserDrawing: () => void;
 
-  // 导出
+  // Export
   onExportPNG?: () => void;
 
-  // 大数据量测试（已迁移到功能测试面板，保留类型兼容不使用）
+  // Large data testing (migrated to feature test panel, kept for type compatibility)
   onImportLargeTest?: (size: number) => void;
 }
 
@@ -90,7 +90,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   canUndo,
   canRedo,
   onClearUserDrawing,
-  // onExportPNG, // 移除导出功能
+  // onExportPNG, // Export function removed
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -107,7 +107,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     if (!viewport) return;
 
     const handleWheel = (e: WheelEvent) => {
-      // 将纵向滚动映射为横向滚动，并阻止默认的弹性滚动
+      // Map vertical scroll to horizontal scroll and prevent default elastic scroll
       const delta = (e.deltaY || 0) + (e.deltaX || 0);
       if (delta !== 0) {
         e.preventDefault();
@@ -131,7 +131,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     if (viewport.firstElementChild) {
       resizeObserver.observe(viewport.firstElementChild as Element);
     }
-    // 初始化一次
+    // Initialize once
     updateFades();
 
     return () => {
@@ -148,7 +148,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         viewportClassName="overscroll-none"
       >
         <div className="w-full flex flex-nowrap gap-4 items-center bg-muted/50 p-4 rounded-lg border border-border">
-          {/* 全局隐藏文件输入，保证 Dropdown 关闭后仍可触发 change */}
+          {/* Global hidden file input, ensure change can still be triggered after Dropdown closes */}
           <input
             ref={fileInputRef}
             type="file"
@@ -157,7 +157,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             className="hidden"
           />
 
-          {/* 绘制模式选择 */}
+          {/* Drawing mode selection */}
           <div className="flex gap-2 items-center">
             <span className="text-sm font-medium text-foreground">
               {t("pages.canvas.toolbar.mode")}
@@ -251,7 +251,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           <Separator orientation="vertical" className="h-6" />
 
-          {/* 颜色选择 */}
+          {/* Color selection */}
           <ColorPicker
             currentColor={currentColor}
             onColorChange={onColorChange}
@@ -261,7 +261,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           <Separator orientation="vertical" className="h-6" />
 
-          {/* 图片导入按钮 */}
+          {/* Image import button */}
           <TooltipProvider>
             <Tooltip delayDuration={350}>
               <TooltipTrigger asChild>
@@ -281,7 +281,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </Tooltip>
           </TooltipProvider>
 
-          {/* 网格显示控制（外露） */}
+          {/* Grid display control (exposed) */}
           {/* <div className="flex gap-2 items-center">
             <span className="text-sm font-medium text-foreground">
               {t("pages.canvas.toolbar.grid")}
@@ -316,7 +316,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           <Separator orientation="vertical" className="h-6" />
 
-          {/* 历史（撤销/重做） */}
+          {/* History (undo/redo) */}
           <div className="flex gap-2 items-center">
             <span className="text-sm font-medium text-foreground">
               {t("pages.canvas.toolbar.history")}
@@ -364,7 +364,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           <Separator orientation="vertical" className="h-6" />
 
-          {/* 操作按钮（清理） */}
+          {/* Action buttons (cleanup) */}
           <div className="flex gap-2">
             <AlertDialog>
               <AlertDialogTrigger asChild>

@@ -5,7 +5,7 @@ export interface LoadingConfig {
   text?: string;
   className?: string;
   delay?: number;
-  duration?: number; // 自动隐藏的持续时间，0表示不自动隐藏
+  duration?: number; // Auto-hide duration, 0 means no auto-hide
 }
 
 interface LoadingState {
@@ -25,21 +25,21 @@ export type LoadingStore = LoadingState & LoadingActions;
 export const useLoadingStore = create<LoadingStore>()(
   persist(
     (set, get) => ({
-      // 状态
+      // State
       isLoading: false,
       config: {},
       timeoutId: null,
 
-      // 显示Loading
+      // Show Loading
       showLoading: (config: LoadingConfig = {}) => {
         const { timeoutId } = get();
 
-        // 清除之前的定时器
+        // Clear previous timer
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
 
-        // 应用延迟显示
+        // Apply delayed display
         const delay = config.delay || 0;
 
         const showHandler = () => {
@@ -49,7 +49,7 @@ export const useLoadingStore = create<LoadingStore>()(
             timeoutId: null,
           });
 
-          // 如果设置了持续时间，自动隐藏
+          // If duration is set, auto-hide
           if (config.duration && config.duration > 0) {
             const hideTimeoutId = setTimeout(() => {
               set({ isLoading: false, timeoutId: null });
@@ -67,11 +67,11 @@ export const useLoadingStore = create<LoadingStore>()(
         }
       },
 
-      // 隐藏Loading
+      // Hide Loading
       hideLoading: () => {
         const { timeoutId } = get();
 
-        // 清除定时器
+        // Clear timer
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
@@ -82,14 +82,14 @@ export const useLoadingStore = create<LoadingStore>()(
         });
       },
 
-      // 设置配置
+      // Set configuration
       setConfig: (config: LoadingConfig) => {
         set({ config });
       },
     }),
     {
       name: "loading-store",
-      // 只持久化配置，不持久化加载状态
+      // Only persist configuration, not loading state
       partialize: (state) => ({
         config: state.config,
       }),
@@ -97,45 +97,45 @@ export const useLoadingStore = create<LoadingStore>()(
   )
 );
 
-// 便捷的Loading控制器
+// Convenient Loading controller
 export class LoadingController {
   /**
-   * 显示全局Loading
-   * @param config Loading配置
+   * Show global Loading
+   * @param config Loading configuration
    */
   static show(config?: LoadingConfig) {
     useLoadingStore.getState().showLoading(config);
   }
 
   /**
-   * 隐藏全局Loading
+   * Hide global Loading
    */
   static hide() {
     useLoadingStore.getState().hideLoading();
   }
 
   /**
-   * 显示Loading指定时间后自动隐藏
-   * @param duration 持续时间（毫秒）
-   * @param config 其他配置
+   * Show Loading for specified time then auto-hide
+   * @param duration Duration (milliseconds)
+   * @param config Other configuration
    */
   static showFor(duration: number, config?: Omit<LoadingConfig, "duration">) {
     LoadingController.show({ ...config, duration });
   }
 
   /**
-   * 延迟显示Loading
-   * @param delay 延迟时间（毫秒）
-   * @param config 其他配置
+   * Delayed show Loading
+   * @param delay Delay time (milliseconds)
+   * @param config Other configuration
    */
   static showWithDelay(delay: number, config?: Omit<LoadingConfig, "delay">) {
     LoadingController.show({ ...config, delay });
   }
 
   /**
-   * 异步操作包装器
-   * @param asyncFn 异步函数
-   * @param config Loading配置
+   * Async operation wrapper
+   * @param asyncFn Async function
+   * @param config Loading configuration
    */
   static async withLoading<T>(
     asyncFn: () => Promise<T>,
@@ -151,14 +151,14 @@ export class LoadingController {
   }
 
   /**
-   * 获取当前Loading状态
+   * Get current Loading state
    */
   static get isLoading() {
     return useLoadingStore.getState().isLoading;
   }
 }
 
-// 导出便捷函数
+// Export convenience functions
 export const showGlobalLoading = LoadingController.show;
 export const hideGlobalLoading = LoadingController.hide;
 export const withGlobalLoading = LoadingController.withLoading;

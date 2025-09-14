@@ -7,7 +7,7 @@ import {
   GlobeAltIcon,
   Bars3Icon,
 } from "@heroicons/react/24/outline";
-// Logo资源引入
+// Logo resource imports
 import QiuyeLeafIcon from "@/assets/images/logos/qiuye-leaf-icon.svg";
 import { useThemeStore } from "@/store/useThemeStore";
 import { useLoadingStore } from "@/store/useLoadingStore";
@@ -47,7 +47,7 @@ const Layout: React.FC = () => {
   const { isLoading, config } = useLoadingStore();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  // 路由切换时滚动到页面顶部
+  // Scroll to page top when route changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
@@ -67,7 +67,7 @@ const Layout: React.FC = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 h-16 flex items-center justify-between px-4 md:px-6 border-b border-border/50 bg-background">
         <div className="flex items-center basis-1/4">
-          {/* 移动端汉堡菜单按钮 */}
+          {/* Mobile hamburger menu button */}
           <div className="md:hidden mr-2">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
@@ -86,7 +86,7 @@ const Layout: React.FC = () => {
                 </SheetHeader>
 
                 <div className="px-6 space-y-4">
-                  {/* 导航菜单 */}
+                  {/* Navigation menu */}
                   <div className="space-y-2">
                     <h3 className="text-sm font-medium text-muted-foreground mb-3">
                       {t("nav.navigation")}
@@ -109,7 +109,7 @@ const Layout: React.FC = () => {
 
                   <Separator />
 
-                  {/* 主题切换 */}
+                  {/* Theme toggle */}
                   <div className="space-y-3">
                     <h3 className="text-sm font-medium text-muted-foreground">
                       {t("theme.appearance")}
@@ -132,7 +132,7 @@ const Layout: React.FC = () => {
 
                   <Separator />
 
-                  {/* 语言切换 */}
+                  {/* Language toggle */}
                   <div className="space-y-3">
                     <h3 className="text-sm font-medium text-muted-foreground">
                       {t("theme.language")}
@@ -165,7 +165,7 @@ const Layout: React.FC = () => {
             </Sheet>
           </div>
 
-          {/* 宽屏显示图标+文字组合 */}
+          {/* Wide screen display icon + text combination */}
           <div className="hidden md:flex items-center space-x-1">
             <img
               src={QiuyeLeafIcon}
@@ -178,14 +178,14 @@ const Layout: React.FC = () => {
           </div>
         </div>
 
-        {/* 窄屏居中显示文字 */}
+        {/* Narrow screen centered text display */}
         <div className="md:hidden absolute left-1/2 -translate-x-1/2">
           <div className="text-xl font-bold text-foreground whitespace-nowrap">
             {t("app.title")}
           </div>
         </div>
 
-        {/* 桌面端导航菜单 */}
+        {/* Desktop navigation menu */}
         <div className="max-w-md basis-1/2 justify-center mx-1 hidden md:flex">
           <NavigationMenu>
             <NavigationMenuList>
@@ -212,7 +212,7 @@ const Layout: React.FC = () => {
           </NavigationMenu>
         </div>
 
-        {/* 桌面端右侧按钮 */}
+        {/* Desktop right side buttons */}
         <div className="justify-end items-center space-x-2 basis-1/4 hidden md:flex">
           <Tooltip delayDuration={300}>
             <TooltipTrigger>
@@ -284,7 +284,7 @@ const Layout: React.FC = () => {
         </div>
       </footer>
 
-      {/* 全局Loading组件 */}
+      {/* Global Loading component */}
       {isLoading && (
         <LoadingComponent className={config.className} text={config.text} />
       )}

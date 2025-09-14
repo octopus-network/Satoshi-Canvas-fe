@@ -28,7 +28,7 @@ i18n.use(initReactI18next).init({
   },
 });
 
-// 监听语言变化并保存到localStorage
+// Listen for language changes and save to localStorage
 i18n.on("languageChanged", (language: string) => {
   if (isSupportedLanguage(language)) {
     saveLanguage(language);

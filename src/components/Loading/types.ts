@@ -15,7 +15,7 @@ export interface LoadingWithTextProps {
   className?: string;
 }
 
-// 加载状态枚举
+// Loading state enum
 export enum LoadingState {
   IDLE = "idle",
   LOADING = "loading",
@@ -23,7 +23,7 @@ export enum LoadingState {
   ERROR = "error",
 }
 
-// 加载配置类型
+// Loading configuration type
 export interface LoadingConfig {
   showText?: boolean;
   text?: string;

@@ -5,13 +5,13 @@ export interface PixelCanvasProps {
   gridSize: 100 | 1000;
   pixelSize?: number;
   onGridSizeChange?: (size: 100 | 1000) => void;
-  // 新增：初始数据导入
+  // New: initial data import
   initialData?: PixelData[];
-  // 新增：绘制操作变更回调
+  // New: drawing operation change callback
   onDrawingChange?: (operations: DrawingOperation[]) => void;
-  // 新增：用户绘制像素数量变更回调
+  // New: user drawn pixel count change callback
   onUserPixelCountChange?: (count: number) => void;
-  // 新增：当前画板信息
+  // New: current canvas info
   canvasInfo?: CanvasInfo;
 }
 
@@ -21,45 +21,45 @@ export interface PixelData {
   color: string;
 }
 
-// 新增：绘制操作接口
+// New: drawing operation interface
 export interface DrawingOperation {
   x: number;
   y: number;
   color: string;
   timestamp: number;
-  type: "draw" | "erase"; // 新增：操作类型
+  type: "draw" | "erase"; // New: operation type
 }
 
-// 新增：绘制模式类型
+// New: drawing mode type
 export type DrawingMode = "draw" | "erase" | "locate" | "picker";
 
-// 新增：撤销/重做所需的像素变更记录（仅针对用户图层 userPixels）
+// New: pixel change records needed for undo/redo (only for user layer userPixels)
 export interface PixelChange {
   key: string; // "x,y"
-  before?: string; // 撤销时恢复到 before
-  after?: string; // 重做时恢复到 after
+  before?: string; // Restore to before when undoing
+  after?: string; // Restore to after when redoing
 }
 
-// 新增：历史分组（按笔触或图片导入为粒度）
+// New: history grouping (by stroke or image import granularity)
 export interface HistoryEntry {
   kind: "stroke" | "import";
   changes: PixelChange[];
   operations: DrawingOperation[];
 }
 
-// 新增：组件引用接口
+// New: component reference interface
 export interface PixelCanvasRef {
   getCurrentPixelData: () => PixelData[];
   getDrawingOperations: () => DrawingOperation[];
-  getUserDrawingData: () => PixelData[]; // 新增：获取用户最终实际绘制的数据
+  getUserDrawingData: () => PixelData[]; // New: get user final actual drawing data
   importData: (data: PixelData[]) => void;
   clearCanvas: () => void;
-  clearUserDrawing: () => void; // 新增：只清除用户绘制
-  undo: () => void; // 新增：撤销最近一次笔触或图片导入
-  redo: () => void; // 新增：重做最近一次被撤销的操作
+  clearUserDrawing: () => void; // New: only clear user drawing
+  undo: () => void; // New: undo the most recent stroke or image import
+  redo: () => void; // New: redo the most recent undone operation
 }
 
-// 新增：图片导入相关接口
+// New: image import related interface
 export interface ImageImportConfig {
   scale: number;
   offsetX: number;

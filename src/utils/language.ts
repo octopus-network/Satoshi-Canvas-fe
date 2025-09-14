@@ -1,17 +1,17 @@
-// 支持的语言类型
+// Supported language types
 export type SupportedLanguage = "zh-CN" | "en-US";
 
-// 语言设置的localStorage键名
+// LocalStorage key name for language settings
 const LANGUAGE_KEY = "pixel-lab-language";
 
-// 支持的语言列表
+// List of supported languages
 const SUPPORTED_LANGUAGES: SupportedLanguage[] = ["zh-CN", "en-US"];
 
-// 默认语言
+// Default language
 const DEFAULT_LANGUAGE: SupportedLanguage = "en-US";
 
 /**
- * 检查是否为支持的语言
+ * Check if it's a supported language
  */
 export const isSupportedLanguage = (
   language: string
@@ -20,13 +20,13 @@ export const isSupportedLanguage = (
 };
 
 /**
- * 获取浏览器语言偏好
+ * Get browser language preference
  */
 export const getBrowserLanguage = (): SupportedLanguage => {
   try {
     const browserLanguage = navigator.language || navigator.languages?.[0];
     if (browserLanguage) {
-      // 匹配支持的语言
+      // Match supported languages
       if (browserLanguage.startsWith("zh")) {
         return "zh-CN";
       }
@@ -35,14 +35,14 @@ export const getBrowserLanguage = (): SupportedLanguage => {
       }
     }
   } catch (error) {
-    console.warn("无法获取浏览器语言设置:", error);
+    console.warn("Unable to get browser language settings:", error);
   }
 
   return DEFAULT_LANGUAGE;
 };
 
 /**
- * 从localStorage获取保存的语言设置
+ * Get saved language settings from localStorage
  */
 export const getSavedLanguage = (): SupportedLanguage | null => {
   try {
@@ -51,52 +51,52 @@ export const getSavedLanguage = (): SupportedLanguage | null => {
       return savedLanguage;
     }
   } catch (error) {
-    console.warn("无法读取localStorage中的语言设置:", error);
+    console.warn("Unable to read language settings from localStorage:", error);
   }
 
   return null;
 };
 
 /**
- * 保存语言设置到localStorage
+ * Save language settings to localStorage
  */
 export const saveLanguage = (language: SupportedLanguage): boolean => {
   try {
     localStorage.setItem(LANGUAGE_KEY, language);
     return true;
   } catch (error) {
-    console.warn("无法保存语言设置到localStorage:", error);
+    console.warn("Unable to save language settings to localStorage:", error);
     return false;
   }
 };
 
 /**
- * 获取初始语言设置
- * 优先级：localStorage > 浏览器语言 > 默认语言
+ * Get initial language settings
+ * Priority: localStorage > browser language > default language
  */
 export const getInitialLanguage = (): SupportedLanguage => {
-  // 1. 优先使用保存的语言设置
+  // 1. Prioritize saved language settings
   const savedLanguage = getSavedLanguage();
   if (savedLanguage) {
     return savedLanguage;
   }
 
-  // 2. 使用浏览器语言
+  // 2. Use browser language
   // return getBrowserLanguage();
 
-  // 3. 默认语言
+  // 3. Default language
   return DEFAULT_LANGUAGE;
 };
 
 /**
- * 移除保存的语言设置
+ * Remove saved language settings
  */
 export const clearSavedLanguage = (): boolean => {
   try {
     localStorage.removeItem(LANGUAGE_KEY);
     return true;
   } catch (error) {
-    console.warn("无法清除localStorage中的语言设置:", error);
+    console.warn("Unable to clear language settings from localStorage:", error);
     return false;
   }
 };

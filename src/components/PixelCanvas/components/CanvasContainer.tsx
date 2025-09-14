@@ -4,32 +4,32 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 interface CanvasContainerProps {
-  // Canvas引用
+  // Canvas reference
   canvasRef: React.RefObject<HTMLCanvasElement>;
 
-  // 画布状态
+  // Canvas state
   canvasSize: CanvasSize;
   onCanvasSizeChange: (size: CanvasSize) => void;
 
-  // 鼠标事件
+  // Mouse events
   onMouseDown: (e: React.MouseEvent) => void;
   onMouseMove: (e: React.MouseEvent) => void;
   onMouseUp: () => void;
   onMouseLeave: () => void;
 
-  // 滚轮缩放
+  // Wheel zoom
   onWheel: (e: WheelEvent) => void;
 
-  // 缩放控制（悬浮面板）
+  // Zoom control (floating panel)
   scale: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onResetView: () => void;
 
-  // 绘制模式
+  // Drawing mode
   drawingMode: DrawingMode;
 
-  // 当前悬停像素坐标
+  // Current hover pixel coordinates
   currentHoverPixel: { x: number; y: number } | null;
 }
 
@@ -58,13 +58,13 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   const [isHoveringCanvas, setIsHoveringCanvas] = useState(false);
   const [isHoveringZoomPanel, setIsHoveringZoomPanel] = useState(false);
 
-  // 监听容器尺寸变化，自适应画布大小
+  // Listen for container size changes, adaptive canvas size
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    // 初始化画布尺寸
+    // Initialize canvas size
     const initSize = () => {
       const rect = container.getBoundingClientRect();
       const { width, height } = rect;
@@ -75,7 +75,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       }
     };
 
-    // 立即执行一次初始化
+    // Execute initialization immediately once
     initSize();
 
     const resizeObserver = new ResizeObserver((entries) => {
@@ -96,13 +96,13 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     };
   }, [canvasRef, onCanvasSizeChange]);
 
-  // 设置原生滚轮事件监听器 (passive: false)
+  // Set native wheel event listener (passive: false)
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
 
     if (canvas && container) {
-      // 为画布和容器添加原生滚轮事件监听器，设置 passive: false
+      // Add native wheel event listeners for canvas and container, set passive: false
       const options = { passive: false } as AddEventListenerOptions;
 
       canvas.addEventListener("wheel", onWheel, options);
@@ -115,7 +115,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     }
   }, [onWheel, canvasRef]);
 
-  // 获取鼠标光标样式
+  // Get mouse cursor style
   const getCursorStyle = () => {
     if (drawingMode === "erase") {
       return {
@@ -141,15 +141,15 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       case "locate":
         return "cursor-crosshair";
       case "picker":
-        return ""; // 由内联样式覆盖
+        return ""; // Overridden by inline style
       case "erase":
-        return ""; // 由内联样式覆盖
+        return ""; // Overridden by inline style
       default:
         return "cursor-pointer";
     }
   };
 
-  // 封装鼠标移动，检测是否进入面板区域，进入则切换到另一侧
+  // Wrap mouse movement, detect if entering panel area, switch to other side if entered
   const handleMouseMove = (e: React.MouseEvent) => {
     onMouseMove(e);
 
@@ -159,7 +159,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 
     const rect = panelEl.getBoundingClientRect();
     const { clientX, clientY } = e;
-    const margin = 2; // 容错边距，减少边缘抖动
+    const margin = 2; // Error tolerance margin, reduce edge jitter
     const inside =
       clientX >= rect.left - margin &&
       clientX <= rect.right + margin &&
@@ -192,7 +192,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 
   return (
     <div className="flex flex-col gap-3 w-full h-full min-h-0">
-      {/* 画布容器 */}
+      {/* Canvas container */}
       <div
         ref={containerRef}
         className="border border-border rounded-lg overflow-hidden bg-card w-full h-full relative"
@@ -211,7 +211,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
           onContextMenu={(e) => e.preventDefault()}
         />
 
-        {/* 缩放控制浮窗：仅在画布悬停或面板自身悬停时显示 */}
+        {/* Zoom control floating window: only shown when canvas is hovered or panel itself is hovered */}
         <div
           className={`absolute bottom-2 left-2 z-10 transition-opacity duration-150 ${
             isHoveringCanvas || isHoveringZoomPanel
@@ -252,7 +252,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
           </div>
         </div>
 
-        {/* 坐标显示 */}
+        {/* Coordinate display */}
         {drawingMode === "locate" && currentHoverPixel && (
           <div
             ref={coordPanelRef}

@@ -17,7 +17,7 @@ interface PurchaseDialogProps {
   onOpenChange: (open: boolean) => void;
   userPixelData: PixelData[];
   paintedPixelInfoList: PixelInfo[];
-  emptyPixelPrice: number; // 空白像素的固定单价
+  emptyPixelPrice: number; // Fixed price per empty pixel
   onConfirm: () => void;
   isLoading?: boolean;
 }
@@ -31,7 +31,7 @@ export function PurchaseDialog({
   onConfirm,
   isLoading = false,
 }: PurchaseDialogProps) {
-  // 计算价格信息
+  // Calculate pricing information
   const calculatePricing = () => {
     const paintedPixelMap = new Map<string, number>();
     paintedPixelInfoList.forEach((pixel) => {
@@ -46,11 +46,11 @@ export function PurchaseDialog({
     userPixelData.forEach((pixel) => {
       const key = `${pixel.x},${pixel.y}`;
       if (paintedPixelMap.has(key)) {
-        // 已绘制过的像素
+        // Previously painted pixels
         repaintPixelCount++;
         repaintTotalPrice += paintedPixelMap.get(key)!;
       } else {
-        // 空白像素
+        // Empty pixels
         emptyPixelCount++;
       }
     });
@@ -92,7 +92,7 @@ export function PurchaseDialog({
         {/* Scrollable Content */}
         <div className="px-4 py-4 max-h-[440px] overflow-y-auto">
           <div className="space-y-4">
-            {/* 绘制统计 */}
+            {/* Drawing statistics */}
             <Card className="border-0 bg-muted/30 gap-0">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base font-medium">
@@ -122,7 +122,7 @@ export function PurchaseDialog({
                   </div>
                 )}
 
-                {/* 分隔线和总计 */}
+                {/* Separator and total */}
                 {(pricing.emptyPixelCount > 0 ||
                   pricing.repaintPixelCount > 0) && (
                   <div className="border-t pt-2 mt-3">
@@ -140,7 +140,7 @@ export function PurchaseDialog({
                   </div>
                 )}
 
-                {/* 如果没有子项，直接显示总计 */}
+                {/* If no subitems, show total directly */}
                 {pricing.emptyPixelCount === 0 &&
                   pricing.repaintPixelCount === 0 && (
                     <div className="flex items-center justify-between">
@@ -158,7 +158,7 @@ export function PurchaseDialog({
               </CardContent>
             </Card>
 
-            {/* 价格详情 */}
+            {/* Pricing details */}
             <Card className="border-0 bg-muted/30 gap-0">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base font-medium">

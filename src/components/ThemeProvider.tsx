@@ -11,16 +11,16 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   useEffect(() => {
     const root = window.document.documentElement;
 
-    // 初始化时，检查系统偏好设置
+    // On initialization, check system preference settings
     const initializeTheme = () => {
-      // 如果当前主题是从 localStorage 恢复的，直接应用
+      // If current theme is restored from localStorage, apply directly
       if (theme.mode) {
         root.classList.remove("light", "dark");
         root.classList.add(theme.mode);
         return;
       }
 
-      // 如果没有保存的主题，检查系统偏好
+      // If no saved theme, check system preference
       const systemPrefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)"
       ).matches;
@@ -33,11 +33,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
     initializeTheme();
 
-    // 监听系统主题变化（可选）
+    // Listen for system theme changes (optional)
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleSystemThemeChange = (_e: MediaQueryListEvent) => {
-      // 只有在用户没有手动设置主题时才跟随系统
-      // 这里我们总是保持用户的选择，不自动跟随系统变化
+      // Only follow system when user hasn't manually set theme
+      // Here we always keep user's choice, don't automatically follow system changes
     };
 
     mediaQuery.addEventListener("change", handleSystemThemeChange);
@@ -50,11 +50,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   useEffect(() => {
     const root = window.document.documentElement;
 
-    // 当主题变化时，更新HTML类名
+    // When theme changes, update HTML class name
     root.classList.remove("light", "dark");
     root.classList.add(theme.mode);
 
-    // 可选：给body添加一个过渡效果
+    // Optional: add a transition effect to body
     document.body.style.transition =
       "background-color 0.3s ease, color 0.3s ease";
 

@@ -6,7 +6,7 @@ import React, {
   forwardRef,
 } from "react";
 
-// 导入类型定义
+// Import type definitions
 import type {
   PixelCanvasProps,
   PixelCanvasRef,
@@ -18,23 +18,23 @@ import type {
   HistoryEntry,
 } from "./types";
 
-// 导入常量
+// Import constants
 import { DEFAULT_PIXEL_SIZE, IMAGE_IMPORT } from "./constants";
 
-// 导入工具函数
+// Import utility functions
 import { extractImagePixels } from "./utils";
 
-// 导入子组件
+// Import child components
 import { Toolbar } from "./components/Toolbar";
 import { ImageImportDialog } from "./components/ImageImportDialog";
 import { CanvasContainer } from "./components/CanvasContainer";
 import { CanvasInfo } from "./components/CanvasInfo";
 import { PurchaseDialog } from "./components/PurchaseDialog";
 
-// 导入图标
+// Import icons
 import { ShoppingCart } from "lucide-react";
 
-// 导入自定义hooks
+// Import custom hooks
 import { useCanvasDrawing } from "./hooks/useCanvasDrawing";
 
 const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
@@ -49,7 +49,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     },
     ref
   ) => {
-    // 画板状态 - 分离初始数据和用户数据
+    // Canvas state - separate initial data and user data
     const [initialPixels, setInitialPixels] = useState<Map<string, string>>(
       new Map()
     );
@@ -64,16 +64,16 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     } | null>(null);
     const [showGrid, setShowGrid] = useState(true);
 
-    // 绘制操作记录
+    // Drawing operation records
     const [drawingOperations, setDrawingOperations] = useState<
       DrawingOperation[]
     >([]);
     const [isInitialized, setIsInitialized] = useState(false);
 
-    // 最近使用的颜色
+    // Recently used colors
     const [recentColors, setRecentColors] = useState<string[]>([]);
 
-    // 图片导入相关状态
+    // Image import related state
     const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(
       null
@@ -83,22 +83,22 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     const [processedImageData, setProcessedImageData] =
       useState<ProcessedImageData | null>(null);
 
-    // 视图状态
+    // View state
     const [scale, setScale] = useState(1);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
     const [isViewInitialized, setIsViewInitialized] = useState(false);
 
-    // 历史栈（仅针对用户层变更）
+    // History stack (only for user layer changes)
     const [undoStack, setUndoStack] = useState<HistoryEntry[]>([]);
     const [redoStack, setRedoStack] = useState<HistoryEntry[]>([]);
 
-    // 购买相关状态
+    // Purchase related state
     const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
     const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
-    const [emptyPixelPrice] = useState(0.0005); // mock空白像素单价
+    const [emptyPixelPrice] = useState(0.0005); // mock empty pixel price
 
-    // 添加颜色到最近使用列表
+    // Add color to recently used list
     const addToRecentColors = useCallback((color: string) => {
       setRecentColors((prev) => {
         const filtered = prev.filter((c) => c !== color);
@@ -106,7 +106,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       });
     }, []);
 
-    // 取色器颜色选择处理
+    // Color picker color selection handling
     const handleColorPicked = useCallback(
       (color: string) => {
         setCurrentColor(color);
@@ -115,7 +115,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       [addToRecentColors]
     );
 
-    // 使用画布绘制hook
+    // Use canvas drawing hook
     const {
       canvasRef,
       draw,
@@ -148,14 +148,14 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       onDrawingChange,
       onUserPixelCountChange,
       onHistoryEntry: (entry) => {
-        // 新的笔触加入撤销栈并清空重做栈
+        // New stroke added to undo stack and clear redo stack
         setUndoStack((prev) => [...prev, entry]);
         setRedoStack([]);
       },
       onColorPicked: handleColorPicked,
     });
 
-    // 导出 PNG 按钮回调
+    // Export PNG button callback
     const handleExportPNG = useCallback(async () => {
       const blob = await exportPNG({ scale: 1, backgroundColor: null });
       if (!blob) return;
@@ -171,12 +171,12 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       URL.revokeObjectURL(url);
     }, [exportPNG, gridSize]);
 
-    // 颜色变更处理
+    // Color change handling
     const handleColorChange = useCallback((color: string) => {
       setCurrentColor(color);
     }, []);
 
-    // 数据导入方法
+    // Data import method
     const importData = useCallback(
       (data: PixelData[]) => {
         const newInitialPixels = new Map<string, string>();
@@ -194,16 +194,16 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         setUndoStack([]);
         setRedoStack([]);
 
-        // 延迟调用回调，避免在状态更新过程中调用
+        // Delay callback invocation to avoid calling during state update process
         setTimeout(() => {
           onDrawingChange?.([]);
           onUserPixelCountChange?.(newUserPixels.size);
         }, 0);
       },
-      [gridSize] // 只依赖gridSize
+      [gridSize] // Only depend on gridSize
     );
 
-    // 处理图片文件选择
+    // Handle image file selection
     const handleImageFileSelect = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -226,7 +226,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             };
             setImageImportConfig(newConfig);
 
-            // 立即处理预览数据，避免初始空白
+            // Process preview data immediately to avoid initial blank
             const processed = extractImagePixels(img, newConfig, gridSize);
             setProcessedImageData(processed);
 
@@ -240,7 +240,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       [gridSize]
     );
 
-    // 处理图片预览更新（用户调整配置时）
+    // Handle image preview update (when user adjusts configuration)
     useEffect(() => {
       if (selectedImage && isImportDialogOpen) {
         const processed = extractImagePixels(
@@ -250,23 +250,23 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         );
         setProcessedImageData(processed);
       }
-    }, [imageImportConfig]); // 只在配置变化时更新
+    }, [imageImportConfig]); // Only update when configuration changes
 
-    // 确认图片导入
+    // Confirm image import
     const confirmImageImport = useCallback(() => {
       if (!processedImageData) return;
 
-      // 计算新的用户像素数据
+      // Calculate new user pixel data
       const newUserPixels = new Map(userPixels);
       processedImageData.pixels.forEach(({ x, y, color }) => {
         const key = `${x},${y}`;
         newUserPixels.set(key, color);
       });
 
-      // 更新用户像素数据
+      // Update user pixel data
       setUserPixels(() => newUserPixels);
 
-      // 延迟通知像素数量变化
+      // Delay notification of pixel count change
       setTimeout(() => {
         onUserPixelCountChange?.(newUserPixels.size);
       }, 0);
@@ -281,13 +281,13 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             type: "draw" as const,
           }));
 
-        // 更新绘制操作
+        // Update drawing operations
         setDrawingOperations((prev) => {
           const updated = [...prev, ...importOperations];
           return updated;
         });
 
-        // 延迟通知操作变化
+        // Delay notification of operation change
         setTimeout(() => {
           setDrawingOperations((current) => {
             onDrawingChange?.(current);
@@ -295,7 +295,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           });
         }, 0);
 
-        // 写入历史栈：导入图片作为一个历史分组
+        // Write to history stack: import image as a history group
         const changes: HistoryEntry["changes"] = processedImageData.pixels.map(
           ({ x, y, color }) => {
             const key = `${x},${y}`;
@@ -318,34 +318,34 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       setIsImportDialogOpen(false);
       setSelectedImage(null);
       setProcessedImageData(null);
-    }, [processedImageData, isInitialized, userPixels]); // 移除回调函数依赖
+    }, [processedImageData, isInitialized, userPixels]); // Remove callback function dependency
 
-    // 取消图片导入
+    // Cancel image import
     const cancelImageImport = useCallback(() => {
       setIsImportDialogOpen(false);
       setSelectedImage(null);
       setProcessedImageData(null);
     }, []);
 
-    // 清空画布
+    // Clear canvas
     const clearCanvas = useCallback(() => {
       setInitialPixels(new Map());
       const emptyUserPixels = new Map<string, string>();
       setUserPixels(() => emptyUserPixels);
       setDrawingOperations([]);
-      // 清空后重新初始化，确保后续绘制操作能正常工作
+      // Reinitialize after clearing to ensure subsequent drawing operations work normally
       setIsInitialized(true);
       setUndoStack([]);
       setRedoStack([]);
 
-      // 延迟调用回调，避免无限循环
+      // Delay callback invocation to avoid infinite loop
       setTimeout(() => {
         onDrawingChange?.([]);
         onUserPixelCountChange?.(emptyUserPixels.size);
       }, 0);
-    }, []); // 移除回调函数依赖
+    }, []); // Remove callback function dependency
 
-    // 清空用户绘制
+    // Clear user drawing
     const clearUserDrawing = useCallback(() => {
       const emptyUserPixels = new Map<string, string>();
       setUserPixels(() => emptyUserPixels);
@@ -353,17 +353,17 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       setUndoStack([]);
       setRedoStack([]);
 
-      // 延迟调用回调，避免无限循环
+      // Delay callback invocation to avoid infinite loop
       setTimeout(() => {
         onDrawingChange?.([]);
         onUserPixelCountChange?.(emptyUserPixels.size);
       }, 0);
-    }, []); // 移除回调函数依赖
+    }, []); // Remove callback function dependency
 
-    // 撤销/重做实现（仅作用于用户层）
+    // Undo/redo implementation (only for user layer)
     const applyHistoryEntry = useCallback(
       (entry: HistoryEntry, direction: "undo" | "redo") => {
-        // 应用变化到 userPixels
+        // Apply changes to userPixels
         const next = new Map(userPixels);
         entry.changes.forEach(({ key, before, after }) => {
           const value = direction === "undo" ? before : after;
@@ -372,11 +372,11 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         });
         setUserPixels(next);
 
-        // 更新操作记录（仅更新展示用途，不做严格逆操作运算）
+        // Update operation records (only for display purposes, no strict reverse operation calculation)
         setDrawingOperations((prev) => {
           const ops = entry.operations;
           if (direction === "undo") {
-            // 撤销：附加一个反向的操作快照以供面板展示
+            // Undo: append a reverse operation snapshot for panel display
             const reversed: DrawingOperation[] = ops.map((op) => ({
               x: op.x,
               y: op.y,
@@ -388,7 +388,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             setTimeout(() => onDrawingChange?.(updated), 0);
             return updated;
           }
-          // 重做：再附加原操作
+          // Redo: append original operation again
           const redoOps: DrawingOperation[] = ops.map((op) => ({
             ...op,
             timestamp: Date.now(),
@@ -398,7 +398,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           return updated;
         });
 
-        // 回调数量变化
+        // Callback count change
         setTimeout(() => {
           onUserPixelCountChange?.(next.size);
         }, 0);
@@ -426,7 +426,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       });
     }, [applyHistoryEntry]);
 
-    // 购买相关处理函数
+    // Purchase related handling functions
     const handlePurchase = useCallback(() => {
       setIsPurchaseDialogOpen(true);
     }, []);
@@ -434,17 +434,17 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     const handlePurchaseConfirm = useCallback(async () => {
       setIsPurchaseLoading(true);
 
-      // Mock购买过程，模拟异步操作
+      // Mock purchase process, simulate async operation
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       setIsPurchaseLoading(false);
       setIsPurchaseDialogOpen(false);
 
-      // TODO: 这里将来会调用实际的购买API
-      console.log("购买完成！");
+      // TODO: This will call the actual purchase API in the future
+      console.log("Purchase completed!");
     }, []);
 
-    // 获取用户绘制的像素数据
+    // Get user drawn pixel data
     const getUserPixelData = useCallback((): PixelData[] => {
       const pixelData: PixelData[] = [];
       userPixels.forEach((color, key) => {
@@ -454,9 +454,9 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       return pixelData;
     }, [userPixels]);
 
-    // 处理初始数据导入
+    // Handle initial data import
     useEffect(() => {
-      // 仅在初次挂载或传入了非空 initialData 时初始化，避免每次渲染都重置
+      // Only initialize on first mount or when non-empty initialData is passed, avoid resetting on every render
       if (isInitialized) return;
       if (initialData && initialData.length > 0) {
         importData(initialData);
@@ -469,12 +469,12 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isInitialized, initialData]);
 
-    // 初始化和重绘
+    // Initialization and redraw
     useEffect(() => {
       draw();
     }, [draw]);
 
-    // 初始化视图位置（只执行一次）
+    // Initialize view position (execute only once)
     useEffect(() => {
       if (!isViewInitialized && canvasSize.width > 0 && canvasSize.height > 0) {
         resetView();
@@ -482,14 +482,14 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       }
     }, [canvasSize, isViewInitialized, resetView]);
 
-    // 当画布容器尺寸改变时重新绘制（不重置视图）
+    // Redraw when canvas container size changes (don't reset view)
     useEffect(() => {
       draw();
     }, [canvasSize, draw]);
 
-    // 重置画布当网格大小改变时
+    // Reset canvas when grid size changes
     useEffect(() => {
-      // 仅在 gridSize 变化时重置；initialData 不参与依赖，避免父组件传入 [] 导致反复重置
+      // Only reset when gridSize changes; initialData doesn't participate in dependency to avoid repeated resets when parent component passes []
       setInitialPixels(new Map());
       const emptyUserPixels = new Map<string, string>();
       setUserPixels(() => emptyUserPixels);
@@ -514,7 +514,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gridSize]);
 
-    // 暴露给外部的方法
+    // Methods exposed to external components
     useImperativeHandle(ref, () => ({
       getCurrentPixelData: () => {
         const pixelData: PixelData[] = [];
@@ -558,7 +558,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         {/* Canvas Information Bar */}
         <CanvasInfo canvasInfo={canvasInfo} />
 
-        {/* 工具栏 */}
+        {/* Toolbar */}
         <Toolbar
           gridSize={gridSize}
           currentColor={currentColor}
@@ -579,7 +579,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           onExportPNG={handleExportPNG}
         />
 
-        {/* 图片导入对话框 */}
+        {/* Image import dialog */}
         <ImageImportDialog
           isOpen={isImportDialogOpen}
           onOpenChange={setIsImportDialogOpen}
@@ -592,7 +592,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           onCancel={cancelImageImport}
         />
 
-        {/* 画布容器 */}
+        {/* Canvas container */}
         <div className="flex-1 min-h-0 relative">
           <CanvasContainer
             canvasRef={canvasRef}
@@ -611,7 +611,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             currentHoverPixel={currentHoverPixel}
           />
 
-          {/* 悬浮的购买按钮 - 当有用户绘制数据时显示 */}
+          {/* Floating purchase button - shown when there is user drawing data */}
           {userPixels.size > 0 && (
             <div className="absolute bottom-4 right-4">
               <button
@@ -625,7 +625,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           )}
         </div>
 
-        {/* 购买对话框 */}
+        {/* Purchase dialog */}
         <PurchaseDialog
           isOpen={isPurchaseDialogOpen}
           onOpenChange={setIsPurchaseDialogOpen}

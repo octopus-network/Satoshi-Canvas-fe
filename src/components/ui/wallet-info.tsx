@@ -18,13 +18,13 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
   const copyAddress = () => {
     if (address) {
       navigator.clipboard.writeText(address);
-      toast.success("地址已复制到剪贴板");
+      toast.success("Address copied to clipboard");
     }
   };
 
   const handleDisconnect = () => {
     disconnect();
-    toast.success("钱包已断开连接");
+    toast.success("Wallet disconnected");
   };
 
   if (!address) return null;
@@ -33,7 +33,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
     <div
       className={`bg-background border rounded-lg p-4 space-y-3 ${className}`}
     >
-      {/* 项目标题 */}
+      {/* Project title */}
       <div className="flex items-center gap-2 pb-2 border-b">
         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
           <span className="text-white font-bold text-sm">P</span>
@@ -41,11 +41,11 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
         <h2 className="font-bold text-lg text-foreground">Pixel Land</h2>
       </div>
 
-      {/* 钱包信息 */}
+      {/* Wallet info */}
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Wallet className="w-4 h-4" />
-          <span>已连接钱包</span>
+          <span>Wallet Connected</span>
         </div>
 
         <div className="flex items-center justify-between bg-muted/50 rounded-md p-2">
@@ -67,13 +67,13 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
 
         {balance !== null && (
           <div className="flex justify-between items-center text-sm">
-            <span className="text-muted-foreground">余额:</span>
+            <span className="text-muted-foreground">Balance:</span>
             <span className="font-medium">{balance.toFixed(4)} BTC</span>
           </div>
         )}
       </div>
 
-      {/* 断开连接按钮 */}
+      {/* Disconnect button */}
       <Button
         variant="outline"
         size="sm"
@@ -81,7 +81,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
         className="w-full text-xs gap-1 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
       >
         <LogOut className="w-3 h-3" />
-        断开连接
+        Disconnect
       </Button>
     </div>
   );

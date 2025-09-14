@@ -1,20 +1,20 @@
 /**
- * 本地存储工具类
+ * Local storage utility class
  */
 class Storage {
   /**
-   * 设置localStorage
+   * Set localStorage
    */
   static setLocal(key: string, value: any): void {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-      console.error("localStorage设置失败:", error);
+      console.error("localStorage set failed:", error);
     }
   }
 
   /**
-   * 获取localStorage
+   * Get localStorage
    */
   static getLocal<T>(key: string): T | null {
     try {
