@@ -20,6 +20,7 @@ import type {
 
 // Import constants
 import { DEFAULT_PIXEL_SIZE, IMAGE_IMPORT } from "./constants";
+import { PIXEL_CONSTANTS } from "@/constants/pixel";
 
 // Import utility functions
 import { extractImagePixels } from "./utils";
@@ -36,6 +37,9 @@ import { ShoppingCart } from "lucide-react";
 
 // Import custom hooks
 import { useCanvasDrawing } from "./hooks/useCanvasDrawing";
+
+// Import purchase hook
+import { usePixelPurchase } from "@/hooks/usePixelPurchase";
 
 const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
   (
@@ -95,8 +99,23 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
     // Purchase related state
     const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
-    const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
-    const [emptyPixelPrice] = useState(0.0005); // mock empty pixel price
+    const [emptyPixelPrice] = useState(PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE / 100000000); // Convert satoshis to BTC
+
+    // Purchase hook
+    const { 
+      isPurchaseLoading, 
+      executePurchase, 
+      canPurchase,
+      isPoolsReady 
+    } = usePixelPurchase({
+      userPixels,
+      onSuccess: (txid) => {
+        console.log("购买成功，交易ID:", txid);
+        setIsPurchaseDialogOpen(false);
+        // 可选：清除用户绘制的像素或将其转移到初始层
+        // 这里我们保持原样，让用户看到他们购买的像素
+      }
+    });
 
     // Add color to recently used list
     const addToRecentColors = useCallback((color: string) => {
@@ -432,17 +451,8 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     }, []);
 
     const handlePurchaseConfirm = useCallback(async () => {
-      setIsPurchaseLoading(true);
-
-      // Mock purchase process, simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      setIsPurchaseLoading(false);
-      setIsPurchaseDialogOpen(false);
-
-      // TODO: This will call the actual purchase API in the future
-      console.log("Purchase completed!");
-    }, []);
+      await executePurchase();
+    }, [executePurchase]);
 
     // Get user drawn pixel data
     const getUserPixelData = useCallback((): PixelData[] => {
@@ -616,10 +626,17 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             <div className="absolute bottom-4 right-4">
               <button
                 onClick={handlePurchase}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center gap-2 font-medium cursor-pointer"
+                // disabled={!canPurchase || isPurchaseLoading}
+                className={`
+                  px-6 py-3 rounded-full shadow-lg transition-all duration-200 flex items-center gap-2 font-medium cursor-pointer
+                  ${canPurchase && !isPurchaseLoading
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105'
+                    : 'bg-gray-400 text-gray-200 cursor-not-allowed opacity-70'
+                  }
+                `}
               >
                 <ShoppingCart className="w-5 h-5" />
-                Purchase ({userPixels.size})
+                {isPurchaseLoading ? "处理中..." : `Purchase (${userPixels.size})`}
               </button>
             </div>
           )}
@@ -635,6 +652,15 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           onConfirm={handlePurchaseConfirm}
           isLoading={isPurchaseLoading}
         />
+        
+        {/* Debug info for development */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="fixed top-4 left-4 bg-black/80 text-white p-2 rounded text-xs z-50">
+            <div>Pools Ready: {isPoolsReady ? '✅' : '❌'}</div>
+            <div>Can Purchase: {canPurchase ? '✅' : '❌'}</div>
+            <div>Pixels: {userPixels.size}</div>
+          </div>
+        )}
       </div>
     );
   }

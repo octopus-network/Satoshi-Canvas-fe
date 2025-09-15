@@ -38,7 +38,7 @@ export default function WalletDebugger({
 
   return (
     <div 
-      className={`fixed z-50 ${positionClasses[position]} max-w-sm`}
+      className={`fixed z-50 ${positionClasses[position]} max-w-sm pointer-events-none`}
       style={{ zIndex: 9999 }}
     >
       <Card className="bg-black/90 text-green-400 font-mono text-xs border-green-500/50 shadow-lg">

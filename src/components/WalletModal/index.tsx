@@ -93,7 +93,10 @@ export function ConnectWalletModal({ open, setOpen }: ConnectWalletModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md p-4">
+      <DialogContent
+        className="sm:max-w-md p-4"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>连接钱包</DialogTitle>
         </DialogHeader>
