@@ -7,6 +7,7 @@ import {
 import { useRee } from "@omnity/ree-client-ts-sdk";
 import { useWalletStore } from "@/store/useWalletStore";
 import { WALLETS } from "@/constants/wallets";
+import { toast } from "sonner";
 
 export const useWalletConnection = () => {
   const {
@@ -50,6 +51,12 @@ export const useWalletConnection = () => {
       return { success: false, error: "不支持的钱包类型" };
     } catch (error) {
       console.error("连接钱包失败:", error);
+      // toast.error("连接失败", {
+      //   description: "请先在 Xverse 中解锁并选择 Bitcoin 账户。",
+      // });
+      toast.error("Connection failed", {
+        description: "Please unlock Xverse and select a Bitcoin account.",
+      });
       return { 
         success: false, 
         error: error instanceof Error ? error.message : "连接失败" 
@@ -65,6 +72,7 @@ export const useWalletConnection = () => {
       return { success: true };
     } catch (error) {
       console.error("断开钱包连接失败:", error);
+      toast.error("断开钱包连接失败，请稍后重试");
       return { 
         success: false, 
         error: error instanceof Error ? error.message : "断开连接失败" 
