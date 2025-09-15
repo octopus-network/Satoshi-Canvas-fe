@@ -1,6 +1,7 @@
 import React from "react";
 import { Copy, LogOut, Wallet } from "lucide-react";
 import { useWalletStore } from "@/store/useWalletStore";
+import { useWalletConnection } from "@/hooks/useWalletConnection";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -9,22 +10,25 @@ interface WalletInfoProps {
 }
 
 const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
-  const { address, balance, disconnect } = useWalletStore();
+  const { address, paymentAddress, balance, provider } = useWalletStore();
+  const { disconnectWallet } = useWalletConnection();
 
   const shortenAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  const copyAddress = () => {
-    if (address) {
-      navigator.clipboard.writeText(address);
-      toast.success("Address copied to clipboard");
-    }
+  const copyAddress = (addr: string, type: string) => {
+    navigator.clipboard.writeText(addr);
+    toast.success(`${type}地址已复制到剪贴板`);
   };
 
-  const handleDisconnect = () => {
-    disconnect();
-    toast.success("Wallet disconnected");
+  const handleDisconnect = async () => {
+    const result = await disconnectWallet();
+    if (result.success) {
+      toast.success("钱包已断开连接");
+    } else {
+      toast.error(result.error || "断开连接失败");
+    }
   };
 
   if (!address) return null;
@@ -42,33 +46,69 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
       </div>
 
       {/* Wallet info */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Wallet className="w-4 h-4" />
-          <span>Wallet Connected</span>
+          <span>钱包已连接</span>
+          {provider && (
+            <span className="text-xs bg-muted px-2 py-0.5 rounded capitalize">
+              {provider}
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center justify-between bg-muted/50 rounded-md p-2">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="font-mono text-sm font-medium">
-              {shortenAddress(address)}
-            </span>
+        {/* Bitcoin Address (for runes) */}
+        <div className="space-y-1">
+          <span className="text-xs text-muted-foreground">
+            Bitcoin 地址 (符文)
+          </span>
+          <div className="flex items-center justify-between bg-muted/50 rounded-md p-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="font-mono text-sm font-medium">
+                {shortenAddress(address)}
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => copyAddress(address, "Bitcoin")}
+              className="h-6 w-6 p-0 hover:bg-background cursor-pointer"
+            >
+              <Copy className="w-3 h-3" />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={copyAddress}
-            className="h-6 w-6 p-0 hover:bg-background cursor-pointer"
-          >
-            <Copy className="w-3 h-3" />
-          </Button>
         </div>
+
+        {/* Payment Address (for BTC) */}
+        {paymentAddress && (
+          <div className="space-y-1">
+            <span className="text-xs text-muted-foreground">
+              支付地址 (BTC)
+            </span>
+            <div className="flex items-center justify-between bg-muted/50 rounded-md p-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                <span className="font-mono text-sm font-medium">
+                  {shortenAddress(paymentAddress)}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyAddress(paymentAddress, "支付")}
+                className="h-6 w-6 p-0 hover:bg-background cursor-pointer"
+              >
+                <Copy className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+        )}
 
         {balance !== null && (
           <div className="flex justify-between items-center text-sm">
-            <span className="text-muted-foreground">Balance:</span>
-            <span className="font-medium">{balance.toFixed(4)} BTC</span>
+            <span className="text-muted-foreground">余额:</span>
+            <span className="font-medium">{balance.toFixed(8)} BTC</span>
           </div>
         )}
       </div>
@@ -81,7 +121,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
         className="w-full text-xs gap-1 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
       >
         <LogOut className="w-3 h-3" />
-        Disconnect
+        断开连接
       </Button>
     </div>
   );

@@ -1,49 +1,19 @@
 import { useState } from "react";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 import { useThemeStore } from "@/store/useThemeStore";
 import { useWalletStore } from "@/store/useWalletStore";
 import PixelCanvas from "@/components/PixelCanvas";
 import ParticipantsList from "@/components/ParticipantsList";
 import ConnectWalletButton from "@/components/ui/connect-wallet-button";
 import WalletInfo from "@/components/ui/wallet-info";
+import WalletDebugger from "@/components/WalletDebugger";
 import type { Participant, CanvasInfo } from "@/types/canvas";
 import type { PixelData } from "@/components/PixelCanvas/types";
 
 function HomePage() {
   const { theme: themeConfig } = useThemeStore();
-  const { isConnected, connect } = useWalletStore();
+  const { isConnected } = useWalletStore();
   const [gridSize] = useState<100 | 1000>(1000);
-
-  // Mock wallet connection logic
-  const mockWalletAddresses = [
-    "0x1234567890abcdef1234567890abcdef12345678",
-    "0xabcdef1234567890abcdef1234567890abcdef12",
-    "0x9876543210fedcba9876543210fedcba98765432",
-    "0xfedcba0987654321fedcba0987654321fedcba09",
-    "0x1111222233334444555566667777888899990000",
-  ];
-
-  const handleConnectWallet = async () => {
-    try {
-      // Mock connection delay
-      toast.loading("Connecting wallet...", { id: "wallet-connect" });
-
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Randomly select an address for simulation
-      const randomAddress =
-        mockWalletAddresses[
-          Math.floor(Math.random() * mockWalletAddresses.length)
-        ];
-      const randomBalance = Math.random() * 10 + 0.1; // 0.1-10.1 ETH
-
-      connect(randomAddress, randomBalance, 1); // Connect to mainnet
-
-      toast.success("Wallet connected successfully!", { id: "wallet-connect" });
-    } catch (error) {
-      toast.error("Wallet connection failed, please try again", { id: "wallet-connect" });
-    }
-  };
 
   // Mock Participants leaderboard data
   const participants: Participant[] = [
@@ -344,10 +314,7 @@ function HomePage() {
           {isConnected ? (
             <WalletInfo className="w-full" />
           ) : (
-            <ConnectWalletButton
-              onClick={handleConnectWallet}
-              className="text-xs w-full"
-            />
+            <ConnectWalletButton className="text-xs w-full" />
           )}
         </div>
         <ParticipantsList participants={participants} />
@@ -372,6 +339,9 @@ function HomePage() {
           className: "custom-toast",
         }}
       />
+      
+      {/* 钱包状态调试器 - 只在开发环境显示 */}
+      <WalletDebugger position="bottom-right" minimizable={true} />
     </div>
   );
 }
