@@ -4,6 +4,7 @@ import { useRee, usePoolList, utils as reeUtils, Network } from "@omnity/ree-cli
 import { toast } from "sonner";
 import { PIXEL_CONSTANTS, createMockPurchaseOffer } from "@/constants/pixel";
 import type { PixelData } from "@/components/PixelCanvas/types";
+import { shortenErrorMessage } from "@/utils/string";
 
 export interface UsePixelPurchaseProps {
   userPixels: Map<string, string>;
@@ -53,9 +54,9 @@ export const usePixelPurchase = ({
     });
     
     if (poolsError) {
-      console.log("🏊 池子列表加载失败:", poolsError);
+      console.log("🏊 池子列表加载失败:", { errorInfo: poolsError });
       toast.error("池子信息加载失败", {
-        description: poolsError || "请检查网络连接或稍后重试",
+        description: shortenErrorMessage(poolsError, 120) || "请检查网络连接或稍后重试",
         duration: 5000,
       });
     } else if (!poolsLoading && availablePools && availablePools.length > 0) {
@@ -161,10 +162,11 @@ export const usePixelPurchase = ({
           },
         ],
         outputCoins: [
-          {
-            coin: purchaseOffer.output_pixels,
-            to: address,
-          },
+          // 不需要
+          // {
+          //   coin: purchaseOffer.output_pixels,
+          //   to: address,
+          // },
         ],
         nonce: purchaseOffer.nonce,
       });

@@ -41,6 +41,9 @@ import { useCanvasDrawing } from "./hooks/useCanvasDrawing";
 // Import purchase hook
 import { usePixelPurchase } from "@/hooks/usePixelPurchase";
 
+// Import debug store
+import { useDebugStore } from "@/store/useDebugStore";
+
 const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
   (
     {
@@ -116,6 +119,9 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         // 这里我们保持原样，让用户看到他们购买的像素
       }
     });
+
+    // Debug store
+    const { isDebugMode } = useDebugStore();
 
     // Add color to recently used list
     const addToRecentColors = useCallback((color: string) => {
@@ -654,7 +660,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         />
         
         {/* Debug info for development */}
-        {process.env.NODE_ENV === 'development' && (
+        {process.env.NODE_ENV === 'development' && isDebugMode && (
           <div className="fixed top-4 left-4 bg-black/80 text-white p-2 rounded text-xs z-50">
             <div>Pools Ready: {isPoolsReady ? '✅' : '❌'}</div>
             <div>Can Purchase: {canPurchase ? '✅' : '❌'}</div>

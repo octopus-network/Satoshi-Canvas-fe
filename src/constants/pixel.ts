@@ -12,7 +12,7 @@ export const PIXEL_CONSTANTS = {
   
   // Mock BTC 配置
   BTC: {
-    id: "BTC",
+    id: "0:0",
     symbol: "BTC", 
     decimals: 8,
   },

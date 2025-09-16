@@ -13,7 +13,7 @@ import type { PixelData } from "@/components/PixelCanvas/types";
 function HomePage() {
   const { theme: themeConfig } = useThemeStore();
   const { isConnected } = useWalletStore();
-  const [gridSize] = useState<100 | 1000>(1000);
+  const [gridSize] = useState<100 | 1000>(100); // 约定暂时只支持 100*100 大小的画布
 
   // Mock Participants leaderboard data
   const participants: Participant[] = [

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useWalletStore } from "@/store/useWalletStore";
+import { useDebugStore } from "@/store/useDebugStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface WalletDebuggerProps {
@@ -17,6 +18,8 @@ export default function WalletDebugger({
   
   // 订阅整个钱包状态
   const walletState = useWalletStore();
+  // 使用全局调试状态
+  const { isDebugMode } = useDebugStore();
 
   // 监听状态变化
   useEffect(() => {
@@ -24,8 +27,8 @@ export default function WalletDebugger({
     setLastUpdate(new Date());
   }, [walletState]);
 
-  // 只在开发环境显示
-  if (process.env.NODE_ENV !== 'development') {
+  // 只在开发环境且启用debug模式时显示
+  if (process.env.NODE_ENV !== 'development' || !isDebugMode) {
     return null;
   }
 
