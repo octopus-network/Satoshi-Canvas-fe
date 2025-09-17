@@ -6,7 +6,7 @@ export interface Participant {
   address: string;
   /** Number of pixels painted by this participant */
   paintedPixelCount: number;
-  /** Total value of pixels painted by this participant */
+  /** Total value of pixels painted by this participant (in BTC) */
   paintedPrice: number;
 }
 
@@ -44,4 +44,18 @@ export interface CanvasDataResponse {
   canvasInfo: CanvasInfo;
   /** Participants leaderboard */
   participants: Participant[];
+}
+
+// Canvas 数据加载状态
+export interface CanvasDataState {
+  isLoading: boolean;
+  error: string | null;
+  lastUpdated: Date | null;
+}
+
+// Canvas 数据和状态的组合
+export interface CanvasState {
+  canvasInfo: CanvasInfo;
+  initialPixelData: import("@/components/PixelCanvas/types").PixelData[];
+  dataState: CanvasDataState;
 }
