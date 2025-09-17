@@ -17,7 +17,7 @@ interface PurchaseDialogProps {
   onOpenChange: (open: boolean) => void;
   userPixelData: PixelData[];
   paintedPixelInfoList: PixelInfo[];
-  emptyPixelPrice: number; // Fixed price per empty pixel
+  emptyPixelPrice?: number; // Deprecated - price is now hardcoded as 100 satoshis
   onConfirm: () => void;
   isLoading?: boolean;
 }
@@ -27,7 +27,7 @@ export function PurchaseDialog({
   onOpenChange,
   userPixelData,
   paintedPixelInfoList,
-  emptyPixelPrice,
+  emptyPixelPrice: _emptyPixelPrice, // Deprecated parameter
   onConfirm,
   isLoading = false,
 }: PurchaseDialogProps) {
@@ -36,35 +36,38 @@ export function PurchaseDialog({
     const paintedPixelMap = new Map<string, number>();
     paintedPixelInfoList.forEach((pixel) => {
       const key = `${pixel.x},${pixel.y}`;
-      paintedPixelMap.set(key, pixel.price);
+      // Convert pixel.price from BTC to satoshis for calculation
+      paintedPixelMap.set(key, pixel.price * 100000000);
     });
 
     let emptyPixelCount = 0;
     let repaintPixelCount = 0;
-    let repaintTotalPrice = 0;
+    let repaintTotalPriceSatoshis = 0;
 
     userPixelData.forEach((pixel) => {
       const key = `${pixel.x},${pixel.y}`;
       if (paintedPixelMap.has(key)) {
-        // Previously painted pixels
+        // Previously painted pixels - use price from backend (in satoshis)
         repaintPixelCount++;
-        repaintTotalPrice += paintedPixelMap.get(key)!;
+        repaintTotalPriceSatoshis += paintedPixelMap.get(key)!;
       } else {
         // Empty pixels
         emptyPixelCount++;
       }
     });
 
-    const emptyPixelTotalPrice = emptyPixelCount * emptyPixelPrice;
-    const totalPrice = emptyPixelTotalPrice + repaintTotalPrice;
+    // Empty pixel price is in satoshis, so calculate directly
+    const emptyPixelPriceSatoshis = 100; // 100 satoshis per empty pixel
+    const emptyPixelTotalPriceSatoshis = emptyPixelCount * emptyPixelPriceSatoshis;
+    const totalPriceSatoshis = emptyPixelTotalPriceSatoshis + repaintTotalPriceSatoshis;
 
     return {
       emptyPixelCount,
-      emptyPixelPrice,
-      emptyPixelTotalPrice,
+      emptyPixelPrice: emptyPixelPriceSatoshis / 100000000, // Convert to BTC for display
+      emptyPixelTotalPrice: emptyPixelTotalPriceSatoshis / 100000000, // Convert to BTC for display
       repaintPixelCount,
-      repaintTotalPrice,
-      totalPrice,
+      repaintTotalPrice: repaintTotalPriceSatoshis / 100000000, // Convert to BTC for display
+      totalPrice: totalPriceSatoshis / 100000000, // Convert to BTC for display
     };
   };
 

@@ -112,6 +112,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       isPoolsReady 
     } = usePixelPurchase({
       userPixels,
+      paintedPixelInfoList: canvasInfo?.paintedPixelInfoList || [],
       onSuccess: (txid) => {
         console.log("购买成功，交易ID:", txid);
         setIsPurchaseDialogOpen(false);
@@ -632,6 +633,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             <div className="absolute bottom-4 right-4">
               <button
                 onClick={handlePurchase}
+                // TODO: 后续放开注释
                 // disabled={!canPurchase || isPurchaseLoading}
                 className={`
                   px-6 py-3 rounded-full shadow-lg transition-all duration-200 flex items-center gap-2 font-medium cursor-pointer

@@ -3,11 +3,11 @@ import { useLaserEyes } from "@omnisat/lasereyes";
 import { useRee, usePoolList, utils as reeUtils, Network } from "@omnity/ree-client-ts-sdk";
 import { toast } from "sonner";
 import { PIXEL_CONSTANTS, createMockPurchaseOffer } from "@/constants/pixel";
-import type { PixelData } from "@/components/PixelCanvas/types";
 import { shortenErrorMessage } from "@/utils/string";
 
 export interface UsePixelPurchaseProps {
   userPixels: Map<string, string>;
+  paintedPixelInfoList: Array<{ x: number; y: number; price: number }>; // Price in BTC
   onSuccess?: (txid: string) => void;
 }
 
@@ -31,6 +31,7 @@ export interface UsePixelPurchaseReturn {
 
 export const usePixelPurchase = ({ 
   userPixels, 
+  paintedPixelInfoList,
   onSuccess 
 }: UsePixelPurchaseProps): UsePixelPurchaseReturn => {
   const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
@@ -125,11 +126,35 @@ export const usePixelPurchase = ({
       const targetPool = availablePools[0];
       console.log("🎯 使用的池子:", targetPool);
       
-      // 创建模拟购买报价（使用真实池子地址）
-      const purchaseOffer = createMockPurchaseOffer(pixelCount);
+      // 计算空白像素和非空白像素的价格
+      const paintedPixelMap = new Map<string, number>();
+      paintedPixelInfoList.forEach((pixel) => {
+        const key = `${pixel.x},${pixel.y}`;
+        // Convert pixel.price from BTC to satoshis
+        paintedPixelMap.set(key, pixel.price * 100000000);
+      });
+
+      let emptyPixelCount = 0;
+      let repaintTotalPriceSatoshis = 0;
+
+      userPixels.forEach((_color, key) => {
+        if (paintedPixelMap.has(key)) {
+          // Previously painted pixels - use price from backend (in satoshis)
+          repaintTotalPriceSatoshis += paintedPixelMap.get(key)!;
+        } else {
+          // Empty pixels
+          emptyPixelCount++;
+        }
+      });
+
+      // 创建模拟购买报价（使用真实价格计算）
+      const purchaseOffer = createMockPurchaseOffer(emptyPixelCount, repaintTotalPriceSatoshis);
       
       console.log("创建购买交易:", {
         pixelCount,
+        emptyPixelCount,
+        repaintPixelCount: pixelCount - emptyPixelCount,
+        repaintTotalPriceSatoshis,
         totalPrice: purchaseOffer.input_btc.value.toString(),
         poolAddress: targetPool.address,
         poolName: targetPool.name,

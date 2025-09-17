@@ -29,7 +29,7 @@ export interface CanvasApiResponse {
 
 // Canvas API 常量
 export const CANVAS_API = {
-  BASE_URL: "https://h6ibp-byaaa-aaaap-qqctq-cai.raw.ic0.app",
+  BASE_URL: "https://tzw3y-raaaa-aaaar-qbtya-cai.raw.icp0.io",
   ENDPOINTS: {
     CANVAS: "/canvas",
     RANKING: "/rank",

@@ -58,7 +58,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
         </div>
 
         {/* Bitcoin Address (for runes) */}
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <span className="text-xs text-muted-foreground">
             Bitcoin 地址 (符文)
           </span>
@@ -78,7 +78,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
               <Copy className="w-3 h-3" />
             </Button>
           </div>
-        </div>
+        </div> */}
 
         {/* Payment Address (for BTC) */}
         {paymentAddress && (

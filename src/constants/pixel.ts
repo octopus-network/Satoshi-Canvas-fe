@@ -20,11 +20,10 @@ export const PIXEL_CONSTANTS = {
   // 购买动作标识
   PURCHASE_ACTION: "purchase_pixels",
   
+  // 1 BTC = 100,000,000 satoshis
   // 默认每个空像素价格 (satoshis)
-  DEFAULT_EMPTY_PIXEL_PRICE: 50000, // 0.0005 BTC = 50000 satoshis
+  DEFAULT_EMPTY_PIXEL_PRICE: 100, // 0.000001 BTC = 100 satoshis
   
-  // 重绘像素的价格倍数
-  REPAINT_PRICE_MULTIPLIER: 1.5,
   
   // 网络费用 (satoshis)
   DEFAULT_NETWORK_FEE: 1000,
@@ -39,18 +38,16 @@ export const PIXEL_CONSTANTS = {
 
 // 像素购买价格计算
 export const calculatePixelPrice = (
-  pixelCount: number,
   emptyPixelCount: number,
-  repaintPixelCount: number,
+  repaintPixelTotalPrice: number, // 重绘像素的总价格（聪为单位）
   emptyPixelPrice: number = PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE
 ) => {
   const emptyPixelTotal = emptyPixelCount * emptyPixelPrice;
-  const repaintPixelTotal = repaintPixelCount * emptyPixelPrice * PIXEL_CONSTANTS.REPAINT_PRICE_MULTIPLIER;
   
   return {
     emptyPixelTotal,
-    repaintPixelTotal, 
-    totalPrice: emptyPixelTotal + repaintPixelTotal + PIXEL_CONSTANTS.DEFAULT_NETWORK_FEE,
+    repaintPixelTotal: repaintPixelTotalPrice, 
+    totalPrice: emptyPixelTotal + repaintPixelTotalPrice + PIXEL_CONSTANTS.DEFAULT_NETWORK_FEE,
     networkFee: PIXEL_CONSTANTS.DEFAULT_NETWORK_FEE,
   };
 };
@@ -83,8 +80,8 @@ export const mockPoolInfo = {
 };
 
 // Mock 购买报价
-export const createMockPurchaseOffer = (pixelCount: number) => {
-  const pricing = calculatePixelPrice(pixelCount, pixelCount, 0);
+export const createMockPurchaseOffer = (emptyPixelCount: number, repaintPixelTotalPrice: number = 0) => {
+  const pricing = calculatePixelPrice(emptyPixelCount, repaintPixelTotalPrice);
   
   return {
     pool_utxo: {
@@ -98,7 +95,7 @@ export const createMockPurchaseOffer = (pixelCount: number) => {
     },
     output_pixels: {
       id: PIXEL_CONSTANTS.PIXEL_COIN.id,
-      value: BigInt(pixelCount),
+      value: BigInt(emptyPixelCount),
     },
   };
 };
