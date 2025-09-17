@@ -10,7 +10,6 @@ import WalletDebugger from "@/components/WalletDebugger";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { useCanvasData } from "@/hooks/useCanvasData";
 import { useRankingData } from "@/hooks/useRankingData";
-import { RefreshCw, AlertCircle } from "lucide-react";
 
 function HomePage() {
   const { theme: themeConfig } = useThemeStore();
@@ -18,7 +17,7 @@ function HomePage() {
   const [gridSize] = useState<100 | 1000>(100); // 约定暂时只支持 100*100 大小的画布
 
   // 使用画布数据 Hook
-  const { canvasState, refreshData, isPolling } = useCanvasData({
+  const { canvasState, refreshData, startPurchasePolling } = useCanvasData({
     enablePolling: true,
     pollingInterval: 8000, // 8秒轮询
     fetchOnMount: true,
@@ -28,8 +27,7 @@ function HomePage() {
   const { 
     participants, 
     dataState: rankingDataState, 
-    refreshData: refreshRankingData,
-    isPolling: isRankingPolling 
+    refreshData: refreshRankingData
   } = useRankingData({
     enablePolling: true,
     pollingInterval: 8000, // 8秒轮询
@@ -42,6 +40,26 @@ function HomePage() {
   const handleRefresh = () => {
     refreshData();
     refreshRankingData();
+  };
+
+  // 购买成功后的处理
+  const handlePurchaseSuccess = async () => {
+    console.log("🛒 开始购买后数据刷新流程");
+    // 保存当前数据用于比较
+    const originalData = [...initialPixelData];
+    
+    // 开始轮询直到数据变化
+    await startPurchasePolling(originalData);
+    
+    // 同时刷新排行榜数据
+    refreshRankingData();
+    
+    console.log("🎉 购买后数据刷新流程完成");
+  };
+
+  // 购买刷新完成处理
+  const handlePurchaseRefreshComplete = () => {
+    console.log("🎉 购买刷新完成回调被触发");
   };
 
   return (
@@ -57,58 +75,6 @@ function HomePage() {
           )}
         </div>
         
-        {/* 数据状态显示和刷新按钮 */}
-        <div className="shrink-0 p-3 border-b bg-background/50">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">数据状态</span>
-            <button
-              onClick={handleRefresh}
-              disabled={dataState.isLoading || rankingDataState.isLoading}
-              className="p-1 rounded hover:bg-background/50 transition-colors disabled:opacity-50"
-              title="刷新数据"
-            >
-              <RefreshCw className={`w-3 h-3 ${(dataState.isLoading || rankingDataState.isLoading) ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
-          
-          {(dataState.error || rankingDataState.error) ? (
-            <div className="space-y-1">
-              {dataState.error && (
-                <div className="flex items-center gap-1 text-xs text-red-500">
-                  <AlertCircle className="w-3 h-3" />
-                  <span>画布数据失败</span>
-                </div>
-              )}
-              {rankingDataState.error && (
-                <div className="flex items-center gap-1 text-xs text-red-500">
-                  <AlertCircle className="w-3 h-3" />
-                  <span>排行榜数据失败</span>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-xs text-muted-foreground">
-              <div className="flex items-center gap-1 mb-1">
-                <div className={`w-2 h-2 rounded-full ${isPolling ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-                <span>画布: {isPolling ? '实时更新' : '已停止'}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${isRankingPolling ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-                <span>排行榜: {isRankingPolling ? '实时更新' : '已停止'}</span>
-              </div>
-              {(dataState.lastUpdated || rankingDataState.lastUpdated) && (
-                <div className="mt-1">
-                  {dataState.lastUpdated && (
-                    <div>画布: {dataState.lastUpdated.toLocaleTimeString()}</div>
-                  )}
-                  {rankingDataState.lastUpdated && (
-                    <div>排行榜: {rankingDataState.lastUpdated.toLocaleTimeString()}</div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
         
         <ParticipantsList participants={participants} />
       </aside>
@@ -121,6 +87,11 @@ function HomePage() {
             pixelSize={gridSize === 100 ? 6 : 2}
             initialData={initialPixelData}
             canvasInfo={canvasInfo}
+            isRefreshing={dataState.isLoading || rankingDataState.isLoading}
+            lastRefreshTime={dataState.lastUpdated || rankingDataState.lastUpdated || undefined}
+            onRefresh={handleRefresh}
+            onPurchaseSuccess={handlePurchaseSuccess}
+            onPurchaseRefreshComplete={handlePurchaseRefreshComplete}
           />
         </div>
       </main>

@@ -33,10 +33,21 @@ export const CANVAS_API = {
   ENDPOINTS: {
     CANVAS: "/canvas",
     RANKING: "/rank",
+    DRAW: "/draw", // 新增绘制接口
   },
   POLLING_INTERVAL: 8000, // 8秒轮询间隔
   GRID_SIZE: 100, // 画布网格大小 (100x100)
 } as const;
+
+// 购买意图接口定义
+export interface PurchaseIntent {
+  x: number;
+  y: number;
+  owner: string; // 购买者地址 (paymentAddress)
+  color: string; // 期望上色
+}
+
+export type PurchaseIntents = PurchaseIntent[];
 
 /**
  * 解析 JSON 响应数据
@@ -206,6 +217,38 @@ export async function fetchRankingDataWithRetry(
   }
   
   throw lastError!;
+}
+
+/**
+ * 提交绘制意图到后端API (临时mock)
+ */
+export async function submitDrawIntents(intents: PurchaseIntents): Promise<string> {
+  try {
+    console.log("提交绘制意图:", intents);
+    
+    const response = await fetch(`${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.DRAW}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(intents),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // 假设返回交易ID或成功标识
+    const result = await response.text();
+    console.log("绘制提交成功:", result);
+    
+    // 返回模拟的交易ID
+    return result || `mock_tx_${Date.now()}`;
+  } catch (error) {
+    console.error("提交绘制意图失败:", error);
+    throw error;
+  }
 }
 
 /**

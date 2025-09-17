@@ -53,6 +53,11 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       onDrawingChange,
       onUserPixelCountChange,
       canvasInfo,
+      isRefreshing,
+      lastRefreshTime,
+      onRefresh,
+      onPurchaseSuccess,
+      onPurchaseRefreshComplete,
     },
     ref
   ) => {
@@ -103,6 +108,58 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     // Purchase related state
     const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
     const [emptyPixelPrice] = useState(PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE / 100000000); // Convert satoshis to BTC
+    const [isPurchaseRefreshing, setIsPurchaseRefreshing] = useState(false); // 购买后刷新loading状态
+
+    // 购买刷新完成处理
+    const handlePurchaseRefreshComplete = useCallback(() => {
+      console.log("🎉 购买后数据刷新完成，关闭loading");
+      setIsPurchaseRefreshing(false);
+      onPurchaseRefreshComplete?.();
+    }, [onPurchaseRefreshComplete]);
+
+    // 购买成功后的处理函数
+    const handlePurchaseSuccess = useCallback(async () => {
+      console.log("🎉 购买成功，清空用户绘制状态并开始轮询刷新");
+      
+      // 清空用户绘制数据
+      const emptyUserPixels = new Map<string, string>();
+      setUserPixels(() => emptyUserPixels);
+      
+      // 清空绘制操作记录
+      setDrawingOperations([]);
+      
+      // 清空历史记录
+      setUndoStack([]);
+      setRedoStack([]);
+      
+      // 触发回调更新
+      setTimeout(() => {
+        onDrawingChange?.([]);
+        onUserPixelCountChange?.(emptyUserPixels.size);
+      }, 0);
+      
+      // 开始购买后的刷新loading
+      setIsPurchaseRefreshing(true);
+      
+      try {
+        // 触发购买后的特殊刷新逻辑（通过父组件）
+        await onPurchaseSuccess?.();
+        
+        // 购买刷新完成
+        handlePurchaseRefreshComplete();
+      } catch (error) {
+        console.error("购买后刷新失败:", error);
+        // 即使失败也要关闭loading
+        handlePurchaseRefreshComplete();
+      }
+    }, [onDrawingChange, onUserPixelCountChange, onPurchaseSuccess, handlePurchaseRefreshComplete]);
+
+    // 监听购买刷新完成事件
+    useEffect(() => {
+      if (onPurchaseRefreshComplete) {
+        // 这里可以添加额外的购买刷新完成处理逻辑
+      }
+    }, [onPurchaseRefreshComplete]);
 
     // Purchase hook
     const { 
@@ -116,8 +173,9 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       onSuccess: (txid) => {
         console.log("购买成功，交易ID:", txid);
         setIsPurchaseDialogOpen(false);
-        // 可选：清除用户绘制的像素或将其转移到初始层
-        // 这里我们保持原样，让用户看到他们购买的像素
+        
+        // 购买成功后的处理
+        handlePurchaseSuccess();
       }
     });
 
@@ -202,17 +260,25 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       setCurrentColor(color);
     }, []);
 
-    // Data import method
+    // Data import method - 首次导入时清空所有数据
     const importData = useCallback(
       (data: PixelData[]) => {
+        console.log("📥 importData 被调用（首次导入），数据:", data);
         const newInitialPixels = new Map<string, string>();
         const newUserPixels = new Map<string, string>();
+        
         data.forEach(({ x, y, color }) => {
           if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
             const key = `${x},${y}`;
             newInitialPixels.set(key, color);
+            console.log(`🎨 设置像素: (${x}, ${y}) -> ${color}`);
+          } else {
+            console.warn(`⚠️  无效像素坐标: (${x}, ${y}), gridSize: ${gridSize}`);
           }
         });
+        
+        console.log("🗂️  初始像素 Map:", newInitialPixels);
+        
         setInitialPixels(newInitialPixels);
         setUserPixels(() => newUserPixels);
         setIsInitialized(true);
@@ -227,6 +293,31 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         }, 0);
       },
       [gridSize] // Only depend on gridSize
+    );
+
+    // Update initial data method - 仅更新底层数据，保留用户绘制
+    const updateInitialData = useCallback(
+      (data: PixelData[]) => {
+        console.log("🔄 updateInitialData 被调用（更新底层数据），数据:", data);
+        const newInitialPixels = new Map<string, string>();
+        
+        data.forEach(({ x, y, color }) => {
+          if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
+            const key = `${x},${y}`;
+            newInitialPixels.set(key, color);
+            console.log(`🎨 更新底层像素: (${x}, ${y}) -> ${color}`);
+          } else {
+            console.warn(`⚠️  无效像素坐标: (${x}, ${y}), gridSize: ${gridSize}`);
+          }
+        });
+        
+        console.log("🗂️  更新后的初始像素 Map:", newInitialPixels);
+        console.log("👤 保留用户像素 Map:", userPixels);
+        
+        setInitialPixels(newInitialPixels);
+        // 不修改 userPixels，保留用户绘制内容
+      },
+      [gridSize, userPixels]
     );
 
     // Handle image file selection
@@ -471,17 +562,32 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       return pixelData;
     }, [userPixels]);
 
-    // Handle initial data import
+    // Handle initial data import and updates
     useEffect(() => {
-      // Only initialize on first mount or when non-empty initialData is passed, avoid resetting on every render
-      if (isInitialized) return;
-      if (initialData && initialData.length > 0) {
-        importData(initialData);
+      console.log("🔍 PixelCanvas useEffect 触发:", { 
+        isInitialized, 
+        initialDataLength: initialData?.length || 0,
+        initialData: initialData?.slice(0, 5) // 只显示前5个像素用于调试
+      });
+      
+      if (!isInitialized) {
+        // 首次初始化
+        if (initialData && initialData.length > 0) {
+          console.log("📥 首次导入初始数据:", initialData);
+          importData(initialData);
+        } else {
+          console.log("🔧 初始化空画布");
+          setIsInitialized(true);
+          setDrawingOperations([]);
+          setUndoStack([]);
+          setRedoStack([]);
+        }
       } else {
-        setIsInitialized(true);
-        setDrawingOperations([]);
-        setUndoStack([]);
-        setRedoStack([]);
+        // 已初始化，仅更新底层数据
+        if (initialData && initialData.length > 0) {
+          console.log("🔄 更新底层数据，保留用户绘制");
+          updateInitialData(initialData);
+        }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isInitialized, initialData]);
@@ -507,6 +613,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     // Reset canvas when grid size changes
     useEffect(() => {
       // Only reset when gridSize changes; initialData doesn't participate in dependency to avoid repeated resets when parent component passes []
+      console.log("🔄 gridSize 变化，重置画布:", gridSize);
       setInitialPixels(new Map());
       const emptyUserPixels = new Map<string, string>();
       setUserPixels(() => emptyUserPixels);
@@ -519,6 +626,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
       if (initialData && initialData.length > 0) {
         setTimeout(() => {
+          console.log("🔄 gridSize变化后导入初始数据");
           importData(initialData);
         }, 0);
       } else {
@@ -556,6 +664,9 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       importData: (data: PixelData[]) => {
         importData(data);
       },
+      updateInitialData: (data: PixelData[]) => {
+        updateInitialData(data);
+      },
       clearCanvas: () => {
         clearCanvas();
       },
@@ -573,7 +684,12 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     return (
       <div className="flex flex-col gap-4 p-4 w-full h-full min-h-0 overflow-hidden">
         {/* Canvas Information Bar */}
-        <CanvasInfo canvasInfo={canvasInfo} />
+        <CanvasInfo 
+          canvasInfo={canvasInfo}
+          isRefreshing={isRefreshing}
+          lastRefreshTime={lastRefreshTime}
+          onRefresh={onRefresh}
+        />
 
         {/* Toolbar */}
         <Toolbar
@@ -649,6 +765,23 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             </div>
           )}
         </div>
+
+        {/* Purchase refresh loading overlay */}
+        {isPurchaseRefreshing && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center gap-4 shadow-xl">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Processing Purchase
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Waiting for transaction confirmation...
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Purchase dialog */}
         <PurchaseDialog

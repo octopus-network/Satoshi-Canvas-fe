@@ -14,6 +14,7 @@ import {
   calculateMouseCenteredZoom,
   calculateCenterZoomToTargetScale,
 } from "../utils";
+import { useDrawingStore } from "@/store/useDrawingStore";
 
 interface UseCanvasDrawingParams {
   // 画布状态
@@ -73,6 +74,8 @@ export const useCanvasDrawing = ({
   onHistoryEntry,
   onColorPicked,
 }: UseCanvasDrawingParams) => {
+  // 全局绘制状态管理
+  const { setIsDrawing } = useDrawingStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawingRef = useRef(false);
   const isDraggingRef = useRef(false);
@@ -137,13 +140,28 @@ export const useCanvasDrawing = ({
     ensureLayer();
     const ctx = staticLayerCtxRef.current;
     const canvas = staticLayerCanvasRef.current;
+    console.log("🖼️  重建静态层:", { 
+      hasCtx: !!ctx, 
+      hasCanvas: !!canvas, 
+      pixelCount: initialPixels.size,
+      pixels: Array.from(initialPixels.entries()).slice(0, 5) // 显示前5个像素用于调试
+    });
+    
     if (!ctx || !canvas) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    let drawnCount = 0;
     initialPixels.forEach((color, key) => {
       const [x, y] = key.split(",").map(Number);
       ctx.fillStyle = color;
       ctx.fillRect(x, y, 1, 1);
+      drawnCount++;
+      if (drawnCount <= 5) {
+        console.log(`🎨 绘制像素: (${x}, ${y}) -> ${color}`);
+      }
     });
+    
+    console.log(`✅ 静态层重建完成，共绘制 ${drawnCount} 个像素`);
   }, [initialPixels, ensureLayer]);
 
   // 从 Map 重建用户层（用于批量导入/清空）
@@ -320,6 +338,7 @@ export const useCanvasDrawing = ({
 
   // initialPixels 变化时重建静态层
   useEffect(() => {
+    console.log("🎨 initialPixels 变化，重建静态层:", initialPixels);
     rebuildStaticLayer();
     scheduleDraw();
   }, [rebuildStaticLayer, scheduleDraw]);
@@ -523,6 +542,7 @@ export const useCanvasDrawing = ({
           } else {
             // 绘制模式：开启笔触并绘制
             isDrawingRef.current = true;
+            setIsDrawing(true); // 更新全局绘制状态
             isStrokingRef.current = true;
             suppressUserRebuildRef.current = true;
             pendingUserChangesRef.current = new Map();
@@ -611,16 +631,18 @@ export const useCanvasDrawing = ({
     // 提交笔触（若存在）
     commitStroke();
     isDrawingRef.current = false;
+    setIsDrawing(false); // 更新全局绘制状态
     isDraggingRef.current = false;
-  }, [commitStroke]);
+  }, [commitStroke, setIsDrawing]);
 
   const handleMouseLeave = useCallback(() => {
     // 提交笔触并清理悬停
     commitStroke();
     isDrawingRef.current = false;
+    setIsDrawing(false); // 更新全局绘制状态
     isDraggingRef.current = false;
     setCurrentHoverPixel(null); // 清除悬停坐标
-  }, [commitStroke, setCurrentHoverPixel]);
+  }, [commitStroke, setCurrentHoverPixel, setIsDrawing]);
 
   // 滚轮缩放处理函数 - 以鼠标位置为中心缩放
   // 使用自适应缩放算法：根据当前缩放级别调整缩放速度

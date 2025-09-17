@@ -13,6 +13,14 @@ export interface PixelCanvasProps {
   onUserPixelCountChange?: (count: number) => void;
   // New: current canvas info
   canvasInfo?: CanvasInfo;
+  // New: data refresh management
+  isRefreshing?: boolean;
+  lastRefreshTime?: Date;
+  onRefresh?: () => void;
+  // New: purchase success callback
+  onPurchaseSuccess?: () => Promise<void>;
+  // New: purchase refresh complete callback
+  onPurchaseRefreshComplete?: () => void;
 }
 
 export interface PixelData {
@@ -53,6 +61,7 @@ export interface PixelCanvasRef {
   getDrawingOperations: () => DrawingOperation[];
   getUserDrawingData: () => PixelData[]; // New: get user final actual drawing data
   importData: (data: PixelData[]) => void;
+  updateInitialData: (data: PixelData[]) => void; // New: update only initial data, preserve user drawing
   clearCanvas: () => void;
   clearUserDrawing: () => void; // New: only clear user drawing
   undo: () => void; // New: undo the most recent stroke or image import
