@@ -9,7 +9,7 @@ export const reeConfig = {
   network: Network.Testnet, // TODO: 后续可能要更新
   maestroApiKey: 'zdbMPb9YHzT0KfwoPk97gMFWixa8qJrc',
   exchangeIdlFactory: idlFactory,
-  exchangeCanisterId: 'tzw3y-raaaa-aaaar-qbtya-cai', // TODO: 需要更新才能正确获取 pool 信息
+  exchangeCanisterId: 'p4nzc-yiaaa-aaaao-qkg2q-cai', // 更新正确才能正确获取 pool 信息
   exchangeId: 'PIXEL_LAND',
 };
 // 钱包配置检查

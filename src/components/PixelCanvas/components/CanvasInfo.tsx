@@ -13,11 +13,11 @@ interface CanvasInfoDisplayProps {
   onRefresh?: () => void;
 }
 
-export function CanvasInfo({ 
-  canvasInfo, 
+export function CanvasInfo({
+  canvasInfo,
   isRefreshing = false,
   lastRefreshTime,
-  onRefresh 
+  onRefresh,
 }: CanvasInfoDisplayProps) {
   if (!canvasInfo) {
     return (
@@ -33,7 +33,9 @@ export function CanvasInfo({
               className="p-1.5 rounded hover:bg-background/50 transition-colors disabled:opacity-50"
               title="刷新数据"
             >
-              <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-3 h-3 ${isRefreshing ? "animate-spin" : ""}`}
+              />
             </button>
           )}
         </div>
@@ -48,27 +50,37 @@ export function CanvasInfo({
           <h3 className="font-semibold text-sm">Pixel Land Canvas</h3>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>
-              Total Painted: <span className="font-medium text-foreground">{canvasInfo.paintedPixelCount.toLocaleString()}</span> pixels
+              Total Painted:{" "}
+              <span className="font-medium text-foreground">
+                {canvasInfo.paintedPixelCount.toLocaleString()}
+              </span>{" "}
+              pixels
             </span>
             <span className="flex items-center gap-2">
-              Total Value: <span className="font-medium text-foreground">{canvasInfo.totalValue.toFixed(6)}</span> BTC
+              Total Value:{" "}
+              <span className="font-medium text-foreground">
+                {canvasInfo.totalValue.toFixed(6)}
+              </span>{" "}
+              BTC
               {lastRefreshTime && (
                 <span className="text-xs">
-                  ({lastRefreshTime.toLocaleTimeString()})
+                  (Last Updated: {lastRefreshTime.toLocaleTimeString()})
                 </span>
               )}
             </span>
           </div>
         </div>
-        
+
         {onRefresh && (
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="p-1.5 rounded hover:bg-background/50 transition-colors disabled:opacity-50"
+            className="p-1.5 rounded hover:bg-background/50 transition-colors disabled:opacity-50 cursor-pointer"
             title="刷新数据"
           >
-            <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`w-3 h-3 ${isRefreshing ? "animate-spin" : ""}`}
+            />
           </button>
         )}
       </div>

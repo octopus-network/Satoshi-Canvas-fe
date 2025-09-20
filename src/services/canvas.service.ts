@@ -22,6 +22,12 @@ export interface ApiRankingItem {
   total_value: number; // 总价值 (satoshis)
 }
 
+// API 返回的 Claimable 结构
+export interface ApiClaimableResponse {
+  address: string; // 用户钱包地址
+  claimable_sats: number; // 可领取的 satoshis 数量
+}
+
 // Canvas API 响应
 export interface CanvasApiResponse {
   pixels: ApiPixel[];
@@ -29,11 +35,12 @@ export interface CanvasApiResponse {
 
 // Canvas API 常量
 export const CANVAS_API = {
-  BASE_URL: "https://tzw3y-raaaa-aaaar-qbtya-cai.raw.icp0.io",
+  BASE_URL: "https://p4nzc-yiaaa-aaaao-qkg2q-cai.raw.icp0.io",
   ENDPOINTS: {
     CANVAS: "/canvas",
     RANKING: "/rank",
     DRAW: "/draw", // 新增绘制接口
+    CLAIMABLE: "/claimable", // 新增可领取余额接口
   },
   POLLING_INTERVAL: 8000, // 8秒轮询间隔
   GRID_SIZE: 100, // 画布网格大小 (100x100)
@@ -166,6 +173,31 @@ export async function fetchRankingData(): Promise<ApiRankingItem[]> {
 }
 
 /**
+ * 获取可领取余额数据
+ */
+export async function fetchClaimableBalance(address: string): Promise<ApiClaimableResponse> {
+  try {
+    const response = await fetch(`${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.CLAIMABLE}?address=${encodeURIComponent(address)}`, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "Cache-Control": "no-cache",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("获取可领取余额失败:", error);
+    throw error;
+  }
+}
+
+/**
  * 带重试机制的数据获取
  */
 export async function fetchCanvasDataWithRetry(
@@ -207,6 +239,34 @@ export async function fetchRankingDataWithRetry(
     } catch (error) {
       lastError = error as Error;
       console.warn(`获取排行榜数据失败 (尝试 ${attempt}/${maxRetries}):`, error);
+      
+      if (attempt < maxRetries) {
+        // 指数退避
+        const delay = retryDelay * Math.pow(2, attempt - 1);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  throw lastError!;
+}
+
+/**
+ * 带重试机制的可领取余额数据获取
+ */
+export async function fetchClaimableBalanceWithRetry(
+  address: string,
+  maxRetries: number = 3,
+  retryDelay: number = 1000
+): Promise<ApiClaimableResponse> {
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fetchClaimableBalance(address);
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`获取可领取余额失败 (尝试 ${attempt}/${maxRetries}):`, error);
       
       if (attempt < maxRetries) {
         // 指数退避
@@ -314,6 +374,22 @@ export class CanvasService {
   async getParticipants(): Promise<Participant[]> {
     const apiRanking = await fetchRankingDataWithRetry();
     return convertApiRankingToParticipants(apiRanking);
+  }
+
+  /**
+   * 获取可领取余额数据
+   */
+  async getClaimableBalance(address: string): Promise<{
+    address: string;
+    claimableSats: number;
+    claimableBTC: number;
+  }> {
+    const response = await fetchClaimableBalanceWithRetry(address);
+    return {
+      address: response.address,
+      claimableSats: response.claimable_sats,
+      claimableBTC: response.claimable_sats / 100000000, // 转换为 BTC 单位
+    };
   }
 }
 

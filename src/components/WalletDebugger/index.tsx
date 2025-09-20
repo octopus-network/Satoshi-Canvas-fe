@@ -75,8 +75,6 @@ export default function WalletDebugger({
                 <span className="text-blue-400">钱包提供商:</span>
                 <span>{walletState.provider || "null"}</span>
                 
-                <span className="text-blue-400">余额:</span>
-                <span>{walletState.balance ?? "null"}</span>
                 
                 <span className="text-blue-400">链ID:</span>
                 <span>{walletState.chainId ?? "null"}</span>

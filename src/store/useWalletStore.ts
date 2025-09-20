@@ -5,7 +5,6 @@ export interface WalletState {
   isConnected: boolean;
   address: string | null; // Bitcoin address for runes
   paymentAddress: string | null; // Payment address for BTC
-  balance: number | null;
   provider: string | null; // 钱包提供商名称
   chainId: number | null;
 }
@@ -15,11 +14,9 @@ export interface WalletActions {
     address: string;
     paymentAddress: string;
     provider: string;
-    balance?: number;
     chainId?: number;
   }) => void;
   disconnect: () => void;
-  updateBalance: (balance: number) => void;
   updateAddresses: (address: string, paymentAddress: string) => void;
 }
 
@@ -33,7 +30,6 @@ export const useWalletStore = create<WalletStore>()(
         isConnected: false,
         address: null,
         paymentAddress: null,
-        balance: null,
         provider: null,
         chainId: null,
 
@@ -42,7 +38,6 @@ export const useWalletStore = create<WalletStore>()(
           address,
           paymentAddress,
           provider,
-          balance = 0,
           chainId = 1,
         }) => {
           set({
@@ -50,7 +45,6 @@ export const useWalletStore = create<WalletStore>()(
             address,
             paymentAddress,
             provider,
-            balance,
             chainId,
           }, false, "wallet/connect");
         },
@@ -61,13 +55,8 @@ export const useWalletStore = create<WalletStore>()(
             address: null,
             paymentAddress: null,
             provider: null,
-            balance: null,
             chainId: null,
           }, false, "wallet/disconnect");
-        },
-
-        updateBalance: (balance: number) => {
-          set({ balance }, false, "wallet/updateBalance");
         },
 
         updateAddresses: (address: string, paymentAddress: string) => {
@@ -81,7 +70,6 @@ export const useWalletStore = create<WalletStore>()(
           address: state.address,
           paymentAddress: state.paymentAddress,
           provider: state.provider,
-          balance: state.balance,
           chainId: state.chainId,
         }),
       }
