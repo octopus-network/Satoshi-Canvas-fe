@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Toaster } from "sonner";
 import { useThemeStore } from "@/store/useThemeStore";
-import { useWalletStore } from "@/store/useWalletStore";
 import PixelCanvas from "@/components/PixelCanvas";
 import ParticipantsList from "@/components/ParticipantsList";
-import ConnectWalletButton from "@/components/ui/connect-wallet-button";
 import WalletInfo from "@/components/ui/wallet-info";
 import WalletDebugger from "@/components/WalletDebugger";
 import ErrorBoundary from "@/components/ui/error-boundary";
@@ -13,7 +11,6 @@ import { useRankingData } from "@/hooks/useRankingData";
 
 function HomePage() {
   const { theme: themeConfig } = useThemeStore();
-  const { isConnected } = useWalletStore();
   const [gridSize] = useState<100 | 1000>(100); // Convention: temporarily only support 100*100 size canvas
 
   // Use canvas data Hook
@@ -68,11 +65,7 @@ function HomePage() {
       {/* Left Sidebar (Participants Leaderboard) */}
       <aside className="hidden md:flex w-64 h-full min-h-0 flex-col border-r bg-sidebar text-sidebar-foreground">
         <div className="shrink-0 p-3 border-b">
-          {isConnected ? (
-            <WalletInfo className="w-full" />
-          ) : (
-            <ConnectWalletButton className="text-xs w-full" />
-          )}
+          <WalletInfo className="w-full" />
         </div>
         
         

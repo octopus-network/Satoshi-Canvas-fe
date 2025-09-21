@@ -1,5 +1,5 @@
 import React from "react";
-import { Copy, LogOut, Wallet, Coins, RefreshCw, Bitcoin, Download } from "lucide-react";
+import { Copy, LogOut, Wallet, Coins, RefreshCw, Download } from "lucide-react";
 import { useWalletStore } from "@/store/useWalletStore";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
 import { useClaimableBalance } from "@/hooks/useClaimableBalance";
@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { FadeTransition } from "@/components/ui/fade-transition";
+import ConnectWalletButton from "@/components/ui/connect-wallet-button";
 import { toast } from "sonner";
 
 interface WalletInfoProps {
@@ -19,7 +20,7 @@ interface WalletInfoProps {
 }
 
 const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
-  const { address, paymentAddress, provider } = useWalletStore();
+  const { address, paymentAddress, isConnected } = useWalletStore();
   const { disconnectWallet } = useWalletConnection();
   const {
     claimableSats,
@@ -77,8 +78,6 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
     }
   };
 
-  if (!address) return null;
-
   return (
     <TooltipProvider>
       <div
@@ -92,17 +91,16 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
           <h2 className="font-bold text-lg text-foreground">Pixel Land</h2>
         </div>
 
-        {/* Wallet info */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Wallet className="w-4 h-4" />
-            <span>Connected</span>
-            {provider && (
-              <span className="text-xs bg-muted px-2 py-0.5 rounded capitalize">
-                {provider}
-              </span>
-            )}
-          </div>
+        {/* Connect wallet if not connected */}
+        {!isConnected && (
+          <ConnectWalletButton className="w-full text-xs" variant="default" size="sm">
+            Connect Wallet
+          </ConnectWalletButton>
+        )}
+
+        {/* Wallet info - only show when connected */}
+        {isConnected && address && (
+          <div className="space-y-3">
 
           {/* Bitcoin Address (for runes) */}
           {/* <div className="space-y-1">
@@ -133,7 +131,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
               {/* BTC Address */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Bitcoin className="size-3" />
+                  <Wallet className="size-3" />
                   <span>Wallet Address</span>
                 </div>
                 <div className="flex items-center justify-between bg-muted/50 rounded-md p-2">
@@ -214,35 +212,36 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
               </div>
             </div>
           )}
-        </div>
 
-        {/* Claim button */}
-        {claimableSats > 0 && (
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleClaim}
-            disabled={isClaimLoading || !canClaim || claimableError !== null}
-            className="w-full text-xs gap-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 cursor-pointer"
-          >
-            <Download className={`size-3 mr-0.5 ${isClaimLoading ? "animate-pulse" : ""}`} />
-            {isClaimLoading 
-              ? "Processing..." 
-              : `Claim ${(Number(BigInt(claimableSats)) / 100000000).toFixed(8)} BTC`
-            }
-          </Button>
+            {/* Claim button */}
+            {claimableSats > 0 && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleClaim}
+                disabled={isClaimLoading || !canClaim || claimableError !== null}
+                className="w-full text-xs gap-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 cursor-pointer"
+              >
+                <Download className={`size-3 mr-0.5 ${isClaimLoading ? "animate-pulse" : ""}`} />
+                {isClaimLoading 
+                  ? "Processing..." 
+                  : `Claim ${(Number(BigInt(claimableSats)) / 100000000).toFixed(8)} BTC`
+                }
+              </Button>
+            )}
+
+            {/* Disconnect button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDisconnect}
+              className="w-full text-xs gap-1 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
+            >
+              <LogOut className="size-3 mr-0.5" />
+              Disconnect
+            </Button>
+          </div>
         )}
-
-        {/* Disconnect button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleDisconnect}
-          className="w-full text-xs gap-1 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
-        >
-          <LogOut className="size-3 mr-0.5" />
-          Disconnect
-        </Button>
       </div>
     </TooltipProvider>
   );

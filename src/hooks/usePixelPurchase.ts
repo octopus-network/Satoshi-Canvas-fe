@@ -75,10 +75,10 @@ export const usePixelPurchase = ({
       });
 
       // Show pool information loading success notification (only once)
-      toast.success("Pool information loaded successfully", {
-        description: `Found ${availablePools.length} available pools`,
-        duration: 3000,
-      });
+      // toast.success("Pool information loaded successfully", {
+      //   description: `Found ${availablePools.length} available pools`,
+      //   duration: 3000,
+      // });
     } else if (!poolsLoading && (!availablePools || availablePools.length === 0)) {
       console.log("🏊 No available pools found");
       toast.error("No available pools found", {
