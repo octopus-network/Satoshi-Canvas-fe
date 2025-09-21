@@ -35,10 +35,10 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
     executeClaim,
   } = usePixelClaim({
     onSuccess: async (txid) => {
-      console.log("Claim成功，交易ID:", txid);
-      // 立即刷新余额
+      console.log("Claim successful, transaction ID:", txid);
+      // Refresh balance immediately
       await refreshBalance();
-      // 延迟3秒再次刷新，确保链上状态已更新
+      // Refresh again after 3 seconds to ensure on-chain state is updated
       setTimeout(() => {
         refreshBalance();
       }, 3000);
@@ -51,15 +51,15 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
 
   const copyAddress = (addr: string, type: string) => {
     navigator.clipboard.writeText(addr);
-    toast.success(`${type}地址已复制到剪贴板`);
+    toast.success(`${type} address copied to clipboard`);
   };
 
   const handleDisconnect = async () => {
     const result = await disconnectWallet();
     if (result.success) {
-      toast.success("钱包已断开连接");
+      toast.success("Wallet disconnected");
     } else {
-      toast.error(result.error || "断开连接失败");
+      toast.error(result.error || "Failed to disconnect");
     }
   };
 
@@ -68,7 +68,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
       clearError();
     }
     await refreshBalance();
-    // toast.success("可领取余额已刷新");
+    // toast.success("Claimable balance refreshed");
   };
 
   const handleClaim = async () => {
@@ -96,7 +96,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Wallet className="w-4 h-4" />
-            <span>钱包已连接</span>
+            <span>Connected</span>
             {provider && (
               <span className="text-xs bg-muted px-2 py-0.5 rounded capitalize">
                 {provider}
@@ -107,7 +107,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
           {/* Bitcoin Address (for runes) */}
           {/* <div className="space-y-1">
           <span className="text-xs text-muted-foreground">
-            Bitcoin 地址 (符文)
+            Bitcoin Address (runes)
           </span>
           <div className="flex items-center justify-between bg-muted/50 rounded-md p-2">
             <div className="flex items-center gap-2">
@@ -127,14 +127,14 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
           </div>
         </div> */}
 
-          {/* 钱包详情 */}
+          {/* Wallet Details */}
           {paymentAddress && (
             <div className="space-y-3">
-              {/* BTC 地址 */}
+              {/* BTC Address */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Bitcoin className="size-3" />
-                  <span>钱包地址</span>
+                  <span>Wallet Address</span>
                 </div>
                 <div className="flex items-center justify-between bg-muted/50 rounded-md p-2">
                   <div className="flex items-center gap-2">
@@ -146,7 +146,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => copyAddress(paymentAddress, "钱包")}
+                    onClick={() => copyAddress(paymentAddress, "Wallet")}
                     className="h-4 w-4 p-0 hover:bg-background cursor-pointer"
                   >
                     <Copy className="size-3" />
@@ -154,7 +154,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
                 </div>
               </div>
 
-              {/* 可领取余额 */}
+              {/* Claimable Balance */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Coins className="size-3" />
@@ -162,14 +162,14 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
                 </div>
 
                 <div className="relative bg-muted/50 rounded-md p-2">
-                  {/* 加载遮罩层 - 带淡入淡出动画 */}
+                  {/* Loading overlay with fade animation */}
                   <FadeTransition
                     show={isClaimableLoading}
                     className="absolute inset-0 bg-background/80 backdrop-blur-[1px] rounded-md flex items-center justify-center"
                   >
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <RefreshCw className="size-3 animate-spin" />
-                      <span>加载中...</span>
+                      <span>Loading...</span>
                     </div>
                   </FadeTransition>
 
@@ -188,7 +188,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
                           <TooltipContent>
                             <p>
                               {claimableError
-                                ? "获取失败"
+                                ? "Failed to fetch"
                                 : `${(claimableSats / 100000000).toFixed(8)} BTC`}
                             </p>
                           </TooltipContent>
@@ -227,7 +227,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
           >
             <Download className={`size-3 mr-0.5 ${isClaimLoading ? "animate-pulse" : ""}`} />
             {isClaimLoading 
-              ? "处理中..." 
+              ? "Processing..." 
               : `Claim ${(Number(BigInt(claimableSats)) / 100000000).toFixed(8)} BTC`
             }
           </Button>
@@ -241,7 +241,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
           className="w-full text-xs gap-1 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
         >
           <LogOut className="size-3 mr-0.5" />
-          断开连接
+          Disconnect
         </Button>
       </div>
     </TooltipProvider>

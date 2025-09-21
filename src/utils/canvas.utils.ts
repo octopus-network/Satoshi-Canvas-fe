@@ -1,14 +1,14 @@
 /**
- * Canvas 相关的纯工具函数
+ * Canvas related pure utility functions
  */
 
 import type { PixelData } from "@/components/PixelCanvas/types";
 
 /**
- * 从索引计算像素坐标
- * 像素按行优先顺序存储（0-9999对应100x100网格）
- * @param index 像素索引
- * @param gridSize 网格大小，默认100
+ * Calculate pixel coordinates from index
+ * Pixels are stored in row-major order (0-9999 corresponds to 100x100 grid)
+ * @param index Pixel index
+ * @param gridSize Grid size, default 100
  */
 export function indexToCoordinates(index: number, gridSize: number = 100): { x: number; y: number } {
   const x = index % gridSize;
@@ -17,38 +17,38 @@ export function indexToCoordinates(index: number, gridSize: number = 100): { x: 
 }
 
 /**
- * 从坐标计算索引
- * @param x x坐标
- * @param y y坐标
- * @param gridSize 网格大小，默认100
+ * Calculate index from coordinates
+ * @param x x coordinate
+ * @param y y coordinate
+ * @param gridSize Grid size, default 100
  */
 export function coordinatesToIndex(x: number, y: number, gridSize: number = 100): number {
   return y * gridSize + x;
 }
 
 /**
- * 验证像素坐标是否在有效范围内
- * @param x x坐标
- * @param y y坐标
- * @param gridSize 网格大小，默认100
+ * Validate if pixel coordinates are within valid range
+ * @param x x coordinate
+ * @param y y coordinate
+ * @param gridSize Grid size, default 100
  */
 export function isValidCoordinates(x: number, y: number, gridSize: number = 100): boolean {
   return x >= 0 && x < gridSize && y >= 0 && y < gridSize;
 }
 
 /**
- * 验证颜色格式是否有效
- * @param color 颜色字符串
+ * Validate if color format is valid
+ * @param color Color string
  */
 export function isValidColor(color: string): boolean {
-  // 验证十六进制颜色格式 #rrggbb
+  // Validate hexadecimal color format #rrggbb
   const hexColorRegex = /^#[0-9A-Fa-f]{6}$/;
   return hexColorRegex.test(color);
 }
 
 /**
- * 将像素数据转换为坐标映射
- * @param pixels 像素数据数组
+ * Convert pixel data to coordinate mapping
+ * @param pixels Pixel data array
  */
 export function pixelsToCoordinateMap(pixels: PixelData[]): Map<string, string> {
   const map = new Map<string, string>();
@@ -60,8 +60,8 @@ export function pixelsToCoordinateMap(pixels: PixelData[]): Map<string, string> 
 }
 
 /**
- * 将坐标映射转换为像素数据数组
- * @param coordinateMap 坐标映射
+ * Convert coordinate mapping to pixel data array
+ * @param coordinateMap Coordinate mapping
  */
 export function coordinateMapToPixels(coordinateMap: Map<string, string>): PixelData[] {
   const pixels: PixelData[] = [];
@@ -73,9 +73,9 @@ export function coordinateMapToPixels(coordinateMap: Map<string, string>): Pixel
 }
 
 /**
- * 计算两个像素点之间的距离
- * @param p1 第一个像素点
- * @param p2 第二个像素点
+ * Calculate distance between two pixel points
+ * @param p1 First pixel point
+ * @param p2 Second pixel point
  */
 export function pixelDistance(p1: { x: number; y: number }, p2: { x: number; y: number }): number {
   const dx = p1.x - p2.x;
@@ -84,11 +84,11 @@ export function pixelDistance(p1: { x: number; y: number }, p2: { x: number; y: 
 }
 
 /**
- * 获取指定像素周围的邻居像素坐标
- * @param x 中心x坐标
- * @param y 中心y坐标
- * @param radius 半径，默认1
- * @param gridSize 网格大小，默认100
+ * Get neighbor pixel coordinates around specified pixel
+ * @param x Center x coordinate
+ * @param y Center y coordinate
+ * @param radius Radius, default 1
+ * @param gridSize Grid size, default 100
  */
 export function getNeighborCoordinates(
   x: number, 
@@ -100,7 +100,7 @@ export function getNeighborCoordinates(
   
   for (let dx = -radius; dx <= radius; dx++) {
     for (let dy = -radius; dy <= radius; dy++) {
-      if (dx === 0 && dy === 0) continue; // 跳过中心点
+      if (dx === 0 && dy === 0) continue; // Skip center point
       
       const nx = x + dx;
       const ny = y + dy;
@@ -115,8 +115,8 @@ export function getNeighborCoordinates(
 }
 
 /**
- * 检查像素数据是否有重复坐标
- * @param pixels 像素数据数组
+ * Check if pixel data has duplicate coordinates
+ * @param pixels Pixel data array
  */
 export function hasDuplicateCoordinates(pixels: PixelData[]): boolean {
   const coordinateSet = new Set<string>();
@@ -133,8 +133,8 @@ export function hasDuplicateCoordinates(pixels: PixelData[]): boolean {
 }
 
 /**
- * 移除重复坐标的像素（保留最后一个）
- * @param pixels 像素数据数组
+ * Remove pixels with duplicate coordinates (keep the last one)
+ * @param pixels Pixel data array
  */
 export function removeDuplicatePixels(pixels: PixelData[]): PixelData[] {
   const coordinateMap = new Map<string, PixelData>();
@@ -148,8 +148,8 @@ export function removeDuplicatePixels(pixels: PixelData[]): PixelData[] {
 }
 
 /**
- * 按颜色分组像素数据
- * @param pixels 像素数据数组
+ * Group pixel data by color
+ * @param pixels Pixel data array
  */
 export function groupPixelsByColor(pixels: PixelData[]): Map<string, PixelData[]> {
   const colorGroups = new Map<string, PixelData[]>();
@@ -166,8 +166,8 @@ export function groupPixelsByColor(pixels: PixelData[]): Map<string, PixelData[]
 }
 
 /**
- * 计算像素数据的边界框
- * @param pixels 像素数据数组
+ * Calculate bounding box of pixel data
+ * @param pixels Pixel data array
  */
 export function getPixelsBoundingBox(pixels: PixelData[]): {
   minX: number;

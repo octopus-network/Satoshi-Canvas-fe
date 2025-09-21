@@ -6,15 +6,15 @@ import { PIXEL_CONSTANTS } from "@/constants/pixel";
 import { shortenErrorMessage } from "@/utils/string";
 
 /**
- * 计算 claim 时的实际到账金额
- * @param gross 要 claim 的"毛额"（单位：sats）
- * @returns 实际到账金额（毛额 - 手续费）
+ * Calculate the actual amount when claiming
+ * @param gross The "gross" amount to claim (unit: sats)
+ * @returns Actual amount received (gross - fees)
  */
 export function calcClaimNet(gross: bigint): bigint {
   if (gross <= 0n) {
     throw new Error("gross amount must be positive");
   }
-  const feePercent = 1n; // 配置: claim_fee_percent = 1 (%)
+  const feePercent = 1n; // Configuration: claim_fee_percent = 1 (%)
   const fee = (gross * feePercent) / 100n; // floor(gross * 1 / 100)
   return gross - fee;
 }
@@ -24,19 +24,19 @@ export interface UsePixelClaimProps {
 }
 
 export interface UsePixelClaimReturn {
-  // 状态
+  // State
   isClaimLoading: boolean;
   isPoolsReady: boolean;
   
-  // 池子信息
+  // Pool information
   availablePools: any[];
   poolsLoading: boolean;
   poolsError: string | null;
   
-  // 方法
+  // Methods
   executeClaim: (claimableAmount: number) => Promise<void>;
   
-  // 计算属性
+  // Computed properties
   canClaim: boolean;
 }
 
@@ -45,27 +45,27 @@ export const usePixelClaim = ({
 }: UsePixelClaimProps): UsePixelClaimReturn => {
   const [isClaimLoading, setIsClaimLoading] = useState(false);
   
-  // Wallet 和交易相关 hooks
+  // Wallet and transaction related hooks
   const { signPsbt, address, paymentAddress } = useLaserEyes();
   const { createTransaction, client } = useRee();
   const { pools: availablePools, loading: poolsLoading, error: poolsError } = usePoolList();
 
-  // 计算属性
+  // Computed properties
   const isPoolsReady = !poolsLoading && !poolsError && availablePools && availablePools.length > 0;
   const canClaim = !!address && !!paymentAddress && isPoolsReady;
 
-  // ! 执行claim交易
+  // Execute claim transaction
   const executeClaim = useCallback(async (claimableAmount: number) => {
     if (!address || !paymentAddress) {
-      toast.error("请先连接钱包", {
-        description: "需要连接钱包才能claim余额",
+      toast.error("Please connect wallet first", {
+        description: "Need to connect wallet to claim balance",
       });
       return;
     }
 
     if (claimableAmount <= 0) {
-      toast.error("没有可claim的余额", {
-        description: "当前没有可claim的余额",
+      toast.error("No claimable balance", {
+        description: "Currently no claimable balance",
       });
       return;
     }
@@ -73,30 +73,30 @@ export const usePixelClaim = ({
     setIsClaimLoading(true);
 
     try {
-      // 检查池子加载状态
+      // Check pool loading status
       if (poolsLoading) {
-        throw new Error("池子信息正在加载中，请稍后重试");
+        throw new Error("Pool information is loading, please try again later");
       }
       
       if (poolsError) {
-        throw new Error(`池子信息加载失败: ${poolsError}`);
+        throw new Error(`Pool information loading failed: ${poolsError}`);
       }
       
-      // 检查是否有可用的池子
+      // Check if there are available pools
       if (!availablePools || availablePools.length === 0) {
-        throw new Error("没有可用的池子，请稍后重试");
+        throw new Error("No available pools, please try again later");
       }
 
-      // 使用真实的池子地址（这里使用第一个池子）
+      // Use real pool address (using the first pool here)
       const targetPool = availablePools[0];
-      console.log("🎯 使用的池子:", targetPool);
+      console.log("🎯 Using pool:", targetPool);
       
-      // 获取完整的池子信息，包含UTXO和nonce
-      console.log("获取池子详细信息...");
+      // Get complete pool information, including UTXO and nonce
+      console.log("Getting detailed pool information...");
       const poolInfo = await client.getPoolInfo(targetPool.address);
-      console.log("🎯 池子详细信息:", poolInfo);
+      console.log("🎯 Detailed pool information:", poolInfo);
       
-      console.log("创建claim交易:", {
+      console.log("Creating claim transaction:", {
         claimableAmount,
         poolAddress: targetPool.address,
         poolName: targetPool.name,
@@ -105,11 +105,11 @@ export const usePixelClaim = ({
         paymentAddress,
       });
 
-      // 使用池子的第一个UTXO（如果没有UTXO则为undefined）
+      // Use the first UTXO of the pool (undefined if no UTXO)
       const poolUtxo = poolInfo.utxos && poolInfo.utxos.length > 0 ? poolInfo.utxos[0] : undefined;
-      console.log("使用的池子UTXO:", poolUtxo);
+      console.log("Using pool UTXO:", poolUtxo);
 
-      // 创建交易
+      // Create transaction
       const tx = await createTransaction();
 
       const claimIntention = {
@@ -130,7 +130,7 @@ export const usePixelClaim = ({
           ),
         ] : [],
         inputCoins: [
-          // claim通常不需要输入coins，或者根据具体逻辑调整
+          // claim usually doesn't need input coins, or adjust according to specific logic
         ],
         outputCoins: [
           {
@@ -146,44 +146,44 @@ export const usePixelClaim = ({
       
       console.info('>>> claim intention: ', claimIntention);
       
-      // 添加claim意图
+      // Add claim intention
       tx.addIntention(claimIntention);
 
-      console.log("构建 PSBT...");
-      // 构建 PSBT
+      console.log("Building PSBT...");
+      // Build PSBT
       const { psbt } = await tx.build();
       
-      console.log("请求用户签名...");
-      // 请求用户签名
+      console.log("Requesting user signature...");
+      // Request user signature
       const res = await signPsbt(psbt.toBase64());
       const signedPsbtHex = res?.signedPsbtHex ?? "";
 
       if (!signedPsbtHex) {
-        throw new Error("签名失败");
+        throw new Error("Signature failed");
       }
 
-      console.log("发送交易...");
-      // 发送交易
+      console.log("Sending transaction...");
+      // Send transaction
       const txid = await tx.send(signedPsbtHex);
 
-      console.log("Claim交易发送成功:", txid);
+      console.log("Claim transaction sent successfully:", txid);
       
-      // 成功提示
-      toast.success("Claim成功!", {
-        description: `交易ID: ${txid.slice(0, 8)}...${txid.slice(-8)}`,
+      // Success notification
+      toast.success("Claim successful!", {
+        description: `Transaction ID: ${txid.slice(0, 8)}...${txid.slice(-8)}`,
         duration: 5000,
       });
 
-      // 调用成功回调
+      // Call success callback
       onSuccess?.(txid);
 
     } catch (error: any) {
-      console.error("Claim失败:", error);
+      console.error("Claim failed:", error);
       
-      // 用户取消签名不显示错误
+      // Don't show error for user cancelling signature
       if (error.code !== 4001) {
-        toast.error("Claim失败", {
-          description: shortenErrorMessage(error.message, 120) || "请稍后重试",
+        toast.error("Claim failed", {
+          description: shortenErrorMessage(error.message, 120) || "Please try again later",
           duration: 5000,
         });
       }
@@ -203,19 +203,19 @@ export const usePixelClaim = ({
   ]);
 
   return {
-    // 状态
+    // State
     isClaimLoading,
     isPoolsReady,
     
-    // 池子信息
+    // Pool information
     availablePools,
     poolsLoading,
     poolsError,
     
-    // 方法
+    // Methods
     executeClaim,
     
-    // 计算属性
+    // Computed properties
     canClaim,
   };
 };

@@ -31,7 +31,7 @@ export function CanvasInfo({
               onClick={onRefresh}
               disabled={isRefreshing}
               className="p-1.5 rounded hover:bg-background/50 transition-colors disabled:opacity-50"
-              title="刷新数据"
+              title="Refresh data"
             >
               <RefreshCw
                 className={`w-3 h-3 ${isRefreshing ? "animate-spin" : ""}`}
@@ -76,7 +76,7 @@ export function CanvasInfo({
             onClick={onRefresh}
             disabled={isRefreshing}
             className="p-1.5 rounded hover:bg-background/50 transition-colors disabled:opacity-50 cursor-pointer"
-            title="刷新数据"
+            title="Refresh data"
           >
             <RefreshCw
               className={`w-3 h-3 ${isRefreshing ? "animate-spin" : ""}`}

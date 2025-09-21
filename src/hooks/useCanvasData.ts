@@ -1,6 +1,6 @@
 /**
- * Canvas 数据管理 Hook
- * 负责获取画布数据并提供定时轮询功能
+ * Canvas data management Hook
+ * Responsible for fetching canvas data and providing scheduled polling functionality
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -15,39 +15,39 @@ import {
 import { useDrawingStore } from "@/store/useDrawingStore";
 
 export interface UseCanvasDataOptions {
-  /** 是否启用自动轮询 */
+  /** Whether to enable automatic polling */
   enablePolling?: boolean;
-  /** 轮询间隔（毫秒），默认8秒 */
+  /** Polling interval (milliseconds), default 8 seconds */
   pollingInterval?: number;
-  /** 最大重试次数 */
+  /** Maximum retry count */
   maxRetries?: number;
-  /** 是否在组件挂载时立即获取数据 */
+  /** Whether to fetch data immediately when component mounts */
   fetchOnMount?: boolean;
 }
 
 export interface UseCanvasDataReturn {
-  /** 画布状态 */
+  /** Canvas state */
   canvasState: CanvasState;
-  /** 手动刷新数据 */
+  /** Manually refresh data */
   refreshData: () => Promise<void>;
-  /** 开始轮询 */
+  /** Start polling */
   startPolling: () => void;
-  /** 停止轮询 */
+  /** Stop polling */
   stopPolling: () => void;
-  /** 是否正在轮询 */
+  /** Whether polling is active */
   isPolling: boolean;
-  /** 购买后轮询刷新 */
+  /** Post-purchase polling refresh */
   startPurchasePolling: (originalData: PixelData[]) => Promise<void>;
 }
 
-// 默认空画布信息
+// Default empty canvas info
 const DEFAULT_CANVAS_INFO: CanvasInfo = {
   paintedPixelCount: 0,
   totalValue: 0,
   paintedPixelInfoList: [],
 };
 
-// 默认数据状态
+// Default data state
 const DEFAULT_DATA_STATE: CanvasDataState = {
   isLoading: false,
   error: null,
@@ -64,30 +64,30 @@ export function useCanvasData(
     fetchOnMount = true,
   } = options;
 
-  // 画布数据状态
+  // Canvas data state
   const [canvasInfo, setCanvasInfo] = useState<CanvasInfo>(DEFAULT_CANVAS_INFO);
   const [initialPixelData, setInitialPixelData] = useState<PixelData[]>([]);
   const [dataState, setDataState] =
     useState<CanvasDataState>(DEFAULT_DATA_STATE);
 
-  // 轮询控制
+  // Polling control
   const [isPolling, setIsPolling] = useState(false);
   const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
 
-  // 轮询暂停控制
+  // Polling pause control
   const [isPaused, setIsPaused] = useState(false);
-  const pauseTimeRef = useRef<number>(0); // 暂停开始时间
-  const remainingTimeRef = useRef<number>(0); // 剩余等待时间
+  const pauseTimeRef = useRef<number>(0); // Pause start time
+  const remainingTimeRef = useRef<number>(0); // Remaining wait time
 
-  // 使用 ref 避免闭包陈旧值
+  // Use ref to avoid stale closure values
   const isPollingRef = useRef(isPolling);
   const isPausedRef = useRef(isPaused);
 
-  // 全局绘制状态
+  // Global drawing state
   const { isDrawing } = useDrawingStore();
 
-  // 同步状态到 ref
+  // Sync state to ref
   useEffect(() => {
     isPollingRef.current = isPolling;
   }, [isPolling]);
@@ -96,7 +96,7 @@ export function useCanvasData(
     isPausedRef.current = isPaused;
   }, [isPaused]);
 
-  // 获取数据函数
+  // Fetch data function
   const fetchData = useCallback(async () => {
     if (!isMountedRef.current) return;
 
@@ -107,14 +107,14 @@ export function useCanvasData(
 
       if (!isMountedRef.current) return;
 
-      // 转换数据格式
+      // Convert data format
       const pixelData = convertApiPixelsToPixelData(response.pixels);
       const canvasInfo = generateCanvasInfo(response.pixels);
 
-      // 详细的调试信息
-      // console.log("🔍 API 返回的原始数据:", response.pixels);
-      // console.log("🔍 转换后的像素数据:", pixelData);
-      // console.log("🔍 画布信息:", canvasInfo);
+      // Detailed debug information
+      // console.log("🔍 Raw data returned by API:", response.pixels);
+      // console.log("🔍 Converted pixel data:", pixelData);
+      // console.log("🔍 Canvas info:", canvasInfo);
 
       setInitialPixelData(pixelData);
       setCanvasInfo(canvasInfo);
@@ -125,11 +125,11 @@ export function useCanvasData(
       });
 
       // console.log(
-      //   `✅ 画布数据更新成功: ${pixelData.length} 个像素, 总价值: ${canvasInfo.totalValue.toFixed(6)} BTC`
+      //   `✅ Canvas data update successful: ${pixelData.length} pixels, total value: ${canvasInfo.totalValue.toFixed(6)} BTC`
       // );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "未知错误";
-      console.error("❌ 获取画布数据失败:", errorMessage);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("❌ Failed to fetch canvas data:", errorMessage);
 
       if (!isMountedRef.current) return;
 
@@ -141,7 +141,7 @@ export function useCanvasData(
     }
   }, [maxRetries]);
 
-  // 开始轮询
+  // Start polling
   const startPolling = useCallback(() => {
     if (isPolling) return;
 
@@ -149,7 +149,7 @@ export function useCanvasData(
     setIsPaused(false);
     remainingTimeRef.current = pollingInterval;
     // console.log(
-    //   `🔄 开始轮询画布数据，间隔: ${pollingInterval}ms`,
+    //   `🔄 Start polling canvas data, interval: ${pollingInterval}ms`,
     //   isMountedRef.current,
     //   isPollingRef.current,
     //   isPausedRef.current
@@ -169,7 +169,7 @@ export function useCanvasData(
     poll();
   }, [fetchData, pollingInterval, enablePolling]);
 
-  // 暂停轮询
+  // Pause polling
   const pausePolling = useCallback(() => {
     console.info(
       ">>> [useCanvasData] pausePolling - isPolling:",
@@ -180,13 +180,13 @@ export function useCanvasData(
       enablePolling
     );
 
-    // 只有在轮询启用且正在运行且未暂停时才需要暂停
+    // Only pause if polling is enabled, running, and not already paused
     if (!enablePolling || !isPollingRef.current || isPausedRef.current) {
-      // console.log("⏸️ 跳过暂停画布轮询：轮询未启用或已暂停");
+      // console.log("⏸️ Skip pausing canvas polling: polling not enabled or already paused");
       return;
     }
 
-    // console.log("⏸️ 暂停画布轮询（用户正在绘制）");
+    // console.log("⏸️ Pause canvas polling (user is drawing)");
     setIsPaused(true);
     pauseTimeRef.current = Date.now();
 
@@ -196,7 +196,7 @@ export function useCanvasData(
     }
   }, [enablePolling]);
 
-  // 恢复轮询
+  // Resume polling
   const resumePolling = useCallback(() => {
     console.info(
       ">>> [useCanvasData] resumePolling - isPolling:",
@@ -208,24 +208,24 @@ export function useCanvasData(
     );
 
     if (!enablePolling) {
-      // console.log("▶️ 跳过恢复画布轮询：轮询未启用");
+      // console.log("▶️ Skip resuming canvas polling: polling not enabled");
       return;
     }
 
-    // 如果轮询没有运行，先启动轮询
+    // If polling is not running, start polling first
     if (!isPollingRef.current) {
-      // console.log("▶️ 启动画布轮询（用户结束绘制，轮询未运行）");
+      // console.log("▶️ Start canvas polling (user finished drawing, polling not running)");
       startPolling();
       return;
     }
 
-    // 如果轮询运行中但未暂停，无需操作
+    // If polling is running but not paused, no action needed
     if (!isPausedRef.current) {
-      // console.log("▶️ 跳过恢复画布轮询：轮询未暂停");
+      // console.log("▶️ Skip resuming canvas polling: polling not paused");
       return;
     }
 
-    // console.log("▶️ 恢复画布轮询（用户结束绘制）");
+    // console.log("▶️ Resume canvas polling (user finished drawing)");
     setIsPaused(false);
 
     const poll = async () => {
@@ -243,42 +243,42 @@ export function useCanvasData(
       }
     };
 
-    // 计算剩余时间并恢复轮询
+    // Calculate remaining time and resume polling
     const pauseDuration = Date.now() - pauseTimeRef.current;
     const adjustedInterval = Math.max(
       0,
       remainingTimeRef.current - pauseDuration
     );
 
-    // console.log(`🔄 恢复轮询，延迟: ${adjustedInterval}ms`);
+    // console.log(`🔄 Resume polling, delay: ${adjustedInterval}ms`);
     pollingTimeoutRef.current = setTimeout(poll, adjustedInterval);
-    remainingTimeRef.current = pollingInterval; // 重置为完整间隔
+    remainingTimeRef.current = pollingInterval; // Reset to full interval
   }, [fetchData, pollingInterval, enablePolling, startPolling]);
 
-  // 停止轮询
+  // Stop polling
   const stopPolling = useCallback(() => {
     setIsPolling(false);
     if (pollingTimeoutRef.current) {
       clearTimeout(pollingTimeoutRef.current);
       pollingTimeoutRef.current = null;
     }
-    // console.log("⏹️ 停止轮询画布数据");
+    // console.log("⏹️ Stop polling canvas data");
   }, []);
 
-  // 手动刷新数据
+  // Manually refresh data
   const refreshData = useCallback(async () => {
-    // console.log("🔄 手动刷新画布数据");
+    // console.log("🔄 Manually refresh canvas data");
     await fetchData();
   }, [fetchData]);
 
-  // 比较两个像素数据数组是否有差异
+  // Compare if two pixel data arrays have differences
   const hasDataChanged = useCallback(
     (oldData: PixelData[], newData: PixelData[]): boolean => {
       if (oldData.length !== newData.length) {
         return true;
       }
 
-      // 创建映射进行比较
+      // Create mapping for comparison
       const oldMap = new Map<string, string>();
       const newMap = new Map<string, string>();
 
@@ -290,7 +290,7 @@ export function useCanvasData(
         newMap.set(`${pixel.x},${pixel.y}`, pixel.color);
       });
 
-      // 比较数量和内容
+      // Compare count and content
       if (oldMap.size !== newMap.size) {
         return true;
       }
@@ -306,31 +306,31 @@ export function useCanvasData(
     []
   );
 
-  // 购买后轮询刷新，直到数据发生变化
+  // Post-purchase polling refresh until data changes
   const startPurchasePolling = useCallback(
     async (originalData: PixelData[]): Promise<void> => {
-      // console.log("🔄 开始购买后轮询，原始数据长度:", originalData.length);
+      // console.log("🔄 Start post-purchase polling, original data length:", originalData.length);
 
       return new Promise((resolve) => {
         let pollCount = 0;
-        const maxPolls = 30; // 最多轮询30次（30秒）
+        const maxPolls = 30; // Maximum 30 polls (30 seconds)
 
         const poll = async () => {
           try {
             pollCount++;
-            // console.log(`🔄 购买后轮询第 ${pollCount} 次`);
+            // console.log(`🔄 Post-purchase polling attempt ${pollCount}`);
 
             const response = await fetchCanvasDataWithRetry(maxRetries);
             const newPixelData = convertApiPixelsToPixelData(response.pixels);
 
-            // 检查数据是否发生变化
+            // Check if data has changed
             const changed = hasDataChanged(originalData, newPixelData);
-            // console.log(`📊 数据变化检测: ${changed ? "有变化" : "无变化"}`);
+            // console.log(`📊 Data change detection: ${changed ? "Changed" : "No change"}`);
 
             if (changed) {
-              // console.log("✅ 检测到数据变化，更新画布数据");
+              // console.log("✅ Data change detected, updating canvas data");
 
-              // 更新状态
+              // Update state
               const canvasInfo = generateCanvasInfo(response.pixels);
               setInitialPixelData(newPixelData);
               setCanvasInfo(canvasInfo);
@@ -344,18 +344,18 @@ export function useCanvasData(
               return;
             }
 
-            // 如果达到最大轮询次数，停止轮询
+            // If maximum poll count reached, stop polling
             if (pollCount >= maxPolls) {
-              // console.log("⏰ 达到最大轮询次数，停止轮询");
+              // console.log("⏰ Reached maximum polling attempts, stopping polling");
               resolve();
               return;
             }
 
-            // 1秒后继续轮询
+            // Continue polling after 1 second
             setTimeout(poll, 1000);
           } catch (error) {
-            console.error("❌ 购买后轮询失败:", error);
-            // 出错时也继续轮询，直到达到最大次数
+            console.error("❌ Post-purchase polling failed:", error);
+            // Continue polling even on error until max attempts reached
             if (pollCount < maxPolls) {
               setTimeout(poll, 1000);
             } else {
@@ -364,21 +364,21 @@ export function useCanvasData(
           }
         };
 
-        // 开始轮询
+        // Start polling
         poll();
       });
     },
     [maxRetries, hasDataChanged]
   );
 
-  // 保存函数引用到 ref，避免依赖数组问题
+  // Save function reference to ref to avoid dependency array issues
   const startPollingRef = useRef(startPolling);
   const stopPollingRef = useRef(stopPolling);
   const pausePollingRef = useRef(pausePolling);
   const resumePollingRef = useRef(resumePolling);
   const fetchDataRef = useRef(fetchData);
 
-  // 同步函数引用
+  // Sync function references
   useEffect(() => {
     startPollingRef.current = startPolling;
     stopPollingRef.current = stopPolling;
@@ -387,11 +387,11 @@ export function useCanvasData(
     fetchDataRef.current = fetchData;
   });
 
-  // 组件挂载时的初始化 - 只执行一次
+  // Component mount initialization - execute only once
   useEffect(() => {
     isMountedRef.current = true;
 
-    // 确保初始状态是干净的
+    // Ensure initial state is clean
     setIsPolling(false);
     setIsPaused(false);
     if (pollingTimeoutRef.current) {
@@ -399,14 +399,14 @@ export function useCanvasData(
       pollingTimeoutRef.current = null;
     }
 
-    // 立即获取一次数据
+    // Fetch data once immediately
     if (fetchOnMount) {
       fetchDataRef.current();
     }
 
-    // 启动轮询
+    // Start polling
     if (enablePolling) {
-      // 使用 setTimeout 避免立即开始轮询与初始获取冲突
+      // Use setTimeout to avoid immediate polling conflict with initial fetch
       const timer = setTimeout(() => {
         if (isMountedRef.current) {
           startPollingRef.current();
@@ -419,38 +419,38 @@ export function useCanvasData(
     }
 
     return undefined;
-  }, [fetchOnMount, enablePolling, pollingInterval]); // 移除函数依赖
+  }, [fetchOnMount, enablePolling, pollingInterval]); // Remove function dependencies
 
-  // 组件卸载时清理 - 只执行一次
+  // Component unmount cleanup - execute only once
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
       stopPollingRef.current();
     };
-  }, []); // 移除函数依赖
+  }, []); // Remove function dependencies
 
-  // 监听绘制状态变化，自动暂停/恢复轮询
+  // Listen to drawing state changes, auto pause/resume polling
   useEffect(() => {
-    // 避免初始化时立即执行，等轮询真正启动后再监听
+    // Avoid immediate execution during initialization, wait for polling to really start
     if (!enablePolling) return;
 
     if (isDrawing) {
       pausePollingRef.current();
     } else {
-      // 只有在轮询已启动的情况下才恢复
+      // Only resume if polling has already started
       if (isPollingRef.current) {
         resumePollingRef.current();
       }
     }
-  }, [isDrawing, enablePolling]); // 移除函数依赖
+  }, [isDrawing, enablePolling]); // Remove function dependencies
 
-  // 轮询间隔变化时重新启动轮询
+  // Restart polling when polling interval changes
   useEffect(() => {
     if (isPollingRef.current) {
       stopPollingRef.current();
-      setTimeout(() => startPollingRef.current(), 100); // 短暂延迟后重新启动
+      setTimeout(() => startPollingRef.current(), 100); // Brief delay before restarting
     }
-  }, [pollingInterval]); // 移除状态和函数依赖
+  }, [pollingInterval]); // Remove state and function dependencies
 
   return {
     canvasState: {

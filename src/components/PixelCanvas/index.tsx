@@ -108,56 +108,56 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     // Purchase related state
     const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
     const [emptyPixelPrice] = useState(PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE / 100000000); // Convert satoshis to BTC
-    const [isPurchaseRefreshing, setIsPurchaseRefreshing] = useState(false); // 购买后刷新loading状态
+    const [isPurchaseRefreshing, setIsPurchaseRefreshing] = useState(false); // Post-purchase refresh loading state
 
-    // 购买刷新完成处理
+    // Handle purchase refresh completion
     const handlePurchaseRefreshComplete = useCallback(() => {
-      // console.log("🎉 购买后数据刷新完成，关闭loading");
+      // console.log("🎉 Post-purchase data refresh complete, close loading");
       setIsPurchaseRefreshing(false);
       onPurchaseRefreshComplete?.();
     }, [onPurchaseRefreshComplete]);
 
-    // 购买成功后的处理函数
+    // Handle post-purchase success function
     const handlePurchaseSuccess = useCallback(async () => {
-      // console.log("🎉 购买成功，清空用户绘制状态并开始轮询刷新");
+      // console.log("🎉 Purchase successful, clear user drawing state and start polling refresh");
       
-      // 清空用户绘制数据
+      // Clear user drawing data
       const emptyUserPixels = new Map<string, string>();
       setUserPixels(() => emptyUserPixels);
       
-      // 清空绘制操作记录
+      // Clear drawing operation records
       setDrawingOperations([]);
       
-      // 清空历史记录
+      // Clear history records
       setUndoStack([]);
       setRedoStack([]);
       
-      // 触发回调更新
+      // Trigger callback update
       setTimeout(() => {
         onDrawingChange?.([]);
         onUserPixelCountChange?.(emptyUserPixels.size);
       }, 0);
       
-      // 开始购买后的刷新loading
+      // Start post-purchase refresh loading
       setIsPurchaseRefreshing(true);
       
       try {
-        // 触发购买后的特殊刷新逻辑（通过父组件）
+        // Trigger special post-purchase refresh logic (through parent component)
         await onPurchaseSuccess?.();
         
-        // 购买刷新完成
+        // Purchase refresh completed
         handlePurchaseRefreshComplete();
       } catch (error) {
-        console.error("购买后刷新失败:", error);
-        // 即使失败也要关闭loading
+        console.error("Post-purchase refresh failed:", error);
+        // Close loading even if failed
         handlePurchaseRefreshComplete();
       }
     }, [onDrawingChange, onUserPixelCountChange, onPurchaseSuccess, handlePurchaseRefreshComplete]);
 
-    // 监听购买刷新完成事件
+    // Listen for purchase refresh completion events
     useEffect(() => {
       if (onPurchaseRefreshComplete) {
-        // 这里可以添加额外的购买刷新完成处理逻辑
+        // Additional purchase refresh completion handling logic can be added here
       }
     }, [onPurchaseRefreshComplete]);
 
@@ -171,10 +171,10 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       userPixels,
       paintedPixelInfoList: canvasInfo?.paintedPixelInfoList || [],
       onSuccess: (txid) => {
-        // console.log("购买成功，交易ID:", txid);
+        // console.log("Purchase successful, transaction ID:", txid);
         setIsPurchaseDialogOpen(false);
         
-        // 购买成功后的处理
+        // Handle post-purchase success
         handlePurchaseSuccess();
       }
     });
@@ -260,10 +260,10 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       setCurrentColor(color);
     }, []);
 
-    // Data import method - 首次导入时清空所有数据
+    // Data import method - clear all data on first import
     const importData = useCallback(
       (data: PixelData[]) => {
-        // console.log("📥 importData 被调用（首次导入），数据:", data);
+        // console.log("📥 importData called (first import), data:", data);
         const newInitialPixels = new Map<string, string>();
         const newUserPixels = new Map<string, string>();
         
@@ -271,13 +271,13 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
             const key = `${x},${y}`;
             newInitialPixels.set(key, color);
-            // console.log(`🎨 设置像素: (${x}, ${y}) -> ${color}`);
+            // console.log(`🎨 Set pixel: (${x}, ${y}) -> ${color}`);
           } else {
-            console.warn(`⚠️  无效像素坐标: (${x}, ${y}), gridSize: ${gridSize}`);
+            console.warn(`⚠️  Invalid pixel coordinates: (${x}, ${y}), gridSize: ${gridSize}`);
           }
         });
         
-        // console.log("🗂️  初始像素 Map:", newInitialPixels);
+        // console.log("🗼️  Initial pixels Map:", newInitialPixels);
         
         setInitialPixels(newInitialPixels);
         setUserPixels(() => newUserPixels);
@@ -295,27 +295,27 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       [gridSize] // Only depend on gridSize
     );
 
-    // Update initial data method - 仅更新底层数据，保留用户绘制
+    // Update initial data method - only update underlying data, preserve user drawings
     const updateInitialData = useCallback(
       (data: PixelData[]) => {
-        // console.log("🔄 updateInitialData 被调用（更新底层数据），数据:", data);
+        // console.log("🔄 updateInitialData called (update bottom layer data), data:", data);
         const newInitialPixels = new Map<string, string>();
         
         data.forEach(({ x, y, color }) => {
           if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
             const key = `${x},${y}`;
             newInitialPixels.set(key, color);
-            // console.log(`🎨 更新底层像素: (${x}, ${y}) -> ${color}`);
+            // console.log(`🎨 Update bottom layer pixel: (${x}, ${y}) -> ${color}`);
           } else {
-            console.warn(`⚠️  无效像素坐标: (${x}, ${y}), gridSize: ${gridSize}`);
+            console.warn(`⚠️  Invalid pixel coordinates: (${x}, ${y}), gridSize: ${gridSize}`);
           }
         });
         
-        // console.log("🗂️  更新后的初始像素 Map:", newInitialPixels);
-        // console.log("👤 保留用户像素 Map:", userPixels);
+        // console.log("🗼️  Updated initial pixels Map:", newInitialPixels);
+        // console.log("👤 Retain user pixels Map:", userPixels);
         
         setInitialPixels(newInitialPixels);
-        // 不修改 userPixels，保留用户绘制内容
+        // Don't modify userPixels, preserve user drawing content
       },
       [gridSize, userPixels]
     );
@@ -564,28 +564,28 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
     // Handle initial data import and updates
     useEffect(() => {
-      // console.log("🔍 PixelCanvas useEffect 触发:", { 
+      // console.log("🔍 PixelCanvas useEffect triggered:", { 
       //   isInitialized, 
       //   initialDataLength: initialData?.length || 0,
-      //   initialData: initialData?.slice(0, 5) // 只显示前5个像素用于调试
+      //   initialData: initialData?.slice(0, 5) // Only show first 5 pixels for debugging
       // });
       
       if (!isInitialized) {
-        // 首次初始化
+        // First initialization
         if (initialData && initialData.length > 0) {
-          // console.log("📥 首次导入初始数据:", initialData);
+          // console.log("📥 First import of initial data:", initialData);
           importData(initialData);
         } else {
-          // console.log("🔧 初始化空画布");
+          // console.log("🔧 Initialize empty canvas");
           setIsInitialized(true);
           setDrawingOperations([]);
           setUndoStack([]);
           setRedoStack([]);
         }
       } else {
-        // 已初始化，仅更新底层数据
+        // Already initialized, only update underlying data
         if (initialData && initialData.length > 0) {
-          // console.log("🔄 更新底层数据，保留用户绘制");
+          // console.log("🔄 Update bottom layer data, retain user drawing");
           updateInitialData(initialData);
         }
       }
@@ -613,7 +613,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     // Reset canvas when grid size changes
     useEffect(() => {
       // Only reset when gridSize changes; initialData doesn't participate in dependency to avoid repeated resets when parent component passes []
-      // console.log("🔄 gridSize 变化，重置画布:", gridSize);
+      // console.log("🔄 gridSize changed, reset canvas:", gridSize);
       setInitialPixels(new Map());
       const emptyUserPixels = new Map<string, string>();
       setUserPixels(() => emptyUserPixels);
@@ -626,7 +626,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
       if (initialData && initialData.length > 0) {
         setTimeout(() => {
-          // console.log("🔄 gridSize变化后导入初始数据");
+          // console.log("🔄 Import initial data after gridSize change");
           importData(initialData);
         }, 0);
       } else {
@@ -749,7 +749,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             <div className="absolute bottom-4 right-4">
               <button
                 onClick={handlePurchase}
-                // TODO: 后续放开注释
+                // TODO: Enable this comment later
                 // disabled={!canPurchase || isPurchaseLoading}
                 className={`
                   px-6 py-3 rounded-full shadow-lg transition-all duration-200 flex items-center gap-2 font-medium cursor-pointer
@@ -760,7 +760,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
                 `}
               >
                 <ShoppingCart className="w-5 h-5" />
-                {isPurchaseLoading ? "处理中..." : `Purchase (${userPixels.size})`}
+                {isPurchaseLoading ? "Processing..." : `Purchase (${userPixels.size})`}
               </button>
             </div>
           )}

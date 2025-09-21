@@ -98,17 +98,17 @@ export const useCanvasDrawing = ({
   const strokeVisitedRef = useRef<Set<string> | null>(null);
   const pendingOperationsRef = useRef<DrawingOperation[]>([]);
 
-  // 状态镜像，避免闭包陈旧值
+  // State mirrors to avoid stale closure values
   const scaleRef = useRef(scale);
   const offsetRef = useRef(offset);
   const gridSizeRef = useRef(gridSize);
   const pixelSizeRef = useRef(pixelSize);
   const showGridRef = useRef(showGrid);
 
-  // 工具：确保图层画布存在并尺寸正确（以网格单位尺寸 gridSize × gridSize）
+  // Tool: ensure layer canvas exists and has correct size (in grid unit size gridSize × gridSize)
   const ensureLayer = useCallback(() => {
-    const size = gridSizeRef.current; // 离屏层采用网格尺寸，1像素=1格
-    // 初始化或尺寸变化时重建
+    const size = gridSizeRef.current; // Off-screen layer uses grid size, 1 pixel = 1 grid
+    // Rebuild on initialization or size change
     const ensure = (
       canvasRef: React.MutableRefObject<HTMLCanvasElement | null>,
       ctxRef: React.MutableRefObject<CanvasRenderingContext2D | null>
@@ -135,16 +135,16 @@ export const useCanvasDrawing = ({
     ensure(userLayerCanvasRef, userLayerCtxRef);
   }, []);
 
-  // 从 Map 重建静态层
+  // Rebuild static layer from Map
   const rebuildStaticLayer = useCallback(() => {
     ensureLayer();
     const ctx = staticLayerCtxRef.current;
     const canvas = staticLayerCanvasRef.current;
-    // console.log("🖼️  重建静态层:", { 
+    // console.log("🖼️  Rebuild static layer:", { 
     //   hasCtx: !!ctx, 
     //   hasCanvas: !!canvas, 
     //   pixelCount: initialPixels.size,
-    //   pixels: Array.from(initialPixels.entries()).slice(0, 5) // 显示前5个像素用于调试
+    //   pixels: Array.from(initialPixels.entries()).slice(0, 5) // Show first 5 pixels for debugging
     // });
     
     if (!ctx || !canvas) return;
@@ -157,11 +157,11 @@ export const useCanvasDrawing = ({
       ctx.fillRect(x, y, 1, 1);
       drawnCount++;
       if (drawnCount <= 5) {
-        // console.log(`🎨 绘制像素: (${x}, ${y}) -> ${color}`);
+        // console.log(`🎨 Draw pixel: (${x}, ${y}) -> ${color}`);
       }
     });
     
-    // console.log(`✅ 静态层重建完成，共绘制 ${drawnCount} 个像素`);
+    // console.log(`✅ Static layer rebuild complete, drew ${drawnCount} pixels`);
   }, [initialPixels, ensureLayer]);
 
   // 从 Map 重建用户层（用于批量导入/清空）
@@ -338,7 +338,7 @@ export const useCanvasDrawing = ({
 
   // initialPixels 变化时重建静态层
   useEffect(() => {
-    // console.log("🎨 initialPixels 变化，重建静态层:", initialPixels);
+    // console.log("🎨 initialPixels changed, rebuild static layer:", initialPixels);
     rebuildStaticLayer();
     scheduleDraw();
   }, [rebuildStaticLayer, scheduleDraw]);

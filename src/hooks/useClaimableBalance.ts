@@ -17,7 +17,7 @@ interface UseClaimableBalanceReturn extends ClaimableBalanceState {
 }
 
 /**
- * 管理可领取余额的Hook
+ * Hook for managing claimable balance
  */
 export const useClaimableBalance = (): UseClaimableBalanceReturn => {
   const { isConnected, paymentAddress } = useWalletStore();
@@ -44,11 +44,11 @@ export const useClaimableBalance = (): UseClaimableBalanceReturn => {
         lastUpdated: new Date(),
       }));
     } catch (error) {
-      console.error("获取可领取余额失败:", error);
+      console.error("Failed to fetch claimable balance:", error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : "获取可领取余额失败",
+        error: error instanceof Error ? error.message : "Failed to fetch claimable balance",
       }));
     }
   }, []);
@@ -80,13 +80,13 @@ export const useClaimableBalance = (): UseClaimableBalanceReturn => {
     }
   }, [isConnected, paymentAddress, fetchClaimableBalance]);
 
-  // 定期刷新余额 (每30秒) - 只有在钱包连接时才刷新
+  // Periodically refresh balance (every 30 seconds) - only when wallet is connected
   useEffect(() => {
     if (!isConnected || !paymentAddress) return;
 
     const interval = setInterval(() => {
       fetchClaimableBalance(paymentAddress);
-    }, 30000); // 30秒间隔
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [isConnected, paymentAddress, fetchClaimableBalance]);

@@ -14,52 +14,52 @@ import { useRankingData } from "@/hooks/useRankingData";
 function HomePage() {
   const { theme: themeConfig } = useThemeStore();
   const { isConnected } = useWalletStore();
-  const [gridSize] = useState<100 | 1000>(100); // 约定暂时只支持 100*100 大小的画布
+  const [gridSize] = useState<100 | 1000>(100); // Convention: temporarily only support 100*100 size canvas
 
-  // 使用画布数据 Hook
+  // Use canvas data Hook
   const { canvasState, refreshData, startPurchasePolling } = useCanvasData({
     enablePolling: true,
-    pollingInterval: 8000, // 8秒轮询
+    pollingInterval: 8000, // 8 second polling
     fetchOnMount: true,
   });
 
-  // 使用排行榜数据 Hook
+  // Use ranking data Hook
   const { 
     participants, 
     dataState: rankingDataState, 
     refreshData: refreshRankingData
   } = useRankingData({
     enablePolling: true,
-    pollingInterval: 8000, // 8秒轮询
+    pollingInterval: 8000, // 8 second polling
     fetchOnMount: true,
   });
 
   const { canvasInfo, initialPixelData, dataState } = canvasState;
 
-  // 手动刷新数据
+  // Manually refresh data
   const handleRefresh = () => {
     refreshData();
     refreshRankingData();
   };
 
-  // 购买成功后的处理
+  // Handle post-purchase success
   const handlePurchaseSuccess = async () => {
-    console.log("🛒 开始购买后数据刷新流程");
-    // 保存当前数据用于比较
+    console.log("🛒 Start post-purchase data refresh process");
+    // Save current data for comparison
     const originalData = [...initialPixelData];
     
-    // 开始轮询直到数据变化
+    // Start polling until data changes
     await startPurchasePolling(originalData);
     
-    // 同时刷新排行榜数据
+    // Also refresh ranking data
     refreshRankingData();
     
-    console.log("🎉 购买后数据刷新流程完成");
+    console.log("🎉 Post-purchase data refresh process complete");
   };
 
-  // 购买刷新完成处理
+  // Handle purchase refresh completion
   const handlePurchaseRefreshComplete = () => {
-    console.log("🎉 购买刷新完成回调被触发");
+    console.log("🎉 Purchase refresh completion callback triggered");
   };
 
   return (
@@ -104,7 +104,7 @@ function HomePage() {
         }}
       />
       
-      {/* 钱包状态调试器 - 只在开发环境显示 */}
+      {/* Wallet state debugger - only show in development environment */}
       <WalletDebugger position="bottom-right" minimizable={true} />
       </div>
     </ErrorBoundary>

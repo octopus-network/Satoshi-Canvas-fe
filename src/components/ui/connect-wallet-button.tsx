@@ -23,7 +23,7 @@ const ConnectWalletButton: React.FC<ConnectWalletButtonProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const { isConnected } = useWalletStore();
 
-  // 如果已连接，不显示连接按钮
+  // If already connected, don't show connect button
   if (isConnected) {
     return null;
   }
@@ -41,7 +41,7 @@ const ConnectWalletButton: React.FC<ConnectWalletButtonProps> = ({
         className={cn("gap-2 cursor-pointer", className)}
       >
         <Wallet className="w-4 h-4" />
-        {children || "连接钱包"}
+        {children || "Connect Wallet"}
       </Button>
 
       <ConnectWalletModal open={modalOpen} setOpen={setModalOpen} />

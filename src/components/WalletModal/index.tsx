@@ -9,6 +9,7 @@ import { useState, useCallback } from "react";
 import { WALLETS } from "@/constants/wallets";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface WalletRowProps {
   walletId: string;
@@ -16,12 +17,13 @@ interface WalletRowProps {
 }
 
 function WalletRow({ walletId, onConnected }: WalletRowProps) {
+  const { t } = useTranslation();
   const { connectWallet, isConnecting, hasXverse } = useWalletConnection();
   const [connectingWallet, setConnectingWallet] = useState<string>();
 
   const wallet = WALLETS[walletId];
 
-  // 检查钱包是否已安装
+  // Check if wallet is installed
   const installed = walletId === "xverse" ? hasXverse : false;
 
   const onConnectWallet = useCallback(async () => {
@@ -38,10 +40,10 @@ function WalletRow({ walletId, onConnected }: WalletRowProps) {
       if (result.success) {
         onConnected(walletId);
       } else {
-        console.error("连接失败:", result.error);
+        console.error("Connection failed:", result.error);
       }
     } catch (err) {
-      console.error("连接钱包时出错:", err);
+      console.error("Error connecting wallet:", err);
     } finally {
       setConnectingWallet(undefined);
     }
@@ -74,7 +76,7 @@ function WalletRow({ walletId, onConnected }: WalletRowProps) {
         <span className="font-semibold text-lg ml-2">{wallet?.name}</span>
       </div>
       {installed && (
-        <span className="text-muted-foreground/80 text-xs">已检测到</span>
+        <span className="text-muted-foreground/80 text-xs">{t("wallet.detected")}</span>
       )}
     </div>
   );
@@ -86,8 +88,9 @@ interface ConnectWalletModalProps {
 }
 
 export function ConnectWalletModal({ open, setOpen }: ConnectWalletModalProps) {
+  const { t } = useTranslation();
   const onConnected = (walletId: string) => {
-    console.log(`已连接到 ${WALLETS[walletId]?.name}`);
+    console.log(`Connected to ${WALLETS[walletId]?.name}`);
     setOpen(false);
   };
 
@@ -98,7 +101,7 @@ export function ConnectWalletModal({ open, setOpen }: ConnectWalletModalProps) {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>连接钱包</DialogTitle>
+          <DialogTitle>{t("wallet.connectWallet")}</DialogTitle>
         </DialogHeader>
         <div>
           <div className="flex flex-col mt-3 gap-1">
@@ -112,7 +115,7 @@ export function ConnectWalletModal({ open, setOpen }: ConnectWalletModalProps) {
           </div>
           <div className="text-xs text-muted-foreground flex items-center mt-4">
             <Info className="size-4 mr-2 flex-shrink-0" />
-            <span>要使用 Buy Pixel 功能，您需要连接一个比特币钱包</span>
+            <span>{t("wallet.buyPixelInfo")}</span>
           </div>
         </div>
       </DialogContent>

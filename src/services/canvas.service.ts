@@ -1,76 +1,76 @@
 /**
- * Canvas API 服务层
- * 处理画布数据相关的业务逻辑和 API 调用
+ * Canvas API service layer
+ * Handles canvas data related business logic and API calls
  */
 
 import type { PixelData } from "@/components/PixelCanvas/types";
 import type { CanvasInfo, Participant } from "@/types/canvas";
 
-// API 返回的 Pixel 结构
+// API returned Pixel structure
 export interface ApiPixel {
-  owner: string | null; // None 表示无人持有，Some 则为持有者地址
-  price: number; // 当前标价 (satoshis)
-  color: string; // 24-bit RGB888 颜色
-  x: number; // 像素坐标 x
-  y: number; // 像素坐标 y
+  owner: string | null; // None means no owner, Some is the owner's address
+  price: number; // Current price (satoshis)
+  color: string; // 24-bit RGB888 color
+  x: number; // Pixel coordinate x
+  y: number; // Pixel coordinate y
 }
 
-// API 返回的 Ranking 结构
+// API returned Ranking structure
 export interface ApiRankingItem {
-  account: string; // 用户钱包地址
-  pixel_count: number; // 绘制的像素数量
-  total_value: number; // 总价值 (satoshis)
+  account: string; // User wallet address
+  pixel_count: number; // Number of pixels drawn
+  total_value: number; // Total value (satoshis)
 }
 
-// API 返回的 Claimable 结构
+// API returned Claimable structure
 export interface ApiClaimableResponse {
-  address: string; // 用户钱包地址
-  claimable_sats: number; // 可领取的 satoshis 数量
+  address: string; // User wallet address
+  claimable_sats: number; // Number of claimable satoshis
 }
 
-// Canvas API 响应
+// Canvas API response
 export interface CanvasApiResponse {
   pixels: ApiPixel[];
 }
 
-// Canvas API 常量
+// Canvas API constants
 export const CANVAS_API = {
   BASE_URL: "https://p4nzc-yiaaa-aaaao-qkg2q-cai.raw.icp0.io",
   ENDPOINTS: {
     CANVAS: "/canvas",
     RANKING: "/rank",
-    DRAW: "/draw", // 新增绘制接口
-    CLAIMABLE: "/claimable", // 新增可领取余额接口
+    DRAW: "/draw", // New drawing interface
+    CLAIMABLE: "/claimable", // New claimable balance interface
   },
-  POLLING_INTERVAL: 8000, // 8秒轮询间隔
-  GRID_SIZE: 100, // 画布网格大小 (100x100)
+  POLLING_INTERVAL: 8000, // 8 second polling interval
+  GRID_SIZE: 100, // Canvas grid size (100x100)
 } as const;
 
-// 购买意图接口定义
+// Purchase intent interface definition
 export interface PurchaseIntent {
   x: number;
   y: number;
-  owner: string; // 购买者地址 (paymentAddress)
-  color: string; // 期望上色
+  owner: string; // Buyer address (paymentAddress)
+  color: string; // Expected color
 }
 
 export type PurchaseIntents = PurchaseIntent[];
 
 /**
- * 解析 JSON 响应数据
+ * Parse JSON response data
  */
 export async function parseCanvasResponse(response: Response): Promise<ApiPixel[]> {
   try {
     const data = await response.json();
     return Array.isArray(data) ? data : [];
   } catch (error) {
-    console.error("解析 JSON 数据失败:", error);
+    console.error("Failed to parse JSON data:", error);
     return [];
   }
 }
 
 /**
- * 获取画布数据
+ * Fetch canvas data
  */
 export async function fetchCanvasData(): Promise<CanvasApiResponse> {
   try {
@@ -88,7 +88,7 @@ export async function fetchCanvasData(): Promise<CanvasApiResponse> {
 
     const pixels = await parseCanvasResponse(response);
     
-    // 过滤掉无效的像素数据（API 直接返回坐标，无需计算）
+    // Filter out invalid pixel data (API returns coordinates directly, no calculation needed)
     const validPixels = pixels.filter((pixel) => 
       pixel.color && 
       typeof pixel.x === 'number' && 
@@ -99,13 +99,13 @@ export async function fetchCanvasData(): Promise<CanvasApiResponse> {
 
     return { pixels: validPixels };
   } catch (error) {
-    console.error("获取画布数据失败:", error);
+    console.error("Failed to fetch canvas data:", error);
     throw error;
   }
 }
 
 /**
- * 将 API 像素数据转换为 PixelData 格式
+ * Convert API pixel data to PixelData format
  */
 export function convertApiPixelsToPixelData(apiPixels: ApiPixel[]): PixelData[] {
   return apiPixels.map((pixel) => ({
@@ -116,7 +116,7 @@ export function convertApiPixelsToPixelData(apiPixels: ApiPixel[]): PixelData[] 
 }
 
 /**
- * 从 API 数据生成画布信息
+ * Generate canvas info from API data
  */
 export function generateCanvasInfo(apiPixels: ApiPixel[]): CanvasInfo {
   const paintedPixelCount = apiPixels.length;
@@ -126,24 +126,24 @@ export function generateCanvasInfo(apiPixels: ApiPixel[]): CanvasInfo {
     x: pixel.x,
     y: pixel.y,
     color: pixel.color,
-    price: pixel.price / 100000000, // 转换为 BTC 单位 (假设 price 是 satoshis)
+    price: pixel.price / 100000000, // Convert to BTC units (assuming price is satoshis)
   }));
 
   return {
     paintedPixelCount,
-    totalValue: totalValue / 100000000, // 转换为 BTC 单位
+    totalValue: totalValue / 100000000, // Convert to BTC units
     paintedPixelInfoList,
   };
 }
 
 /**
- * 将 API 排行榜数据转换为 Participant 格式
+ * Convert API ranking data to Participant format
  */
 export function convertApiRankingToParticipants(apiRanking: ApiRankingItem[]): Participant[] {
   return apiRanking.map((item) => ({
     address: item.account,
     paintedPixelCount: item.pixel_count,
-    paintedPrice: item.total_value / 100000000, // 转换为 BTC 单位 (假设 total_value 是 satoshis)
+    paintedPrice: item.total_value / 100000000, // Convert to BTC units (assuming total_value is satoshis)
   }));
 }
 
@@ -285,7 +285,7 @@ export async function fetchClaimableBalanceWithRetry(
  */
 export async function submitDrawIntents(intents: PurchaseIntents): Promise<string> {
   try {
-    console.log("提交绘制意图:", intents);
+    console.log("Submit drawing intents:", intents);
     
     const response = await fetch(`${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.DRAW}`, {
       method: "POST",
@@ -302,7 +302,7 @@ export async function submitDrawIntents(intents: PurchaseIntents): Promise<strin
 
     // 假设返回交易ID或成功标识
     const result = await response.text();
-    console.log("绘制提交成功:", result);
+    console.log("Drawing submission successful:", result);
     
     // 返回模拟的交易ID
     return result || `mock_tx_${Date.now()}`;

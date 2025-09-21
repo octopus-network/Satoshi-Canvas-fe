@@ -23,6 +23,11 @@
     "chinese": "中文",
     "english": "English"
   },
+  "wallet": {
+    "connectWallet": "Connect Wallet",
+    "detected": "Detected",
+    "buyPixelInfo": "To use the Buy Pixel feature, you need to connect a Bitcoin wallet"
+  },
   "toast": {
     "coordinateCopied": "Coordinates copied",
     "currentCoordinate": "Current coordinates: ({{x}}, {{y}})",

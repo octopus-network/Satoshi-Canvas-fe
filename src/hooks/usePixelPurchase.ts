@@ -3,7 +3,7 @@ import { useLaserEyes } from "@omnisat/lasereyes";
 import { useRee, usePoolList, utils as reeUtils, Network } from "@omnity/ree-client-ts-sdk";
 import { toast } from "sonner";
 import { PIXEL_CONSTANTS } from "@/constants/pixel";
-// import { submitDrawIntents, type PurchaseIntent, type PurchaseIntents } from "@/services/canvas.service"; // 暂时不使用
+// import { submitDrawIntents, type PurchaseIntent, type PurchaseIntents } from "@/services/canvas.service"; // Temporarily not used
 import { shortenErrorMessage } from "@/utils/string";
 
 export interface UsePixelPurchaseProps {
@@ -13,19 +13,19 @@ export interface UsePixelPurchaseProps {
 }
 
 export interface UsePixelPurchaseReturn {
-  // 状态
+  // State
   isPurchaseLoading: boolean;
   isPoolsReady: boolean;
   
-  // 池子信息
+  // Pool information
   availablePools: any[];
   poolsLoading: boolean;
   poolsError: string | null;
   
-  // 方法
+  // Methods
   executePurchase: () => Promise<void>;
   
-  // 计算属性
+  // Computed properties
   pixelCount: number;
   canPurchase: boolean;
 }
@@ -37,71 +37,71 @@ export const usePixelPurchase = ({
 }: UsePixelPurchaseProps): UsePixelPurchaseReturn => {
   const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
   
-  // Wallet 和交易相关 hooks
+  // Wallet and transaction related hooks
   const { signPsbt, address, paymentAddress } = useLaserEyes();
   const { createTransaction, client } = useRee();
   const { pools: availablePools, loading: poolsLoading, error: poolsError } = usePoolList();
 
-  // 计算属性
+  // Computed properties
   const pixelCount = userPixels.size;
   const isPoolsReady = !poolsLoading && !poolsError && availablePools && availablePools.length > 0;
   const canPurchase = !!address && !!paymentAddress && pixelCount > 0 && isPoolsReady;
 
-  // Debug: 池子信息日志
+  // Debug: Pool information logging
   useEffect(() => {
-    console.log("🏊 池子状态更新:", { 
+    console.log("🏊 Pool status update:", { 
       poolsLoading, 
       poolsError, 
       poolCount: availablePools?.length 
     });
     
     if (poolsError) {
-      console.log("🏊 池子列表加载失败:", { errorInfo: poolsError });
-      toast.error("池子信息加载失败", {
-        description: shortenErrorMessage(poolsError, 120) || "请检查网络连接或稍后重试",
+      console.log("🏊 Pool list loading failed:", { errorInfo: poolsError });
+      toast.error("Pool information loading failed", {
+        description: shortenErrorMessage(poolsError, 120) || "Please check network connection or try again later",
         duration: 5000,
       });
     } else if (!poolsLoading && availablePools && availablePools.length > 0) {
-      console.log("🏊 获取到的池子列表:", availablePools);
-      console.log("🏊 第一个池子详情:", availablePools[0]);
-      console.log("🏊 池子数量:", availablePools.length);
+      console.log("🏊 Pool list obtained:", availablePools);
+      console.log("🏊 First pool details:", availablePools[0]);
+      console.log("🏊 Pool count:", availablePools.length);
       
-      // 打印每个池子的地址和名称
+      // Print address and name of each pool
       availablePools.forEach((pool: any, index: number) => {
-        console.log(`🏊 池子 ${index + 1}:`, {
+        console.log(`🏊 Pool ${index + 1}:`, {
           name: pool.name,
           address: pool.address,
         });
       });
 
-      // 显示池子信息加载成功的提示（仅显示一次）
-      toast.success("池子信息加载成功", {
-        description: `发现 ${availablePools.length} 个可用池子`,
+      // Show pool information loading success notification (only once)
+      toast.success("Pool information loaded successfully", {
+        description: `Found ${availablePools.length} available pools`,
         duration: 3000,
       });
     } else if (!poolsLoading && (!availablePools || availablePools.length === 0)) {
-      console.log("🏊 没有找到可用的池子");
-      toast.error("没有找到可用的池子", {
-        description: "请稍后重试或联系管理员",
+      console.log("🏊 No available pools found");
+      toast.error("No available pools found", {
+        description: "Please try again later or contact administrator",
         duration: 5000,
       });
     } else if (poolsLoading) {
-      console.log("🏊 池子列表正在加载中...");
+      console.log("🏊 Pool list is loading...");
     }
   }, [availablePools, poolsLoading, poolsError]);
 
-  // ! 执行购买交易
+  // Execute purchase transaction
   const executePurchase = useCallback(async () => {
     if (!address || !paymentAddress) {
-      toast.error("请先连接钱包", {
-        description: "需要连接钱包才能购买像素",
+      toast.error("Please connect wallet first", {
+        description: "Need to connect wallet to purchase pixels",
       });
       return;
     }
 
     if (pixelCount === 0) {
-      toast.error("没有要购买的像素", {
-        description: "请先绘制一些像素",
+      toast.error("No pixels to purchase", {
+        description: "Please draw some pixels first",
       });
       return;
     }
@@ -109,54 +109,54 @@ export const usePixelPurchase = ({
     setIsPurchaseLoading(true);
 
     try {
-      // 临时 mock API 代码已注释
+      // Temporary mock API code is commented
       /* 
-      console.log("🎨 使用临时 mock API 进行绘制");
+      console.log("🎨 Using temporary mock API for drawing");
       
       const drawIntents = convertToDrawIntents(userPixels, paymentAddress);
-      console.log("绘制意图:", drawIntents);
+      console.log("Drawing intentions:", drawIntents);
       
       const txid = await submitDrawIntents(drawIntents);
       
-      console.log("绘制成功，交易ID:", txid);
+      console.log("Drawing successful, transaction ID:", txid);
       
-      // 成功提示
-      toast.success("绘制成功!", {
-        description: `交易ID: ${txid.slice(0, 8)}...${txid.slice(-8)}`,
+      // Success notification
+      toast.success("Drawing successful!", {
+        description: `Transaction ID: ${txid.slice(0, 8)}...${txid.slice(-8)}`,
         duration: 5000,
       });
 
-      // 调用成功回调
+      // Call success callback
       onSuccess?.(txid);
 
       return;
       */
 
-      // 恢复原有的 ree 平台代码
-      // 检查池子加载状态
+      // Restore original ree platform code
+      // Check pool loading status
       if (poolsLoading) {
-        throw new Error("池子信息正在加载中，请稍后重试");
+        throw new Error("Pool information is loading, please try again later");
       }
       
       if (poolsError) {
-        throw new Error(`池子信息加载失败: ${poolsError}`);
+        throw new Error(`Pool information loading failed: ${poolsError}`);
       }
       
-      // 检查是否有可用的池子
+      // Check if there are available pools
       if (!availablePools || availablePools.length === 0) {
-        throw new Error("没有可用的池子，请稍后重试");
+        throw new Error("No available pools, please try again later");
       }
 
-      // 使用真实的池子地址（这里使用第一个池子，实际应用中可能需要查找特定的像素池子）
+      // Use real pool address (using the first pool here, in actual application may need to find specific pixel pool)
       const targetPool = availablePools[0];
-      console.log("🎯 使用的池子:", targetPool);
+      console.log("🎯 Using pool:", targetPool);
       
-      // 获取完整的池子信息，包含UTXO和nonce
-      console.log("获取池子详细信息...");
+      // Get complete pool information, including UTXO and nonce
+      console.log("Getting detailed pool information...");
       const poolInfo = await client.getPoolInfo(targetPool.address);
-      console.log("🎯 池子详细信息:", poolInfo);
+      console.log("🎯 Detailed pool information:", poolInfo);
       
-      // 计算空白像素和非空白像素的价格
+      // Calculate prices for empty pixels and non-empty pixels
       const paintedPixelMap = new Map<string, number>();
       paintedPixelInfoList.forEach((pixel) => {
         const key = `${pixel.x},${pixel.y}`;
@@ -177,11 +177,11 @@ export const usePixelPurchase = ({
         }
       });
 
-      // 计算真实的像素价格（使用真实价格数据）
+      // Calculate real pixel prices (using real price data)
       const emptyPixelTotalPriceSatoshis = emptyPixelCount * PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE;
       const totalPriceSatoshis = emptyPixelTotalPriceSatoshis + repaintTotalPriceSatoshis;
       
-      console.log("创建购买交易:", {
+      console.log("Creating purchase transaction:", {
         pixelCount,
         emptyPixelCount,
         repaintPixelCount: pixelCount - emptyPixelCount,
@@ -194,11 +194,11 @@ export const usePixelPurchase = ({
         poolUtxosCount: poolInfo.utxos?.length || 0,
       });
 
-      // 使用池子的第一个UTXO（如果没有UTXO则为undefined）
+      // Use the first UTXO of the pool (undefined if no UTXO)
       const poolUtxo = poolInfo.utxos && poolInfo.utxos.length > 0 ? poolInfo.utxos[0] : undefined;
-      console.log("使用的池子UTXO:", poolUtxo);
+      console.log("Using pool UTXO:", poolUtxo);
 
-      // 创建交易
+      // Create transaction
       const tx = await createTransaction();
 
       const tmpIntention = {
@@ -235,7 +235,7 @@ export const usePixelPurchase = ({
           },
         ],
         outputCoins: [
-          // 不需要
+          // Not needed
           // {
           //   coin: purchaseOffer.output_pixels,
           //   to: address,
@@ -244,44 +244,44 @@ export const usePixelPurchase = ({
         nonce: poolInfo.nonce,
       };
       console.info('>>> test tmpIntention: ', tmpIntention);
-      // 添加购买像素的意图
+      // Add pixel purchase intention
       tx.addIntention(tmpIntention);
 
-      console.log("构建 PSBT...");
-      // 构建 PSBT
+      console.log("Building PSBT...");
+      // Build PSBT
       const { psbt } = await tx.build();
       
-      console.log("请求用户签名...");
-      // 请求用户签名
+      console.log("Requesting user signature...");
+      // Request user signature
       const res = await signPsbt(psbt.toBase64());
       const signedPsbtHex = res?.signedPsbtHex ?? "";
 
       if (!signedPsbtHex) {
-        throw new Error("签名失败");
+        throw new Error("Signature failed");
       }
 
-      console.log("发送交易...");
-      // 发送交易
+      console.log("Sending transaction...");
+      // Send transaction
       const txid = await tx.send(signedPsbtHex);
 
-      console.log("交易发送成功:", txid);
+      console.log("Transaction sent successfully:", txid);
       
-      // 成功提示
-      toast.success("购买成功!", {
-        description: `交易ID: ${txid.slice(0, 8)}...${txid.slice(-8)}`,
+      // Success notification
+      toast.success("Purchase successful!", {
+        description: `Transaction ID: ${txid.slice(0, 8)}...${txid.slice(-8)}`,
         duration: 5000,
       });
 
-      // 调用成功回调
+      // Call success callback
       onSuccess?.(txid);
 
     } catch (error: any) {
-      console.error("购买失败:", error);
+      console.error("Purchase failed:", error);
       
-      // 用户取消签名不显示错误
+      // Don't show error for user cancelling signature
       if (error.code !== 4001) {
-        toast.error("购买失败", {
-          description: error.message || "请稍后重试",
+        toast.error("Purchase failed", {
+          description: error.message || "Please try again later",
           duration: 5000,
         });
       }
@@ -304,19 +304,19 @@ export const usePixelPurchase = ({
   ]);
 
   return {
-    // 状态
+    // State
     isPurchaseLoading,
     isPoolsReady,
     
-    // 池子信息
+    // Pool information
     availablePools,
     poolsLoading,
     poolsError,
     
-    // 方法
+    // Methods
     executePurchase,
     
-    // 计算属性
+    // Computed properties
     pixelCount,
     canPurchase,
   };

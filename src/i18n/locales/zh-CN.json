@@ -23,6 +23,11 @@
     "chinese": "中文",
     "english": "English"
   },
+  "wallet": {
+    "connectWallet": "连接钱包",
+    "detected": "已检测到",
+    "buyPixelInfo": "要使用 Buy Pixel 功能，您需要连接一个比特币钱包"
+  },
   "toast": {
     "coordinateCopied": "坐标已复制",
     "currentCoordinate": "当前坐标: ({{x}}, {{y}})",

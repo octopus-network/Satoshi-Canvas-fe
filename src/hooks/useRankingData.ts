@@ -1,6 +1,6 @@
 /**
- * Ranking 数据管理 Hook
- * 负责获取排行榜数据并提供定时轮询功能
+ * Ranking data management Hook
+ * Responsible for fetching ranking data and providing scheduled polling functionality
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -13,32 +13,32 @@ import {
 import { useDrawingStore } from "@/store/useDrawingStore";
 
 export interface UseRankingDataOptions {
-  /** 是否启用自动轮询 */
+  /** Whether to enable automatic polling */
   enablePolling?: boolean;
-  /** 轮询间隔（毫秒），默认8秒 */
+  /** Polling interval (milliseconds), default 8 seconds */
   pollingInterval?: number;
-  /** 最大重试次数 */
+  /** Maximum retry count */
   maxRetries?: number;
-  /** 是否在组件挂载时立即获取数据 */
+  /** Whether to fetch data immediately when component mounts */
   fetchOnMount?: boolean;
 }
 
 export interface UseRankingDataReturn {
-  /** 排行榜参与者数据 */
+  /** Ranking participants data */
   participants: Participant[];
-  /** 数据状态 */
+  /** Data state */
   dataState: CanvasDataState;
-  /** 手动刷新数据 */
+  /** Manually refresh data */
   refreshData: () => Promise<void>;
-  /** 开始轮询 */
+  /** Start polling */
   startPolling: () => void;
-  /** 停止轮询 */
+  /** Stop polling */
   stopPolling: () => void;
-  /** 是否正在轮询 */
+  /** Whether polling is active */
   isPolling: boolean;
 }
 
-// 默认数据状态
+// Default data state
 const DEFAULT_DATA_STATE: CanvasDataState = {
   isLoading: false,
   error: null,
@@ -53,28 +53,28 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     fetchOnMount = true,
   } = options;
 
-  // 排行榜数据状态
+  // Ranking data state
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [dataState, setDataState] = useState<CanvasDataState>(DEFAULT_DATA_STATE);
 
-  // 轮询控制
+  // Polling control
   const [isPolling, setIsPolling] = useState(false);
   const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
   
-  // 轮询暂停控制
+  // Polling pause control
   const [isPaused, setIsPaused] = useState(false);
-  const pauseTimeRef = useRef<number>(0); // 暂停开始时间
-  const remainingTimeRef = useRef<number>(0); // 剩余等待时间
+  const pauseTimeRef = useRef<number>(0); // Pause start time
+  const remainingTimeRef = useRef<number>(0); // Remaining wait time
   
-  // 使用 ref 避免闭包陈旧值
+  // Use ref to avoid stale closure values
   const isPollingRef = useRef(isPolling);
   const isPausedRef = useRef(isPaused);
   
-  // 全局绘制状态
+  // Global drawing state
   const { isDrawing } = useDrawingStore();
   
-  // 同步状态到 ref
+  // Sync state to ref
   useEffect(() => {
     isPollingRef.current = isPolling;
   }, [isPolling]);
@@ -83,7 +83,7 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     isPausedRef.current = isPaused;
   }, [isPaused]);
 
-  // 获取数据函数
+  // Fetch data function
   const fetchData = useCallback(async () => {
     if (!isMountedRef.current) return;
 
@@ -94,7 +94,7 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
       
       if (!isMountedRef.current) return;
 
-      // 转换数据格式
+      // Convert data format
       const participantsData = convertApiRankingToParticipants(apiRanking);
 
       setParticipants(participantsData);
@@ -104,10 +104,10 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
         lastUpdated: new Date(),
       });
 
-      // console.log(`✅ 排行榜数据更新成功: ${participantsData.length} 个参与者`);
+      // console.log(`✅ Ranking data update successful: ${participantsData.length} participants`);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "未知错误";
-      console.error("❌ 获取排行榜数据失败:", errorMessage);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("❌ Failed to fetch ranking data:", errorMessage);
       
       if (!isMountedRef.current) return;
 
@@ -119,26 +119,26 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     }
   }, [maxRetries]);
 
-  // 开始轮询
+  // Start polling
   const startPolling = useCallback(() => {
     console.info('>>> [useRankingData] startPolling - isPolling:', isPollingRef.current, 'hasTimer:', !!pollingTimeoutRef.current, 'enablePolling:', enablePolling);
     
-    // 检查是否真正在运行：状态为true且有实际定时器
+    // Check if it's actually running: state is true and has actual timer
     if (isPollingRef.current && pollingTimeoutRef.current) {
-      // console.log("🔄 跳过启动排行榜轮询：轮询已在运行");
+      // console.log("🔄 Skip starting ranking polling: polling already running");
       return;
     }
 
-    // 如果状态不一致，先清理
+    // If state is inconsistent, clean up first
     if (isPollingRef.current && !pollingTimeoutRef.current) {
-      // console.log("🔧 修复状态不一致：状态为true但无定时器，重置状态");
+      // console.log("🔧 Fix inconsistent state: state is true but no timer, reset state");
       setIsPolling(false);
     }
 
     setIsPolling(true);
     setIsPaused(false);
     remainingTimeRef.current = pollingInterval;
-    // console.log(`🔄 开始轮询排行榜数据，间隔: ${pollingInterval}ms`);
+    // console.log(`🔄 Start polling ranking data, interval: ${pollingInterval}ms`);
 
     const poll = async () => {
       if (!isMountedRef.current || !isPollingRef.current || isPausedRef.current) return;
@@ -154,17 +154,17 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     poll();
   }, [fetchData, pollingInterval, enablePolling]);
 
-  // 暂停轮询
+  // Pause polling
   const pausePolling = useCallback(() => {
     console.info('>>> [useRankingData] pausePolling - isPolling:', isPollingRef.current, 'isPaused:', isPausedRef.current, 'enablePolling:', enablePolling);
     
-    // 只有在轮询启用且正在运行且未暂停时才需要暂停
+    // Only pause if polling is enabled, running, and not already paused
     if (!enablePolling || !isPollingRef.current || isPausedRef.current) {
-      // console.log("⏸️ 跳过暂停排行榜轮询：轮询未启用或已暂停");
+      // console.log("⏸️ Skip pausing ranking polling: polling not enabled or already paused");
       return;
     }
 
-    // console.log("⏸️ 暂停排行榜轮询（用户正在绘制）");
+    // console.log("⏸️ Pause ranking polling (user is drawing)");
     setIsPaused(true);
     pauseTimeRef.current = Date.now();
 
@@ -174,29 +174,29 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     }
   }, [enablePolling]);
 
-  // 恢复轮询
+  // Resume polling
   const resumePolling = useCallback(() => {
     console.info('>>> [useRankingData] resumePolling - isPolling:', isPollingRef.current, 'isPaused:', isPausedRef.current, 'enablePolling:', enablePolling);
     
     if (!enablePolling) {
-      // console.log("▶️ 跳过恢复排行榜轮询：轮询未启用");
+      // console.log("▶️ Skip resuming ranking polling: polling not enabled");
       return;
     }
 
-    // 如果轮询没有运行，先启动轮询
+    // If polling is not running, start polling first
     if (!isPollingRef.current) {
-      // console.log("▶️ 启动排行榜轮询（用户结束绘制，轮询未运行）");
+      // console.log("▶️ Start ranking polling (user finished drawing, polling not running)");
       startPolling();
       return;
     }
 
-    // 如果轮询运行中但未暂停，无需操作
+    // If polling is running but not paused, no action needed
     if (!isPausedRef.current) {
-      // console.log("▶️ 跳过恢复排行榜轮询：轮询未暂停");
+      // console.log("▶️ Skip resuming ranking polling: polling not paused");
       return;
     }
 
-    // console.log("▶️ 恢复排行榜轮询（用户结束绘制）");
+    // console.log("▶️ Resume ranking polling (user finished drawing)");
     setIsPaused(false);
 
     const poll = async () => {
@@ -209,39 +209,39 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
       }
     };
 
-    // 计算剩余时间并恢复轮询
+    // Calculate remaining time and resume polling
     const pauseDuration = Date.now() - pauseTimeRef.current;
     const adjustedInterval = Math.max(0, remainingTimeRef.current - pauseDuration);
     
-    // console.log(`🔄 恢复排行榜轮询，延迟: ${adjustedInterval}ms`);
+    // console.log(`🔄 Resume ranking polling, delay: ${adjustedInterval}ms`);
     pollingTimeoutRef.current = setTimeout(poll, adjustedInterval);
-    remainingTimeRef.current = pollingInterval; // 重置为完整间隔
+    remainingTimeRef.current = pollingInterval; // Reset to full interval
   }, [fetchData, pollingInterval, enablePolling, startPolling]);
 
-  // 停止轮询
+  // Stop polling
   const stopPolling = useCallback(() => {
     setIsPolling(false);
     if (pollingTimeoutRef.current) {
       clearTimeout(pollingTimeoutRef.current);
       pollingTimeoutRef.current = null;
     }
-    // console.log("⏹️ 停止轮询排行榜数据");
+    // console.log("⏹️ Stop polling ranking data");
   }, []);
 
-  // 手动刷新数据
+  // Manually refresh data
   const refreshData = useCallback(async () => {
-    // console.log("🔄 手动刷新排行榜数据");
+    // console.log("🔄 Manually refresh ranking data");
     await fetchData();
   }, [fetchData]);
 
-  // 保存函数引用到 ref，避免依赖数组问题
+  // Save function reference to ref to avoid dependency array issues
   const startPollingRef = useRef(startPolling);
   const stopPollingRef = useRef(stopPolling);
   const pausePollingRef = useRef(pausePolling);
   const resumePollingRef = useRef(resumePolling);
   const fetchDataRef = useRef(fetchData);
 
-  // 同步函数引用
+  // Sync function references
   useEffect(() => {
     startPollingRef.current = startPolling;
     stopPollingRef.current = stopPolling;
@@ -250,11 +250,11 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     fetchDataRef.current = fetchData;
   });
 
-  // 组件挂载时的初始化 - 只执行一次
+  // Component mount initialization - execute only once
   useEffect(() => {
     isMountedRef.current = true;
 
-    // 确保初始状态是干净的
+    // Ensure initial state is clean
     setIsPolling(false);
     setIsPaused(false);
     if (pollingTimeoutRef.current) {
@@ -262,14 +262,14 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
       pollingTimeoutRef.current = null;
     }
 
-    // 立即获取一次数据
+    // Fetch data once immediately
     if (fetchOnMount) {
       fetchDataRef.current();
     }
 
-    // 启动轮询
+    // Start polling
     if (enablePolling) {
-      // 使用 setTimeout 避免立即开始轮询与初始获取冲突
+      // Use setTimeout to avoid immediate polling conflict with initial fetch
       const timer = setTimeout(() => {
         if (isMountedRef.current) {
           startPollingRef.current();
@@ -282,38 +282,38 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     }
 
     return undefined;
-  }, [fetchOnMount, enablePolling, pollingInterval]); // 移除函数依赖
+  }, [fetchOnMount, enablePolling, pollingInterval]); // Remove function dependencies
 
-  // 组件卸载时清理 - 只执行一次
+  // Component unmount cleanup - execute only once
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
       stopPollingRef.current();
     };
-  }, []); // 移除函数依赖
+  }, []); // Remove function dependencies
 
-  // 监听绘制状态变化，自动暂停/恢复轮询
+  // Listen to drawing state changes, auto pause/resume polling
   useEffect(() => {
-    // 避免初始化时立即执行，等轮询真正启动后再监听
+    // Avoid immediate execution during initialization, wait for polling to really start
     if (!enablePolling) return;
     
     if (isDrawing) {
       pausePollingRef.current();
     } else {
-      // 只有在轮询已启动的情况下才恢复
+      // Only resume if polling has already started
       if (isPollingRef.current) {
         resumePollingRef.current();
       }
     }
-  }, [isDrawing, enablePolling]); // 移除函数依赖
+  }, [isDrawing, enablePolling]); // Remove function dependencies
 
-  // 轮询间隔变化时重新启动轮询
+  // Restart polling when polling interval changes
   useEffect(() => {
     if (isPollingRef.current) {
       stopPollingRef.current();
-      setTimeout(() => startPollingRef.current(), 100); // 短暂延迟后重新启动
+      setTimeout(() => startPollingRef.current(), 100); // Brief delay before restarting
     }
-  }, [pollingInterval]); // 移除状态和函数依赖
+  }, [pollingInterval]); // Remove state and function dependencies
 
   return {
     participants,
