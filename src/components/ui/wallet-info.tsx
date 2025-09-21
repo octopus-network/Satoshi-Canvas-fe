@@ -34,10 +34,14 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
     canClaim,
     executeClaim,
   } = usePixelClaim({
-    onSuccess: (txid) => {
+    onSuccess: async (txid) => {
       console.log("Claim成功，交易ID:", txid);
-      // 刷新余额
-      refreshBalance();
+      // 立即刷新余额
+      await refreshBalance();
+      // 延迟3秒再次刷新，确保链上状态已更新
+      setTimeout(() => {
+        refreshBalance();
+      }, 3000);
     },
   });
 
@@ -222,7 +226,10 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
             className="w-full text-xs gap-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 cursor-pointer"
           >
             <Download className={`size-3 mr-0.5 ${isClaimLoading ? "animate-pulse" : ""}`} />
-            {isClaimLoading ? "处理中..." : `Claim ${(claimableSats / 100000000).toFixed(8)} BTC`}
+            {isClaimLoading 
+              ? "处理中..." 
+              : `Claim ${(Number(BigInt(claimableSats)) / 100000000).toFixed(8)} BTC`
+            }
           </Button>
         )}
 

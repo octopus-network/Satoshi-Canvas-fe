@@ -5,6 +5,20 @@ import { toast } from "sonner";
 import { PIXEL_CONSTANTS } from "@/constants/pixel";
 import { shortenErrorMessage } from "@/utils/string";
 
+/**
+ * 计算 claim 时的实际到账金额
+ * @param gross 要 claim 的"毛额"（单位：sats）
+ * @returns 实际到账金额（毛额 - 手续费）
+ */
+export function calcClaimNet(gross: bigint): bigint {
+  if (gross <= 0n) {
+    throw new Error("gross amount must be positive");
+  }
+  const feePercent = 1n; // 配置: claim_fee_percent = 1 (%)
+  const fee = (gross * feePercent) / 100n; // floor(gross * 1 / 100)
+  return gross - fee;
+}
+
 export interface UsePixelClaimProps {
   onSuccess?: (txid: string) => void;
 }
@@ -122,7 +136,7 @@ export const usePixelClaim = ({
           {
             coin: {
               id: PIXEL_CONSTANTS.BTC.id, // "0:0" for BTC
-              value: BigInt(claimableAmount),
+              value: calcClaimNet(BigInt(claimableAmount)),
             },
             to: paymentAddress,
           },
