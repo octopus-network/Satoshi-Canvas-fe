@@ -749,8 +749,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             <div className="absolute bottom-4 right-4">
               <button
                 onClick={handlePurchase}
-                // TODO: Enable this comment later
-                // disabled={!canPurchase || isPurchaseLoading}
+                disabled={!canPurchase || isPurchaseLoading}
                 className={`
                   px-6 py-3 rounded-full shadow-lg transition-all duration-200 flex items-center gap-2 font-medium cursor-pointer
                   ${canPurchase && !isPurchaseLoading
