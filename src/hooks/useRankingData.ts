@@ -104,7 +104,7 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
         lastUpdated: new Date(),
       });
 
-      console.log(`✅ 排行榜数据更新成功: ${participantsData.length} 个参与者`);
+      // console.log(`✅ 排行榜数据更新成功: ${participantsData.length} 个参与者`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "未知错误";
       console.error("❌ 获取排行榜数据失败:", errorMessage);
@@ -125,20 +125,20 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     
     // 检查是否真正在运行：状态为true且有实际定时器
     if (isPollingRef.current && pollingTimeoutRef.current) {
-      console.log("🔄 跳过启动排行榜轮询：轮询已在运行");
+      // console.log("🔄 跳过启动排行榜轮询：轮询已在运行");
       return;
     }
 
     // 如果状态不一致，先清理
     if (isPollingRef.current && !pollingTimeoutRef.current) {
-      console.log("🔧 修复状态不一致：状态为true但无定时器，重置状态");
+      // console.log("🔧 修复状态不一致：状态为true但无定时器，重置状态");
       setIsPolling(false);
     }
 
     setIsPolling(true);
     setIsPaused(false);
     remainingTimeRef.current = pollingInterval;
-    console.log(`🔄 开始轮询排行榜数据，间隔: ${pollingInterval}ms`);
+    // console.log(`🔄 开始轮询排行榜数据，间隔: ${pollingInterval}ms`);
 
     const poll = async () => {
       if (!isMountedRef.current || !isPollingRef.current || isPausedRef.current) return;
@@ -160,11 +160,11 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     
     // 只有在轮询启用且正在运行且未暂停时才需要暂停
     if (!enablePolling || !isPollingRef.current || isPausedRef.current) {
-      console.log("⏸️ 跳过暂停排行榜轮询：轮询未启用或已暂停");
+      // console.log("⏸️ 跳过暂停排行榜轮询：轮询未启用或已暂停");
       return;
     }
 
-    console.log("⏸️ 暂停排行榜轮询（用户正在绘制）");
+    // console.log("⏸️ 暂停排行榜轮询（用户正在绘制）");
     setIsPaused(true);
     pauseTimeRef.current = Date.now();
 
@@ -179,24 +179,24 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     console.info('>>> [useRankingData] resumePolling - isPolling:', isPollingRef.current, 'isPaused:', isPausedRef.current, 'enablePolling:', enablePolling);
     
     if (!enablePolling) {
-      console.log("▶️ 跳过恢复排行榜轮询：轮询未启用");
+      // console.log("▶️ 跳过恢复排行榜轮询：轮询未启用");
       return;
     }
 
     // 如果轮询没有运行，先启动轮询
     if (!isPollingRef.current) {
-      console.log("▶️ 启动排行榜轮询（用户结束绘制，轮询未运行）");
+      // console.log("▶️ 启动排行榜轮询（用户结束绘制，轮询未运行）");
       startPolling();
       return;
     }
 
     // 如果轮询运行中但未暂停，无需操作
     if (!isPausedRef.current) {
-      console.log("▶️ 跳过恢复排行榜轮询：轮询未暂停");
+      // console.log("▶️ 跳过恢复排行榜轮询：轮询未暂停");
       return;
     }
 
-    console.log("▶️ 恢复排行榜轮询（用户结束绘制）");
+    // console.log("▶️ 恢复排行榜轮询（用户结束绘制）");
     setIsPaused(false);
 
     const poll = async () => {
@@ -213,7 +213,7 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
     const pauseDuration = Date.now() - pauseTimeRef.current;
     const adjustedInterval = Math.max(0, remainingTimeRef.current - pauseDuration);
     
-    console.log(`🔄 恢复排行榜轮询，延迟: ${adjustedInterval}ms`);
+    // console.log(`🔄 恢复排行榜轮询，延迟: ${adjustedInterval}ms`);
     pollingTimeoutRef.current = setTimeout(poll, adjustedInterval);
     remainingTimeRef.current = pollingInterval; // 重置为完整间隔
   }, [fetchData, pollingInterval, enablePolling, startPolling]);
@@ -225,12 +225,12 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
       clearTimeout(pollingTimeoutRef.current);
       pollingTimeoutRef.current = null;
     }
-    console.log("⏹️ 停止轮询排行榜数据");
+    // console.log("⏹️ 停止轮询排行榜数据");
   }, []);
 
   // 手动刷新数据
   const refreshData = useCallback(async () => {
-    console.log("🔄 手动刷新排行榜数据");
+    // console.log("🔄 手动刷新排行榜数据");
     await fetchData();
   }, [fetchData]);
 

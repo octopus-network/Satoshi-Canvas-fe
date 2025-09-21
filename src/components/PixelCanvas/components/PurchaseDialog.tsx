@@ -85,7 +85,7 @@ export function PurchaseDialog({
             <DialogTitle className="text-xl font-semibold">
               Confirm Purchase
             </DialogTitle>
-            <DialogDescription className="text-base text-muted-foreground">
+            <DialogDescription className="text-sm text-muted-foreground">
               You are about to purchase drawing rights for{" "}
               {userPixelData.length} pixels.
             </DialogDescription>
@@ -175,7 +175,7 @@ export function PurchaseDialog({
                       <span className="text-sm text-muted-foreground">
                         Empty Pixels × {pricing.emptyPixelCount}
                       </span>
-                      <span className="text-xs text-muted-foreground/70">
+                      <span className="text-xs font-mono text-muted-foreground/70">
                         {pricing.emptyPixelPrice.toFixed(6)} BTC/pixel
                       </span>
                     </div>

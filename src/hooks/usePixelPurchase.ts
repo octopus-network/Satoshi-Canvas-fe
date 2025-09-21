@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { useLaserEyes } from "@omnisat/lasereyes";
-import { useRee, usePoolList, utils as _reeUtils, Network as _Network } from "@omnity/ree-client-ts-sdk"; // 保留用于后续恢复
+import { useRee, usePoolList, utils as reeUtils, Network } from "@omnity/ree-client-ts-sdk";
 import { toast } from "sonner";
-// import { PIXEL_CONSTANTS, createMockPurchaseOffer } from "@/constants/pixel"; // 暂时不使用
-import { submitDrawIntents, type PurchaseIntent, type PurchaseIntents } from "@/services/canvas.service";
+import { PIXEL_CONSTANTS } from "@/constants/pixel";
+// import { submitDrawIntents, type PurchaseIntent, type PurchaseIntents } from "@/services/canvas.service"; // 暂时不使用
 import { shortenErrorMessage } from "@/utils/string";
 
 export interface UsePixelPurchaseProps {
@@ -32,14 +32,14 @@ export interface UsePixelPurchaseReturn {
 
 export const usePixelPurchase = ({ 
   userPixels, 
-  paintedPixelInfoList: _paintedPixelInfoList, // 暂时不使用，但保留用于后续恢复
+  paintedPixelInfoList,
   onSuccess 
 }: UsePixelPurchaseProps): UsePixelPurchaseReturn => {
   const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
   
   // Wallet 和交易相关 hooks
-  const { signPsbt: _signPsbt, address, paymentAddress } = useLaserEyes(); // 暂时不使用signPsbt
-  const { createTransaction: _createTransaction } = useRee(); // 暂时不使用createTransaction
+  const { signPsbt, address, paymentAddress } = useLaserEyes();
+  const { createTransaction, client } = useRee();
   const { pools: availablePools, loading: poolsLoading, error: poolsError } = usePoolList();
 
   // 计算属性
@@ -90,24 +90,7 @@ export const usePixelPurchase = ({
     }
   }, [availablePools, poolsLoading, poolsError]);
 
-  // 将用户像素数据转换为购买意图
-  const convertToDrawIntents = useCallback((userPixels: Map<string, string>, paymentAddress: string): PurchaseIntents => {
-    const intents: PurchaseIntent[] = [];
-    
-    userPixels.forEach((color, key) => {
-      const [x, y] = key.split(",").map(Number);
-      intents.push({
-        x,
-        y,
-        owner: paymentAddress,
-        color,
-      });
-    });
-
-    return intents;
-  }, []);
-
-  // 执行购买交易
+  // ! 执行购买交易
   const executePurchase = useCallback(async () => {
     if (!address || !paymentAddress) {
       toast.error("请先连接钱包", {
@@ -126,7 +109,8 @@ export const usePixelPurchase = ({
     setIsPurchaseLoading(true);
 
     try {
-      // 临时使用 mock API 进行绘制
+      // 临时 mock API 代码已注释
+      /* 
       console.log("🎨 使用临时 mock API 进行绘制");
       
       const drawIntents = convertToDrawIntents(userPixels, paymentAddress);
@@ -146,27 +130,9 @@ export const usePixelPurchase = ({
       onSuccess?.(txid);
 
       return;
-
-      // 以下是原有的 ree 平台代码，暂时保留
-      /* 
-      // 检查池子加载状态
-      if (poolsLoading) {
-        throw new Error("池子信息正在加载中，请稍后重试");
-      }
-      
-      if (poolsError) {
-        throw new Error(`池子信息加载失败: ${poolsError}`);
-      }
-      
-      // 检查是否有可用的池子
-      if (!availablePools || availablePools.length === 0) {
-        throw new Error("没有可用的池子，请稍后重试");
-      }
-
-      // 使用真实的池子地址（这里使用第一个池子，实际应用中可能需要查找特定的像素池子）
-      const targetPool = availablePools[0];
-      console.log("🎯 使用的池子:", targetPool);
       */
+
+      // 恢复原有的 ree 平台代码
       // 检查池子加载状态
       if (poolsLoading) {
         throw new Error("池子信息正在加载中，请稍后重试");
@@ -185,8 +151,11 @@ export const usePixelPurchase = ({
       const targetPool = availablePools[0];
       console.log("🎯 使用的池子:", targetPool);
       
-      // TODO: 后续放开
-      /* 
+      // 获取完整的池子信息，包含UTXO和nonce
+      console.log("获取池子详细信息...");
+      const poolInfo = await client.getPoolInfo(targetPool.address);
+      console.log("🎯 池子详细信息:", poolInfo);
+      
       // 计算空白像素和非空白像素的价格
       const paintedPixelMap = new Map<string, number>();
       paintedPixelInfoList.forEach((pixel) => {
@@ -208,42 +177,60 @@ export const usePixelPurchase = ({
         }
       });
 
-      // 创建模拟购买报价（使用真实价格计算）
-      const purchaseOffer = createMockPurchaseOffer(emptyPixelCount, repaintTotalPriceSatoshis);
+      // 计算真实的像素价格（使用真实价格数据）
+      const emptyPixelTotalPriceSatoshis = emptyPixelCount * PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE;
+      const totalPriceSatoshis = emptyPixelTotalPriceSatoshis + repaintTotalPriceSatoshis;
       
       console.log("创建购买交易:", {
         pixelCount,
         emptyPixelCount,
         repaintPixelCount: pixelCount - emptyPixelCount,
+        emptyPixelTotalPriceSatoshis,
         repaintTotalPriceSatoshis,
-        totalPrice: purchaseOffer.input_btc.value.toString(),
+        totalPriceSatoshis,
         poolAddress: targetPool.address,
         poolName: targetPool.name,
+        poolNonce: poolInfo.nonce,
+        poolUtxosCount: poolInfo.utxos?.length || 0,
       });
+
+      // 使用池子的第一个UTXO（如果没有UTXO则为undefined）
+      const poolUtxo = poolInfo.utxos && poolInfo.utxos.length > 0 ? poolInfo.utxos[0] : undefined;
+      console.log("使用的池子UTXO:", poolUtxo);
 
       // 创建交易
       const tx = await createTransaction();
 
-      // 格式化 pool UTXO 以确保类型正确
-      const formattedPoolUtxo = {
-        ...purchaseOffer.pool_utxo,
-        coins: [purchaseOffer.pool_utxo.coins[0]] as [{ id: string; value: bigint; }],
-      };
-
-      // 添加购买像素的意图
-      tx.addIntention({
+      const tmpIntention = {
         poolAddress: targetPool.address,
         action: PIXEL_CONSTANTS.PURCHASE_ACTION,
-        poolUtxos: [
+        actionParams: JSON.stringify(
+          Array.from(userPixels.entries()).map(([key, color]) => {
+            const [x, y] = key.split(',').map(Number);
+            return {
+              x,
+              y,
+              owner: paymentAddress,
+              color,
+            };
+          })
+        ),
+        poolUtxos: poolUtxo ? [
           reeUtils.formatPoolUtxo(
             targetPool.address,
-            formattedPoolUtxo,
+            {
+              ...poolUtxo,
+              coins: poolUtxo.coins as [{ id: string; value: bigint; }],
+            },
             Network.Testnet
           ),
-        ],
+        ] : [],
         inputCoins: [
           {
-            coin: purchaseOffer.input_btc,
+            coin: {
+              id: PIXEL_CONSTANTS.BTC.id, // "0:0" for BTC
+              value: BigInt(totalPriceSatoshis),
+            },
             from: paymentAddress,
           },
         ],
@@ -254,8 +241,11 @@ export const usePixelPurchase = ({
           //   to: address,
           // },
         ],
-        nonce: purchaseOffer.nonce,
-      });
+        nonce: poolInfo.nonce,
+      };
+      console.info('>>> test tmpIntention: ', tmpIntention);
+      // 添加购买像素的意图
+      tx.addIntention(tmpIntention);
 
       console.log("构建 PSBT...");
       // 构建 PSBT
@@ -284,14 +274,13 @@ export const usePixelPurchase = ({
 
       // 调用成功回调
       onSuccess?.(txid);
-      */
 
     } catch (error: any) {
-      console.error("绘制失败:", error);
+      console.error("购买失败:", error);
       
       // 用户取消签名不显示错误
       if (error.code !== 4001) {
-        toast.error("绘制失败", {
+        toast.error("购买失败", {
           description: error.message || "请稍后重试",
           duration: 5000,
         });
@@ -304,7 +293,13 @@ export const usePixelPurchase = ({
     paymentAddress, 
     pixelCount, 
     userPixels,
-    convertToDrawIntents,
+    paintedPixelInfoList,
+    availablePools,
+    poolsLoading,
+    poolsError,
+    signPsbt,
+    createTransaction,
+    client,
     onSuccess
   ]);
 

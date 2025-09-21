@@ -280,7 +280,8 @@ export async function fetchClaimableBalanceWithRetry(
 }
 
 /**
- * 提交绘制意图到后端API (临时mock)
+ * 提交绘制意图到后端API (备用函数，当前已恢复使用 ree 平台)
+ * 保留此函数以供将来可能的使用
  */
 export async function submitDrawIntents(intents: PurchaseIntents): Promise<string> {
   try {

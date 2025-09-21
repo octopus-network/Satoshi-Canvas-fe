@@ -19,15 +19,15 @@ interface DrawingState {
 export const useDrawingStore = create<DrawingState>((set) => ({
   isDrawing: false,
   setIsDrawing: (isDrawing: boolean) => {
-    console.log(`🎨 全局绘制状态变更: ${isDrawing ? '开始绘制' : '结束绘制'}`);
+    // console.log(`🎨 全局绘制状态变更: ${isDrawing ? '开始绘制' : '结束绘制'}`);
     set({ isDrawing });
   },
   startDrawing: () => {
-    console.log('🎨 开始绘制');
+    // console.log('🎨 开始绘制');
     set({ isDrawing: true });
   },
   endDrawing: () => {
-    console.log('🎨 结束绘制');
+    // console.log('🎨 结束绘制');
     set({ isDrawing: false });
   },
 }))

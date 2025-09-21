@@ -18,7 +18,10 @@ export const PIXEL_CONSTANTS = {
   },
   
   // 购买动作标识
-  PURCHASE_ACTION: "purchase_pixels",
+  PURCHASE_ACTION: "buy_pixels",
+  
+  // Claim动作标识
+  CLAIM_ACTION: "claim",
   
   // 1 BTC = 100,000,000 satoshis
   // 默认每个空像素价格 (satoshis)
@@ -53,49 +56,49 @@ export const calculatePixelPrice = (
 };
 
 // Mock 池子信息
-export const mockPoolInfo = {
-  address: PIXEL_CONSTANTS.POOL_ADDRESS,
-  name: "Pixel Canvas Pool",
-  btc_reserved: BigInt(1000000000), // 10 BTC in satoshis
-  coin_reserved: [
-    {
-      id: PIXEL_CONSTANTS.PIXEL_COIN.id,
-      value: BigInt(1000000), // 1M pixels
-    }
-  ],
-  nonce: BigInt(1),
-  utxos: [
-    {
-      txid: "mock_utxo_txid_123456789",
-      vout: 0,
-      sats: BigInt(100000000), // 1 BTC
-      coins: [
-        {
-          id: PIXEL_CONSTANTS.PIXEL_COIN.id,
-          value: BigInt(1000000),
-        }
-      ] as [{ id: string; value: bigint; }],
-    }
-  ],
-};
+// export const mockPoolInfo = {
+//   address: PIXEL_CONSTANTS.POOL_ADDRESS,
+//   name: "Pixel Canvas Pool",
+//   btc_reserved: BigInt(1000000000), // 10 BTC in satoshis
+//   coin_reserved: [
+//     {
+//       id: PIXEL_CONSTANTS.PIXEL_COIN.id,
+//       value: BigInt(1000000), // 1M pixels
+//     }
+//   ],
+//   nonce: BigInt(1),
+//   utxos: [
+//     {
+//       txid: "mock_utxo_txid_123456789",
+//       vout: 0,
+//       sats: BigInt(100000000), // 1 BTC
+//       coins: [
+//         {
+//           id: PIXEL_CONSTANTS.PIXEL_COIN.id,
+//           value: BigInt(1000000),
+//         }
+//       ] as [{ id: string; value: bigint; }],
+//     }
+//   ],
+// };
 
 // Mock 购买报价
-export const createMockPurchaseOffer = (emptyPixelCount: number, repaintPixelTotalPrice: number = 0) => {
-  const pricing = calculatePixelPrice(emptyPixelCount, repaintPixelTotalPrice);
+// export const createMockPurchaseOffer = (emptyPixelCount: number, repaintPixelTotalPrice: number = 0) => {
+//   const pricing = calculatePixelPrice(emptyPixelCount, repaintPixelTotalPrice);
   
-  return {
-    pool_utxo: {
-      ...mockPoolInfo.utxos[0],
-      coins: mockPoolInfo.utxos[0].coins as [{ id: string; value: bigint; }],
-    },
-    nonce: mockPoolInfo.nonce,
-    input_btc: {
-      id: PIXEL_CONSTANTS.BTC.id,
-      value: BigInt(pricing.totalPrice),
-    },
-    output_pixels: {
-      id: PIXEL_CONSTANTS.PIXEL_COIN.id,
-      value: BigInt(emptyPixelCount),
-    },
-  };
-};
+//   return {
+//     pool_utxo: {
+//       ...mockPoolInfo.utxos[0],
+//       coins: mockPoolInfo.utxos[0].coins as [{ id: string; value: bigint; }],
+//     },
+//     nonce: mockPoolInfo.nonce,
+//     input_btc: {
+//       id: PIXEL_CONSTANTS.BTC.id,
+//       value: BigInt(pricing.totalPrice),
+//     },
+//     output_pixels: {
+//       id: PIXEL_CONSTANTS.PIXEL_COIN.id,
+//       value: BigInt(emptyPixelCount),
+//     },
+//   };
+// };

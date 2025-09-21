@@ -112,14 +112,14 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
     // 购买刷新完成处理
     const handlePurchaseRefreshComplete = useCallback(() => {
-      console.log("🎉 购买后数据刷新完成，关闭loading");
+      // console.log("🎉 购买后数据刷新完成，关闭loading");
       setIsPurchaseRefreshing(false);
       onPurchaseRefreshComplete?.();
     }, [onPurchaseRefreshComplete]);
 
     // 购买成功后的处理函数
     const handlePurchaseSuccess = useCallback(async () => {
-      console.log("🎉 购买成功，清空用户绘制状态并开始轮询刷新");
+      // console.log("🎉 购买成功，清空用户绘制状态并开始轮询刷新");
       
       // 清空用户绘制数据
       const emptyUserPixels = new Map<string, string>();
@@ -171,7 +171,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       userPixels,
       paintedPixelInfoList: canvasInfo?.paintedPixelInfoList || [],
       onSuccess: (txid) => {
-        console.log("购买成功，交易ID:", txid);
+        // console.log("购买成功，交易ID:", txid);
         setIsPurchaseDialogOpen(false);
         
         // 购买成功后的处理
@@ -263,7 +263,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     // Data import method - 首次导入时清空所有数据
     const importData = useCallback(
       (data: PixelData[]) => {
-        console.log("📥 importData 被调用（首次导入），数据:", data);
+        // console.log("📥 importData 被调用（首次导入），数据:", data);
         const newInitialPixels = new Map<string, string>();
         const newUserPixels = new Map<string, string>();
         
@@ -271,13 +271,13 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
             const key = `${x},${y}`;
             newInitialPixels.set(key, color);
-            console.log(`🎨 设置像素: (${x}, ${y}) -> ${color}`);
+            // console.log(`🎨 设置像素: (${x}, ${y}) -> ${color}`);
           } else {
             console.warn(`⚠️  无效像素坐标: (${x}, ${y}), gridSize: ${gridSize}`);
           }
         });
         
-        console.log("🗂️  初始像素 Map:", newInitialPixels);
+        // console.log("🗂️  初始像素 Map:", newInitialPixels);
         
         setInitialPixels(newInitialPixels);
         setUserPixels(() => newUserPixels);
@@ -298,21 +298,21 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     // Update initial data method - 仅更新底层数据，保留用户绘制
     const updateInitialData = useCallback(
       (data: PixelData[]) => {
-        console.log("🔄 updateInitialData 被调用（更新底层数据），数据:", data);
+        // console.log("🔄 updateInitialData 被调用（更新底层数据），数据:", data);
         const newInitialPixels = new Map<string, string>();
         
         data.forEach(({ x, y, color }) => {
           if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
             const key = `${x},${y}`;
             newInitialPixels.set(key, color);
-            console.log(`🎨 更新底层像素: (${x}, ${y}) -> ${color}`);
+            // console.log(`🎨 更新底层像素: (${x}, ${y}) -> ${color}`);
           } else {
             console.warn(`⚠️  无效像素坐标: (${x}, ${y}), gridSize: ${gridSize}`);
           }
         });
         
-        console.log("🗂️  更新后的初始像素 Map:", newInitialPixels);
-        console.log("👤 保留用户像素 Map:", userPixels);
+        // console.log("🗂️  更新后的初始像素 Map:", newInitialPixels);
+        // console.log("👤 保留用户像素 Map:", userPixels);
         
         setInitialPixels(newInitialPixels);
         // 不修改 userPixels，保留用户绘制内容
@@ -564,19 +564,19 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
     // Handle initial data import and updates
     useEffect(() => {
-      console.log("🔍 PixelCanvas useEffect 触发:", { 
-        isInitialized, 
-        initialDataLength: initialData?.length || 0,
-        initialData: initialData?.slice(0, 5) // 只显示前5个像素用于调试
-      });
+      // console.log("🔍 PixelCanvas useEffect 触发:", { 
+      //   isInitialized, 
+      //   initialDataLength: initialData?.length || 0,
+      //   initialData: initialData?.slice(0, 5) // 只显示前5个像素用于调试
+      // });
       
       if (!isInitialized) {
         // 首次初始化
         if (initialData && initialData.length > 0) {
-          console.log("📥 首次导入初始数据:", initialData);
+          // console.log("📥 首次导入初始数据:", initialData);
           importData(initialData);
         } else {
-          console.log("🔧 初始化空画布");
+          // console.log("🔧 初始化空画布");
           setIsInitialized(true);
           setDrawingOperations([]);
           setUndoStack([]);
@@ -585,7 +585,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       } else {
         // 已初始化，仅更新底层数据
         if (initialData && initialData.length > 0) {
-          console.log("🔄 更新底层数据，保留用户绘制");
+          // console.log("🔄 更新底层数据，保留用户绘制");
           updateInitialData(initialData);
         }
       }
@@ -613,7 +613,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     // Reset canvas when grid size changes
     useEffect(() => {
       // Only reset when gridSize changes; initialData doesn't participate in dependency to avoid repeated resets when parent component passes []
-      console.log("🔄 gridSize 变化，重置画布:", gridSize);
+      // console.log("🔄 gridSize 变化，重置画布:", gridSize);
       setInitialPixels(new Map());
       const emptyUserPixels = new Map<string, string>();
       setUserPixels(() => emptyUserPixels);
@@ -626,7 +626,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
       if (initialData && initialData.length > 0) {
         setTimeout(() => {
-          console.log("🔄 gridSize变化后导入初始数据");
+          // console.log("🔄 gridSize变化后导入初始数据");
           importData(initialData);
         }, 0);
       } else {

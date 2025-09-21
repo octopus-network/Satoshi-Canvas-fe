@@ -1,8 +1,9 @@
 import React from "react";
-import { Copy, LogOut, Wallet, Coins, RefreshCw, Bitcoin } from "lucide-react";
+import { Copy, LogOut, Wallet, Coins, RefreshCw, Bitcoin, Download } from "lucide-react";
 import { useWalletStore } from "@/store/useWalletStore";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
 import { useClaimableBalance } from "@/hooks/useClaimableBalance";
+import { usePixelClaim } from "@/hooks/usePixelClaim";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -27,6 +28,18 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
     refreshBalance,
     clearError,
   } = useClaimableBalance();
+  
+  const {
+    isClaimLoading,
+    canClaim,
+    executeClaim,
+  } = usePixelClaim({
+    onSuccess: (txid) => {
+      console.log("Claim成功，交易ID:", txid);
+      // 刷新余额
+      refreshBalance();
+    },
+  });
 
   const shortenAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -52,6 +65,12 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
     }
     await refreshBalance();
     // toast.success("可领取余额已刷新");
+  };
+
+  const handleClaim = async () => {
+    if (claimableSats > 0) {
+      await executeClaim(claimableSats);
+    }
   };
 
   if (!address) return null;
@@ -192,6 +211,20 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
             </div>
           )}
         </div>
+
+        {/* Claim button */}
+        {claimableSats > 0 && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleClaim}
+            disabled={isClaimLoading || !canClaim || claimableError !== null}
+            className="w-full text-xs gap-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 cursor-pointer"
+          >
+            <Download className={`size-3 mr-0.5 ${isClaimLoading ? "animate-pulse" : ""}`} />
+            {isClaimLoading ? "处理中..." : `Claim ${(claimableSats / 100000000).toFixed(8)} BTC`}
+          </Button>
+        )}
 
         {/* Disconnect button */}
         <Button

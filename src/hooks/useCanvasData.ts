@@ -112,9 +112,9 @@ export function useCanvasData(
       const canvasInfo = generateCanvasInfo(response.pixels);
 
       // 详细的调试信息
-      console.log("🔍 API 返回的原始数据:", response.pixels);
-      console.log("🔍 转换后的像素数据:", pixelData);
-      console.log("🔍 画布信息:", canvasInfo);
+      // console.log("🔍 API 返回的原始数据:", response.pixels);
+      // console.log("🔍 转换后的像素数据:", pixelData);
+      // console.log("🔍 画布信息:", canvasInfo);
 
       setInitialPixelData(pixelData);
       setCanvasInfo(canvasInfo);
@@ -124,9 +124,9 @@ export function useCanvasData(
         lastUpdated: new Date(),
       });
 
-      console.log(
-        `✅ 画布数据更新成功: ${pixelData.length} 个像素, 总价值: ${canvasInfo.totalValue.toFixed(6)} BTC`
-      );
+      // console.log(
+      //   `✅ 画布数据更新成功: ${pixelData.length} 个像素, 总价值: ${canvasInfo.totalValue.toFixed(6)} BTC`
+      // );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "未知错误";
       console.error("❌ 获取画布数据失败:", errorMessage);
@@ -148,12 +148,12 @@ export function useCanvasData(
     setIsPolling(true);
     setIsPaused(false);
     remainingTimeRef.current = pollingInterval;
-    console.log(
-      `🔄 开始轮询画布数据，间隔: ${pollingInterval}ms`,
-      isMountedRef.current,
-      isPollingRef.current,
-      isPausedRef.current
-    );
+    // console.log(
+    //   `🔄 开始轮询画布数据，间隔: ${pollingInterval}ms`,
+    //   isMountedRef.current,
+    //   isPollingRef.current,
+    //   isPausedRef.current
+    // );
 
     const poll = async () => {
       if (!isMountedRef.current || isPausedRef.current) return;
@@ -182,11 +182,11 @@ export function useCanvasData(
 
     // 只有在轮询启用且正在运行且未暂停时才需要暂停
     if (!enablePolling || !isPollingRef.current || isPausedRef.current) {
-      console.log("⏸️ 跳过暂停画布轮询：轮询未启用或已暂停");
+      // console.log("⏸️ 跳过暂停画布轮询：轮询未启用或已暂停");
       return;
     }
 
-    console.log("⏸️ 暂停画布轮询（用户正在绘制）");
+    // console.log("⏸️ 暂停画布轮询（用户正在绘制）");
     setIsPaused(true);
     pauseTimeRef.current = Date.now();
 
@@ -208,24 +208,24 @@ export function useCanvasData(
     );
 
     if (!enablePolling) {
-      console.log("▶️ 跳过恢复画布轮询：轮询未启用");
+      // console.log("▶️ 跳过恢复画布轮询：轮询未启用");
       return;
     }
 
     // 如果轮询没有运行，先启动轮询
     if (!isPollingRef.current) {
-      console.log("▶️ 启动画布轮询（用户结束绘制，轮询未运行）");
+      // console.log("▶️ 启动画布轮询（用户结束绘制，轮询未运行）");
       startPolling();
       return;
     }
 
     // 如果轮询运行中但未暂停，无需操作
     if (!isPausedRef.current) {
-      console.log("▶️ 跳过恢复画布轮询：轮询未暂停");
+      // console.log("▶️ 跳过恢复画布轮询：轮询未暂停");
       return;
     }
 
-    console.log("▶️ 恢复画布轮询（用户结束绘制）");
+    // console.log("▶️ 恢复画布轮询（用户结束绘制）");
     setIsPaused(false);
 
     const poll = async () => {
@@ -250,7 +250,7 @@ export function useCanvasData(
       remainingTimeRef.current - pauseDuration
     );
 
-    console.log(`🔄 恢复轮询，延迟: ${adjustedInterval}ms`);
+    // console.log(`🔄 恢复轮询，延迟: ${adjustedInterval}ms`);
     pollingTimeoutRef.current = setTimeout(poll, adjustedInterval);
     remainingTimeRef.current = pollingInterval; // 重置为完整间隔
   }, [fetchData, pollingInterval, enablePolling, startPolling]);
@@ -262,12 +262,12 @@ export function useCanvasData(
       clearTimeout(pollingTimeoutRef.current);
       pollingTimeoutRef.current = null;
     }
-    console.log("⏹️ 停止轮询画布数据");
+    // console.log("⏹️ 停止轮询画布数据");
   }, []);
 
   // 手动刷新数据
   const refreshData = useCallback(async () => {
-    console.log("🔄 手动刷新画布数据");
+    // console.log("🔄 手动刷新画布数据");
     await fetchData();
   }, [fetchData]);
 
@@ -309,7 +309,7 @@ export function useCanvasData(
   // 购买后轮询刷新，直到数据发生变化
   const startPurchasePolling = useCallback(
     async (originalData: PixelData[]): Promise<void> => {
-      console.log("🔄 开始购买后轮询，原始数据长度:", originalData.length);
+      // console.log("🔄 开始购买后轮询，原始数据长度:", originalData.length);
 
       return new Promise((resolve) => {
         let pollCount = 0;
@@ -318,17 +318,17 @@ export function useCanvasData(
         const poll = async () => {
           try {
             pollCount++;
-            console.log(`🔄 购买后轮询第 ${pollCount} 次`);
+            // console.log(`🔄 购买后轮询第 ${pollCount} 次`);
 
             const response = await fetchCanvasDataWithRetry(maxRetries);
             const newPixelData = convertApiPixelsToPixelData(response.pixels);
 
             // 检查数据是否发生变化
             const changed = hasDataChanged(originalData, newPixelData);
-            console.log(`📊 数据变化检测: ${changed ? "有变化" : "无变化"}`);
+            // console.log(`📊 数据变化检测: ${changed ? "有变化" : "无变化"}`);
 
             if (changed) {
-              console.log("✅ 检测到数据变化，更新画布数据");
+              // console.log("✅ 检测到数据变化，更新画布数据");
 
               // 更新状态
               const canvasInfo = generateCanvasInfo(response.pixels);
@@ -346,7 +346,7 @@ export function useCanvasData(
 
             // 如果达到最大轮询次数，停止轮询
             if (pollCount >= maxPolls) {
-              console.log("⏰ 达到最大轮询次数，停止轮询");
+              // console.log("⏰ 达到最大轮询次数，停止轮询");
               resolve();
               return;
             }

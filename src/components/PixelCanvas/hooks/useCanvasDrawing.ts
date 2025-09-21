@@ -140,12 +140,12 @@ export const useCanvasDrawing = ({
     ensureLayer();
     const ctx = staticLayerCtxRef.current;
     const canvas = staticLayerCanvasRef.current;
-    console.log("🖼️  重建静态层:", { 
-      hasCtx: !!ctx, 
-      hasCanvas: !!canvas, 
-      pixelCount: initialPixels.size,
-      pixels: Array.from(initialPixels.entries()).slice(0, 5) // 显示前5个像素用于调试
-    });
+    // console.log("🖼️  重建静态层:", { 
+    //   hasCtx: !!ctx, 
+    //   hasCanvas: !!canvas, 
+    //   pixelCount: initialPixels.size,
+    //   pixels: Array.from(initialPixels.entries()).slice(0, 5) // 显示前5个像素用于调试
+    // });
     
     if (!ctx || !canvas) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -157,11 +157,11 @@ export const useCanvasDrawing = ({
       ctx.fillRect(x, y, 1, 1);
       drawnCount++;
       if (drawnCount <= 5) {
-        console.log(`🎨 绘制像素: (${x}, ${y}) -> ${color}`);
+        // console.log(`🎨 绘制像素: (${x}, ${y}) -> ${color}`);
       }
     });
     
-    console.log(`✅ 静态层重建完成，共绘制 ${drawnCount} 个像素`);
+    // console.log(`✅ 静态层重建完成，共绘制 ${drawnCount} 个像素`);
   }, [initialPixels, ensureLayer]);
 
   // 从 Map 重建用户层（用于批量导入/清空）
@@ -338,7 +338,7 @@ export const useCanvasDrawing = ({
 
   // initialPixels 变化时重建静态层
   useEffect(() => {
-    console.log("🎨 initialPixels 变化，重建静态层:", initialPixels);
+    // console.log("🎨 initialPixels 变化，重建静态层:", initialPixels);
     rebuildStaticLayer();
     scheduleDraw();
   }, [rebuildStaticLayer, scheduleDraw]);
