@@ -17,7 +17,6 @@ const ConnectWalletButton: React.FC<ConnectWalletButtonProps> = ({
   className,
   variant = "default",
   size = "default",
-  onClick,
   children,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);

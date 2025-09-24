@@ -67,7 +67,7 @@ export const usePixelPurchase = ({
       // console.log("🏊 Pool count:", availablePools.length);
       
       // Print address and name of each pool
-      availablePools.forEach((pool: any, index: number) => {
+      availablePools.forEach(() => {
         // console.log(`🏊 Pool ${index + 1}:`, {
         //   name: pool.name,
         //   address: pool.address,

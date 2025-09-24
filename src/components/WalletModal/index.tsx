@@ -89,7 +89,7 @@ interface ConnectWalletModalProps {
 
 export function ConnectWalletModal({ open, setOpen }: ConnectWalletModalProps) {
   const { t } = useTranslation();
-  const onConnected = (walletId: string) => {
+  const onConnected = () => {
     // console.log(`Connected to ${WALLETS[walletId]?.name}`);
     setOpen(false);
   };

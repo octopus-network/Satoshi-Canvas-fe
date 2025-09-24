@@ -170,7 +170,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     } = usePixelPurchase({
       userPixels,
       paintedPixelInfoList: canvasInfo?.paintedPixelInfoList || [],
-      onSuccess: (txid) => {
+      onSuccess: () => {
         // console.log("Purchase successful, transaction ID:", txid);
         setIsPurchaseDialogOpen(false);
         
