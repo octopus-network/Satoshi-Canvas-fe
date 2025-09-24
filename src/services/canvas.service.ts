@@ -285,7 +285,7 @@ export async function fetchClaimableBalanceWithRetry(
  */
 export async function submitDrawIntents(intents: PurchaseIntents): Promise<string> {
   try {
-    console.log("Submit drawing intents:", intents);
+    // console.log("Submit drawing intents:", intents);
     
     const response = await fetch(`${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.DRAW}`, {
       method: "POST",
@@ -302,7 +302,7 @@ export async function submitDrawIntents(intents: PurchaseIntents): Promise<strin
 
     // 假设返回交易ID或成功标识
     const result = await response.text();
-    console.log("Drawing submission successful:", result);
+    // console.log("Drawing submission successful:", result);
     
     // 返回模拟的交易ID
     return result || `mock_tx_${Date.now()}`;

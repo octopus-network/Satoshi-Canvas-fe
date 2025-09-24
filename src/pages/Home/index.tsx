@@ -41,7 +41,7 @@ function HomePage() {
 
   // Handle post-purchase success
   const handlePurchaseSuccess = async () => {
-    console.log("🛒 Start post-purchase data refresh process");
+    // console.log("🛒 Start post-purchase data refresh process");
     // Save current data for comparison
     const originalData = [...initialPixelData];
     
@@ -51,12 +51,12 @@ function HomePage() {
     // Also refresh ranking data
     refreshRankingData();
     
-    console.log("🎉 Post-purchase data refresh process complete");
+    // console.log("🎉 Post-purchase data refresh process complete");
   };
 
   // Handle purchase refresh completion
   const handlePurchaseRefreshComplete = () => {
-    console.log("🎉 Purchase refresh completion callback triggered");
+    // console.log("🎉 Purchase refresh completion callback triggered");
   };
 
   return (

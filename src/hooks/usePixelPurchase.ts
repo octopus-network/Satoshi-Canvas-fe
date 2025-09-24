@@ -49,29 +49,29 @@ export const usePixelPurchase = ({
 
   // Debug: Pool information logging
   useEffect(() => {
-    console.log("🏊 Pool status update:", { 
-      poolsLoading, 
-      poolsError, 
-      poolCount: availablePools?.length 
-    });
+    // console.log("🏊 Pool status update:", { 
+    //   poolsLoading, 
+    //   poolsError, 
+    //   poolCount: availablePools?.length 
+    // });
     
     if (poolsError) {
-      console.log("🏊 Pool list loading failed:", { errorInfo: poolsError });
+      // console.log("🏊 Pool list loading failed:", { errorInfo: poolsError });
       toast.error("Pool information loading failed", {
         description: shortenErrorMessage(poolsError, 120) || "Please check network connection or try again later",
         duration: 5000,
       });
     } else if (!poolsLoading && availablePools && availablePools.length > 0) {
-      console.log("🏊 Pool list obtained:", availablePools);
-      console.log("🏊 First pool details:", availablePools[0]);
-      console.log("🏊 Pool count:", availablePools.length);
+      // console.log("🏊 Pool list obtained:", availablePools);
+      // console.log("🏊 First pool details:", availablePools[0]);
+      // console.log("🏊 Pool count:", availablePools.length);
       
       // Print address and name of each pool
       availablePools.forEach((pool: any, index: number) => {
-        console.log(`🏊 Pool ${index + 1}:`, {
-          name: pool.name,
-          address: pool.address,
-        });
+        // console.log(`🏊 Pool ${index + 1}:`, {
+        //   name: pool.name,
+        //   address: pool.address,
+        // });
       });
 
       // Show pool information loading success notification (only once)
@@ -80,13 +80,13 @@ export const usePixelPurchase = ({
       //   duration: 3000,
       // });
     } else if (!poolsLoading && (!availablePools || availablePools.length === 0)) {
-      console.log("🏊 No available pools found");
+      // console.log("🏊 No available pools found");
       toast.error("No available pools found", {
         description: "Please try again later or contact administrator",
         duration: 5000,
       });
     } else if (poolsLoading) {
-      console.log("🏊 Pool list is loading...");
+      // console.log("🏊 Pool list is loading...");
     }
   }, [availablePools, poolsLoading, poolsError]);
 
@@ -149,12 +149,12 @@ export const usePixelPurchase = ({
 
       // Use real pool address (using the first pool here, in actual application may need to find specific pixel pool)
       const targetPool = availablePools[0];
-      console.log("🎯 Using pool:", targetPool);
+      // console.log("🎯 Using pool:", targetPool);
       
       // Get complete pool information, including UTXO and nonce
-      console.log("Getting detailed pool information...");
+      // console.log("Getting detailed pool information...");
       const poolInfo = await client.getPoolInfo(targetPool.address);
-      console.log("🎯 Detailed pool information:", poolInfo);
+      // console.log("🎯 Detailed pool information:", poolInfo);
       
       // Calculate prices for empty pixels and non-empty pixels
       const paintedPixelMap = new Map<string, number>();
@@ -181,22 +181,22 @@ export const usePixelPurchase = ({
       const emptyPixelTotalPriceSatoshis = emptyPixelCount * PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE;
       const totalPriceSatoshis = emptyPixelTotalPriceSatoshis + repaintTotalPriceSatoshis;
       
-      console.log("Creating purchase transaction:", {
-        pixelCount,
-        emptyPixelCount,
-        repaintPixelCount: pixelCount - emptyPixelCount,
-        emptyPixelTotalPriceSatoshis,
-        repaintTotalPriceSatoshis,
-        totalPriceSatoshis,
-        poolAddress: targetPool.address,
-        poolName: targetPool.name,
-        poolNonce: poolInfo.nonce,
-        poolUtxosCount: poolInfo.utxos?.length || 0,
-      });
+      // console.log("Creating purchase transaction:", {
+      //   pixelCount,
+      //   emptyPixelCount,
+      //   repaintPixelCount: pixelCount - emptyPixelCount,
+      //   emptyPixelTotalPriceSatoshis,
+      //   repaintTotalPriceSatoshis,
+      //   totalPriceSatoshis,
+      //   poolAddress: targetPool.address,
+      //   poolName: targetPool.name,
+      //   poolNonce: poolInfo.nonce,
+      //   poolUtxosCount: poolInfo.utxos?.length || 0,
+      // });
 
       // Use the first UTXO of the pool (undefined if no UTXO)
       const poolUtxo = poolInfo.utxos && poolInfo.utxos.length > 0 ? poolInfo.utxos[0] : undefined;
-      console.log("Using pool UTXO:", poolUtxo);
+      // console.log("Using pool UTXO:", poolUtxo);
 
       // Create transaction
       const tx = await createTransaction();
@@ -243,15 +243,14 @@ export const usePixelPurchase = ({
         ],
         nonce: poolInfo.nonce,
       };
-      console.info('>>> test tmpIntention: ', tmpIntention);
       // Add pixel purchase intention
       tx.addIntention(tmpIntention);
 
-      console.log("Building PSBT...");
+      // console.log("Building PSBT...");
       // Build PSBT
       const { psbt } = await tx.build();
       
-      console.log("Requesting user signature...");
+      // console.log("Requesting user signature...");
       // Request user signature
       const res = await signPsbt(psbt.toBase64());
       const signedPsbtHex = res?.signedPsbtHex ?? "";
@@ -260,11 +259,11 @@ export const usePixelPurchase = ({
         throw new Error("Signature failed");
       }
 
-      console.log("Sending transaction...");
+      // console.log("Sending transaction...");
       // Send transaction
       const txid = await tx.send(signedPsbtHex);
 
-      console.log("Transaction sent successfully:", txid);
+      // console.log("Transaction sent successfully:", txid);
       
       // Success notification
       toast.success("Purchase successful!", {

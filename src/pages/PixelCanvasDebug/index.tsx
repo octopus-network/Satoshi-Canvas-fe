@@ -61,7 +61,7 @@ const PixelCanvasDebug: React.FC = () => {
   const handleGetCurrentData = () => {
     if (canvasRef.current) {
       const currentData = canvasRef.current.getCurrentPixelData();
-      console.log(t("pages.canvas.page.console.currentData"), currentData);
+      // console.log(t("pages.canvas.page.console.currentData"), currentData);
       alert(
         t("pages.canvas.page.alert.currentData", { count: currentData.length })
       );
@@ -72,7 +72,7 @@ const PixelCanvasDebug: React.FC = () => {
   const handleGetUserData = () => {
     if (canvasRef.current) {
       const userData = canvasRef.current.getUserDrawingData();
-      console.log(t("pages.canvas.page.console.userData"), userData);
+      // console.log(t("pages.canvas.page.console.userData"), userData);
       alert(t("pages.canvas.page.alert.userData", { count: userData.length }));
     }
   };
@@ -81,7 +81,7 @@ const PixelCanvasDebug: React.FC = () => {
   const handleGetOperations = () => {
     if (canvasRef.current) {
       const operations = canvasRef.current.getDrawingOperations();
-      console.log(t("pages.canvas.page.console.operations"), operations);
+      // console.log(t("pages.canvas.page.console.operations"), operations);
       alert(
         t("pages.canvas.page.alert.operations", { count: operations.length })
       );

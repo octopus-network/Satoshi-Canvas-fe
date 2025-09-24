@@ -89,25 +89,25 @@ export const usePixelClaim = ({
 
       // Use real pool address (using the first pool here)
       const targetPool = availablePools[0];
-      console.log("🎯 Using pool:", targetPool);
+      // console.log("🎯 Using pool:", targetPool);
       
       // Get complete pool information, including UTXO and nonce
-      console.log("Getting detailed pool information...");
+      // console.log("Getting detailed pool information...");
       const poolInfo = await client.getPoolInfo(targetPool.address);
-      console.log("🎯 Detailed pool information:", poolInfo);
+      // console.log("🎯 Detailed pool information:", poolInfo);
       
-      console.log("Creating claim transaction:", {
-        claimableAmount,
-        poolAddress: targetPool.address,
-        poolName: targetPool.name,
-        poolNonce: poolInfo.nonce,
-        poolUtxosCount: poolInfo.utxos?.length || 0,
-        paymentAddress,
-      });
+      // console.log("Creating claim transaction:", {
+      //   claimableAmount,
+      //   poolAddress: targetPool.address,
+      //   poolName: targetPool.name,
+      //   poolNonce: poolInfo.nonce,
+      //   poolUtxosCount: poolInfo.utxos?.length || 0,
+      //   paymentAddress,
+      // });
 
       // Use the first UTXO of the pool (undefined if no UTXO)
       const poolUtxo = poolInfo.utxos && poolInfo.utxos.length > 0 ? poolInfo.utxos[0] : undefined;
-      console.log("Using pool UTXO:", poolUtxo);
+      // console.log("Using pool UTXO:", poolUtxo);
 
       // Create transaction
       const tx = await createTransaction();
@@ -144,16 +144,14 @@ export const usePixelClaim = ({
         nonce: poolInfo.nonce,
       };
       
-      console.info('>>> claim intention: ', claimIntention);
-      
       // Add claim intention
       tx.addIntention(claimIntention);
 
-      console.log("Building PSBT...");
+      // console.log("Building PSBT...");
       // Build PSBT
       const { psbt } = await tx.build();
       
-      console.log("Requesting user signature...");
+      // console.log("Requesting user signature...");
       // Request user signature
       const res = await signPsbt(psbt.toBase64());
       const signedPsbtHex = res?.signedPsbtHex ?? "";
@@ -162,11 +160,11 @@ export const usePixelClaim = ({
         throw new Error("Signature failed");
       }
 
-      console.log("Sending transaction...");
+      // console.log("Sending transaction...");
       // Send transaction
       const txid = await tx.send(signedPsbtHex);
 
-      console.log("Claim transaction sent successfully:", txid);
+      // console.log("Claim transaction sent successfully:", txid);
       
       // Success notification
       toast.success("Claim successful!", {

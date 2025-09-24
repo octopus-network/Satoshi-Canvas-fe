@@ -36,7 +36,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = "" }) => {
     executeClaim,
   } = usePixelClaim({
     onSuccess: async (txid) => {
-      console.log("Claim successful, transaction ID:", txid);
+      // console.log("Claim successful, transaction ID:", txid);
       // Refresh balance immediately
       await refreshBalance();
       // Refresh again after 3 seconds to ensure on-chain state is updated

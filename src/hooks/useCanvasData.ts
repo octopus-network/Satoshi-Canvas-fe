@@ -171,14 +171,6 @@ export function useCanvasData(
 
   // Pause polling
   const pausePolling = useCallback(() => {
-    console.info(
-      ">>> [useCanvasData] pausePolling - isPolling:",
-      isPollingRef.current,
-      "isPaused:",
-      isPausedRef.current,
-      "enablePolling:",
-      enablePolling
-    );
 
     // Only pause if polling is enabled, running, and not already paused
     if (!enablePolling || !isPollingRef.current || isPausedRef.current) {
@@ -198,14 +190,6 @@ export function useCanvasData(
 
   // Resume polling
   const resumePolling = useCallback(() => {
-    console.info(
-      ">>> [useCanvasData] resumePolling - isPolling:",
-      isPollingRef.current,
-      "isPaused:",
-      isPausedRef.current,
-      "enablePolling:",
-      enablePolling
-    );
 
     if (!enablePolling) {
       // console.log("▶️ Skip resuming canvas polling: polling not enabled");

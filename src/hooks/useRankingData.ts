@@ -121,8 +121,6 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
 
   // Start polling
   const startPolling = useCallback(() => {
-    console.info('>>> [useRankingData] startPolling - isPolling:', isPollingRef.current, 'hasTimer:', !!pollingTimeoutRef.current, 'enablePolling:', enablePolling);
-    
     // Check if it's actually running: state is true and has actual timer
     if (isPollingRef.current && pollingTimeoutRef.current) {
       // console.log("🔄 Skip starting ranking polling: polling already running");
@@ -156,8 +154,6 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
 
   // Pause polling
   const pausePolling = useCallback(() => {
-    console.info('>>> [useRankingData] pausePolling - isPolling:', isPollingRef.current, 'isPaused:', isPausedRef.current, 'enablePolling:', enablePolling);
-    
     // Only pause if polling is enabled, running, and not already paused
     if (!enablePolling || !isPollingRef.current || isPausedRef.current) {
       // console.log("⏸️ Skip pausing ranking polling: polling not enabled or already paused");
@@ -176,8 +172,6 @@ export function useRankingData(options: UseRankingDataOptions = {}): UseRankingD
 
   // Resume polling
   const resumePolling = useCallback(() => {
-    console.info('>>> [useRankingData] resumePolling - isPolling:', isPollingRef.current, 'isPaused:', isPausedRef.current, 'enablePolling:', enablePolling);
-    
     if (!enablePolling) {
       // console.log("▶️ Skip resuming ranking polling: polling not enabled");
       return;
