@@ -44,6 +44,7 @@
         "colorLabel": "Color:",
         "currentColor": "Current Color",
         "defaultPalette": "Default Palette:",
+        "colorWheel": "Color Picker:",
         "hexInputLabel": "Hex Color:",
         "recentUsed": "Recently Used:"
       },

@@ -13,6 +13,7 @@ import {
 import { DEFAULT_COLORS } from "../constants";
 import { validateAndApplyHexColor } from "../utils";
 import { useTranslation } from "react-i18next";
+import { HsvColorPicker } from "./HsvColorPicker";
 
 interface ColorPickerProps {
   currentColor: string;
@@ -135,6 +136,17 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
                   </Tooltip>
                 ))}
               </div>
+            </div>
+
+            {/* HSV颜色选择器 */}
+            <div className="mb-4">
+              <p className="text-xs font-medium text-foreground mb-2">
+                {t("pages.canvas.colorPicker.colorWheel")}
+              </p>
+              <HsvColorPicker
+                currentColor={currentColor}
+                onColorChange={handleColorSelect}
+              />
             </div>
 
             {/* 16进制颜色输入 */}

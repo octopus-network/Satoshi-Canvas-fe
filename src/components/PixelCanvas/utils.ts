@@ -348,3 +348,108 @@ export const calculateCenterZoomToTargetScale = (
 
   return { scale: newScale, offset: newOffset };
 };
+
+// 颜色转换工具函数
+
+// RGB转HSV
+export const rgbToHsv = (r: number, g: number, b: number): { h: number; s: number; v: number } => {
+  r = r / 255;
+  g = g / 255;
+  b = b / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const delta = max - min;
+
+  let h = 0;
+  let s = 0;
+  const v = max;
+
+  if (delta !== 0) {
+    s = delta / max;
+
+    switch (max) {
+      case r:
+        h = ((g - b) / delta) % 6;
+        break;
+      case g:
+        h = (b - r) / delta + 2;
+        break;
+      case b:
+        h = (r - g) / delta + 4;
+        break;
+    }
+    h = h * 60;
+    if (h < 0) h += 360;
+  }
+
+  return {
+    h: Math.round(h),
+    s: Math.round(s * 100),
+    v: Math.round(v * 100),
+  };
+};
+
+// HSV转RGB
+export const hsvToRgb = (h: number, s: number, v: number): { r: number; g: number; b: number } => {
+  s = s / 100;
+  v = v / 100;
+  h = h / 60;
+
+  const c = v * s;
+  const x = c * (1 - Math.abs((h % 2) - 1));
+  const m = v - c;
+
+  let r = 0;
+  let g = 0;
+  let b = 0;
+
+  if (0 <= h && h < 1) {
+    r = c; g = x; b = 0;
+  } else if (1 <= h && h < 2) {
+    r = x; g = c; b = 0;
+  } else if (2 <= h && h < 3) {
+    r = 0; g = c; b = x;
+  } else if (3 <= h && h < 4) {
+    r = 0; g = x; b = c;
+  } else if (4 <= h && h < 5) {
+    r = x; g = 0; b = c;
+  } else if (5 <= h && h < 6) {
+    r = c; g = 0; b = x;
+  }
+
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255),
+  };
+};
+
+// HEX转RGB
+export const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
+};
+
+// RGB转HEX
+export const rgbToHex = (r: number, g: number, b: number): string => {
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
+};
+
+// HEX转HSV
+export const hexToHsv = (hex: string): { h: number; s: number; v: number } | null => {
+  const rgb = hexToRgb(hex);
+  return rgb ? rgbToHsv(rgb.r, rgb.g, rgb.b) : null;
+};
+
+// HSV转HEX
+export const hsvToHex = (h: number, s: number, v: number): string => {
+  const rgb = hsvToRgb(h, s, v);
+  return rgbToHex(rgb.r, rgb.g, rgb.b);
+};

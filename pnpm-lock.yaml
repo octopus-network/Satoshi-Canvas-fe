@@ -12,8 +12,8 @@ dependencies:
     specifier: ^0.0.161
     version: 0.0.161(@popperjs/core@2.11.8)(@types/node@24.0.14)(react-dom@18.3.1)(react@18.3.1)(typescript@5.8.3)(vite@5.4.19)
   '@omnity/ree-client-ts-sdk':
-    specifier: ^0.3.6
-    version: 0.3.6(@noble/hashes@1.8.0)(react-dom@18.3.1)(react@18.3.1)
+    specifier: ^0.3.8
+    version: 0.3.8(@noble/hashes@1.8.0)(react-dom@18.3.1)(react@18.3.1)
   '@radix-ui/react-alert-dialog':
     specifier: ^1.1.15
     version: 1.1.15(@types/react-dom@18.3.7)(@types/react@18.3.23)(react-dom@18.3.1)(react@18.3.1)
@@ -1127,7 +1127,7 @@ packages:
       '@nanostores/persistent': 0.10.2(nanostores@0.11.4)
       '@orangecrypto/orange-connect': 1.2.4(typescript@5.8.3)
       '@oyl/sdk': 1.17.0(@types/node@24.0.14)(typescript@5.8.3)
-      alkanes: github.com/kungfuflex/alkanes/8d317e63d50c68a83ea3f4b2f7aee8d4988c3594(typescript@5.8.3)
+      alkanes: github.com/kungfuflex/alkanes/28137ff85368289ca9ab26d6a40a7bceaff76a11(typescript@5.8.3)
       axios: 1.12.1
       bip32: 5.0.0-rc.0(typescript@5.8.3)
       bip39: 3.1.0
@@ -1201,8 +1201,8 @@ packages:
       - vite
     dev: false
 
-  /@omnity/ree-client-ts-sdk@0.3.6(@noble/hashes@1.8.0)(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-HgKjbQGFHvqoN47jURXRmysWyuGJ2mgJvTs0ruzxN/rNx8szb78Mj70l9ONf99j7J8h8LipN7/2ht3rHHyIP5g==}
+  /@omnity/ree-client-ts-sdk@0.3.8(@noble/hashes@1.8.0)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-MzFHLNXHzxAMB9y1R6mNCvYd2fu/WXDeV5kNvXFWuSOqh9PDDIw6CZU7HQJxowf9YRoMNglA23NiP/3jrnETog==}
     peerDependencies:
       react: '>=17'
       react-dom: '>=17'
@@ -1240,7 +1240,7 @@ packages:
       '@magiceden-oss/runestone-lib': 1.0.2
       '@sadoprotocol/ordit-sdk': 3.0.0
       '@scure/btc-signer': 1.5.0
-      alkanes: github.com/kungfuflex/alkanes/8d317e63d50c68a83ea3f4b2f7aee8d4988c3594(typescript@5.8.3)
+      alkanes: github.com/kungfuflex/alkanes/28137ff85368289ca9ab26d6a40a7bceaff76a11(typescript@5.8.3)
       bignumber.js: 9.1.2
       bip32: 4.0.0
       bip322-js: 2.0.0
@@ -3375,6 +3375,10 @@ packages:
       '@popperjs/core': ^2.11.8
     dependencies:
       '@popperjs/core': 2.11.8
+    dev: false
+
+  /borsh@2.0.0:
+    resolution: {integrity: sha512-kc9+BgR3zz9+cjbwM8ODoUB4fs3X3I5A/HtX7LZKxCLaMrEeDFoBpnhZY//DTS1VZBSs6S5v46RZRbZjRFspEg==}
     dev: false
 
   /bowser@2.12.1:
@@ -7784,9 +7788,9 @@ packages:
       react: 18.3.1
     dev: false
 
-  github.com/kungfuflex/alkanes/8d317e63d50c68a83ea3f4b2f7aee8d4988c3594(typescript@5.8.3):
-    resolution: {tarball: https://codeload.github.com/kungfuflex/alkanes/tar.gz/8d317e63d50c68a83ea3f4b2f7aee8d4988c3594}
-    id: github.com/kungfuflex/alkanes/8d317e63d50c68a83ea3f4b2f7aee8d4988c3594
+  github.com/kungfuflex/alkanes/28137ff85368289ca9ab26d6a40a7bceaff76a11(typescript@5.8.3):
+    resolution: {tarball: https://codeload.github.com/kungfuflex/alkanes/tar.gz/28137ff85368289ca9ab26d6a40a7bceaff76a11}
+    id: github.com/kungfuflex/alkanes/28137ff85368289ca9ab26d6a40a7bceaff76a11
     name: alkanes
     version: 0.1.0
     hasBin: true
@@ -7801,6 +7805,7 @@ packages:
       bip32: 5.0.0-rc.0(typescript@5.8.3)
       bip39: 3.1.0
       body-parser: 1.20.3
+      borsh: 2.0.0
       cors: 2.8.5
       enquirer: 2.4.1
       ethers: 6.15.0

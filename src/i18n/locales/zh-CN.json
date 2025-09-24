@@ -44,6 +44,7 @@
         "colorLabel": "颜色:",
         "currentColor": "当前颜色",
         "defaultPalette": "默认色卡:",
+        "colorWheel": "取色布:",
         "hexInputLabel": "16进制颜色:",
         "recentUsed": "最近使用:"
       },
