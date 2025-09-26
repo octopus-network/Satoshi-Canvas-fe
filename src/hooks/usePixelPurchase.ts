@@ -219,6 +219,7 @@ export const usePixelPurchase = ({
         ],
         nonce: poolInfo.nonce,
       };
+      console.log('>>> intention: ', tmpIntention);
       // Add pixel purchase intention
       tx.addIntention(tmpIntention);
 
