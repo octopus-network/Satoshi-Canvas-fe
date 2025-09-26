@@ -109,30 +109,6 @@ export const usePixelPurchase = ({
     setIsPurchaseLoading(true);
 
     try {
-      // Temporary mock API code is commented
-      /* 
-      console.log("🎨 Using temporary mock API for drawing");
-      
-      const drawIntents = convertToDrawIntents(userPixels, paymentAddress);
-      console.log("Drawing intentions:", drawIntents);
-      
-      const txid = await submitDrawIntents(drawIntents);
-      
-      console.log("Drawing successful, transaction ID:", txid);
-      
-      // Success notification
-      toast.success("Drawing successful!", {
-        description: `Transaction ID: ${txid.slice(0, 8)}...${txid.slice(-8)}`,
-        duration: 5000,
-      });
-
-      // Call success callback
-      onSuccess?.(txid);
-
-      return;
-      */
-
-      // Restore original ree platform code
       // Check pool loading status
       if (poolsLoading) {
         throw new Error("Pool information is loading, please try again later");
@@ -149,12 +125,12 @@ export const usePixelPurchase = ({
 
       // Use real pool address (using the first pool here, in actual application may need to find specific pixel pool)
       const targetPool = availablePools[0];
-      // console.log("🎯 Using pool:", targetPool);
+      console.log("🎯 Using pool:", targetPool);
       
       // Get complete pool information, including UTXO and nonce
-      // console.log("Getting detailed pool information...");
+      console.log("Getting detailed pool information...");
       const poolInfo = await client.getPoolInfo(targetPool.address);
-      // console.log("🎯 Detailed pool information:", poolInfo);
+      console.log("🎯 Detailed pool information:", poolInfo);
       
       // Calculate prices for empty pixels and non-empty pixels
       const paintedPixelMap = new Map<string, number>();
@@ -181,22 +157,22 @@ export const usePixelPurchase = ({
       const emptyPixelTotalPriceSatoshis = emptyPixelCount * PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE;
       const totalPriceSatoshis = emptyPixelTotalPriceSatoshis + repaintTotalPriceSatoshis;
       
-      // console.log("Creating purchase transaction:", {
-      //   pixelCount,
-      //   emptyPixelCount,
-      //   repaintPixelCount: pixelCount - emptyPixelCount,
-      //   emptyPixelTotalPriceSatoshis,
-      //   repaintTotalPriceSatoshis,
-      //   totalPriceSatoshis,
-      //   poolAddress: targetPool.address,
-      //   poolName: targetPool.name,
-      //   poolNonce: poolInfo.nonce,
-      //   poolUtxosCount: poolInfo.utxos?.length || 0,
-      // });
+      console.log("Creating purchase transaction:", {
+        pixelCount,
+        emptyPixelCount,
+        repaintPixelCount: pixelCount - emptyPixelCount,
+        emptyPixelTotalPriceSatoshis,
+        repaintTotalPriceSatoshis,
+        totalPriceSatoshis,
+        poolAddress: targetPool.address,
+        poolName: targetPool.name,
+        poolNonce: poolInfo.nonce,
+        poolUtxosCount: poolInfo.utxos?.length || 0,
+      });
 
       // Use the first UTXO of the pool (undefined if no UTXO)
       const poolUtxo = poolInfo.utxos && poolInfo.utxos.length > 0 ? poolInfo.utxos[0] : undefined;
-      // console.log("Using pool UTXO:", poolUtxo);
+      console.log("Using pool UTXO:", poolUtxo);
 
       // Create transaction
       const tx = await createTransaction();
@@ -246,11 +222,11 @@ export const usePixelPurchase = ({
       // Add pixel purchase intention
       tx.addIntention(tmpIntention);
 
-      // console.log("Building PSBT...");
+      console.log("Building PSBT...");
       // Build PSBT
       const { psbt } = await tx.build();
       
-      // console.log("Requesting user signature...");
+      console.log("Requesting user signature...");
       // Request user signature
       const res = await signPsbt(psbt.toBase64());
       const signedPsbtHex = res?.signedPsbtHex ?? "";
@@ -259,11 +235,11 @@ export const usePixelPurchase = ({
         throw new Error("Signature failed");
       }
 
-      // console.log("Sending transaction...");
+      console.log("Sending transaction...");
       // Send transaction
       const txid = await tx.send(signedPsbtHex);
 
-      // console.log("Transaction sent successfully:", txid);
+      console.log("Transaction sent successfully:", txid);
       
       // Success notification
       toast.success("Purchase successful!", {
