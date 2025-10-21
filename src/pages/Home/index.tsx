@@ -11,7 +11,7 @@ import { useRankingData } from "@/hooks/useRankingData";
 
 function HomePage() {
   const { theme: themeConfig } = useThemeStore();
-  const [gridSize] = useState<100 | 1000>(100); // Convention: temporarily only support 100*100 size canvas
+  const [gridSize] = useState<100 | 1000>(1000); // Convention: temporarily only support 1000*1000 size canvas
 
   // Use canvas data Hook
   const { canvasState, refreshData, startPurchasePolling } = useCanvasData({

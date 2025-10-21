@@ -43,7 +43,7 @@ export const CANVAS_API = {
     CLAIMABLE: "/claimable", // New claimable balance interface
   },
   POLLING_INTERVAL: 8000, // 8 second polling interval
-  GRID_SIZE: 100, // Canvas grid size (100x100)
+  GRID_SIZE: 1000, // Canvas grid size (1000x1000)
 } as const;
 
 // Purchase intent interface definition

@@ -6,11 +6,11 @@ import type { PixelData } from "@/components/PixelCanvas/types";
 
 /**
  * Calculate pixel coordinates from index
- * Pixels are stored in row-major order (0-9999 corresponds to 100x100 grid)
+ * Pixels are stored in row-major order (0-999999 corresponds to 1000x1000 grid)
  * @param index Pixel index
  * @param gridSize Grid size, default 100
  */
-export function indexToCoordinates(index: number, gridSize: number = 100): { x: number; y: number } {
+export function indexToCoordinates(index: number, gridSize: number = 1000): { x: number; y: number } {
   const x = index % gridSize;
   const y = Math.floor(index / gridSize);
   return { x, y };
@@ -22,7 +22,7 @@ export function indexToCoordinates(index: number, gridSize: number = 100): { x: 
  * @param y y coordinate
  * @param gridSize Grid size, default 100
  */
-export function coordinatesToIndex(x: number, y: number, gridSize: number = 100): number {
+export function coordinatesToIndex(x: number, y: number, gridSize: number = 1000): number {
   return y * gridSize + x;
 }
 
@@ -32,7 +32,7 @@ export function coordinatesToIndex(x: number, y: number, gridSize: number = 100)
  * @param y y coordinate
  * @param gridSize Grid size, default 100
  */
-export function isValidCoordinates(x: number, y: number, gridSize: number = 100): boolean {
+export function isValidCoordinates(x: number, y: number, gridSize: number = 1000): boolean {
   return x >= 0 && x < gridSize && y >= 0 && y < gridSize;
 }
 
@@ -94,7 +94,7 @@ export function getNeighborCoordinates(
   x: number, 
   y: number, 
   radius: number = 1, 
-  gridSize: number = 100
+  gridSize: number = 1000
 ): { x: number; y: number }[] {
   const neighbors: { x: number; y: number }[] = [];
   

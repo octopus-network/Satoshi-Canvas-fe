@@ -13,7 +13,7 @@ interface PixelData {
 }
 
 const PixelCanvasDebug: React.FC = () => {
-  const [gridSize, setGridSize] = useState<100 | 1000>(100);
+  const [gridSize, setGridSize] = useState<100 | 1000>(1000);
   const [drawingOperations, setDrawingOperations] = useState<
     DrawingOperation[]
   >([]);
