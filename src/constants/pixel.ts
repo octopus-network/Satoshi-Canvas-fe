@@ -25,7 +25,7 @@ export const PIXEL_CONSTANTS = {
   
   // 1 BTC = 100,000,000 satoshis
   // 默认每个空像素价格 (satoshis)
-  DEFAULT_EMPTY_PIXEL_PRICE: 100, // 0.000001 BTC = 100 satoshis
+  DEFAULT_EMPTY_PIXEL_PRICE: 1, // 0.00000001 BTC = 1 satoshi
   
   
   // 网络费用 (satoshis)

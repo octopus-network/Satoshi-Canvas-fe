@@ -215,9 +215,8 @@ const Layout: React.FC = () => {
         {/* Desktop right side buttons */}
         <div className="justify-end items-center space-x-2 basis-1/4 hidden md:flex">
           <Tooltip delayDuration={300}>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
-                asChild
                 variant="ghost"
                 size="sm"
                 onClick={toggleTheme}
@@ -234,9 +233,8 @@ const Layout: React.FC = () => {
           </Tooltip>
 
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
               <Button
-                asChild
                 variant="ghost"
                 size="sm"
                 className="w-11 h-11 rounded-lg transition-all duration-200 scale-in cursor-pointer"

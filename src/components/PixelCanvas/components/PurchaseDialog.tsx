@@ -17,7 +17,7 @@ interface PurchaseDialogProps {
   onOpenChange: (open: boolean) => void;
   userPixelData: PixelData[];
   paintedPixelInfoList: PixelInfo[];
-  emptyPixelPrice?: number; // Deprecated - price is now hardcoded as 100 satoshis
+  emptyPixelPrice?: number; // Deprecated - price is now hardcoded as 1 satoshi
   onConfirm: () => void;
   isLoading?: boolean;
 }
@@ -57,7 +57,7 @@ export function PurchaseDialog({
     });
 
     // Empty pixel price is in satoshis, so calculate directly
-    const emptyPixelPriceSatoshis = 100; // 100 satoshis per empty pixel
+    const emptyPixelPriceSatoshis = 1; // 1 satoshi per empty pixel
     const emptyPixelTotalPriceSatoshis = emptyPixelCount * emptyPixelPriceSatoshis;
     const totalPriceSatoshis = emptyPixelTotalPriceSatoshis + repaintTotalPriceSatoshis;
 
@@ -83,10 +83,10 @@ export function PurchaseDialog({
         <div className="flex-shrink-0 border-b px-4 py-4">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold">
-              Confirm Purchase
+              Confirm Draw
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
-              You are about to purchase drawing rights for{" "}
+              You are about to draw on {" "}
               {userPixelData.length} pixels.
             </DialogDescription>
           </DialogHeader>
@@ -165,7 +165,7 @@ export function PurchaseDialog({
             <Card className="border-0 bg-muted/30 gap-0">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base font-medium">
-                  Pricing Details
+                  Pricing Details (BTC)
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0 space-y-2">
@@ -176,11 +176,11 @@ export function PurchaseDialog({
                         Empty Pixels × {pricing.emptyPixelCount}
                       </span>
                       <span className="text-xs font-mono text-muted-foreground/70">
-                        {pricing.emptyPixelPrice.toFixed(6)} BTC/pixel
+                        {pricing.emptyPixelPrice.toFixed(8)} BTC/pixel
                       </span>
                     </div>
                     <span className="font-mono text-sm">
-                      {pricing.emptyPixelTotalPrice.toFixed(6)} BTC
+                      {pricing.emptyPixelTotalPrice.toFixed(8)} BTC
                     </span>
                   </div>
                 )}
@@ -191,7 +191,7 @@ export function PurchaseDialog({
                       Repaint Cost
                     </span>
                     <span className="font-mono text-sm">
-                      {pricing.repaintTotalPrice.toFixed(6)} BTC
+                      {pricing.repaintTotalPrice.toFixed(8)} BTC
                     </span>
                   </div>
                 )}
@@ -204,9 +204,9 @@ export function PurchaseDialog({
         <div className="flex-shrink-0 border-t px-4 py-4">
           {/* Total Price Summary */}
           <div className="flex items-center justify-between py-3 mb-4 bg-muted/30 rounded-lg px-4">
-            <span className="text-base font-medium">Total Amount</span>
+            <span className="text-base font-medium">Total Amount (BTC)</span>
             <span className="text-lg font-bold font-mono">
-              {pricing.totalPrice.toFixed(6)} BTC
+              {pricing.totalPrice.toFixed(8)} BTC
             </span>
           </div>
 
@@ -225,7 +225,7 @@ export function PurchaseDialog({
               disabled={isLoading}
               className="w-full sm:w-auto cursor-pointer"
             >
-              {isLoading ? "Processing..." : "Confirm Purchase"}
+              {isLoading ? "Processing..." : "Confirm Draw"}
             </Button>
           </DialogFooter>
         </div>

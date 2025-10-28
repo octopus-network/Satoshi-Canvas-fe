@@ -39,7 +39,7 @@ function HomePage() {
     refreshRankingData();
   };
 
-  // Handle post-purchase success
+  // Handle post-draw success
   const handlePurchaseSuccess = async () => {
     // console.log("🛒 Start post-purchase data refresh process");
     // Save current data for comparison

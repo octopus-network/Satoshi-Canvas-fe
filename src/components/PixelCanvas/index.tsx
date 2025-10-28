@@ -105,19 +105,19 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     const [undoStack, setUndoStack] = useState<HistoryEntry[]>([]);
     const [redoStack, setRedoStack] = useState<HistoryEntry[]>([]);
 
-    // Purchase related state
+    // Draw related state
     const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
     const [emptyPixelPrice] = useState(PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE / 100000000); // Convert satoshis to BTC
     const [isPurchaseRefreshing, setIsPurchaseRefreshing] = useState(false); // Post-purchase refresh loading state
 
-    // Handle purchase refresh completion
+    // Handle draw refresh completion
     const handlePurchaseRefreshComplete = useCallback(() => {
       // console.log("🎉 Post-purchase data refresh complete, close loading");
       setIsPurchaseRefreshing(false);
       onPurchaseRefreshComplete?.();
     }, [onPurchaseRefreshComplete]);
 
-    // Handle post-purchase success function
+    // Handle post-draw success function
     const handlePurchaseSuccess = useCallback(async () => {
       // console.log("🎉 Purchase successful, clear user drawing state and start polling refresh");
       
@@ -154,14 +154,14 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       }
     }, [onDrawingChange, onUserPixelCountChange, onPurchaseSuccess, handlePurchaseRefreshComplete]);
 
-    // Listen for purchase refresh completion events
+    // Listen for draw refresh completion events
     useEffect(() => {
       if (onPurchaseRefreshComplete) {
         // Additional purchase refresh completion handling logic can be added here
       }
     }, [onPurchaseRefreshComplete]);
 
-    // Purchase hook
+    // Draw hook
     const { 
       isPurchaseLoading, 
       executePurchase, 
@@ -171,10 +171,10 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       userPixels,
       paintedPixelInfoList: canvasInfo?.paintedPixelInfoList || [],
       onSuccess: () => {
-        // console.log("Purchase successful, transaction ID:", txid);
+        // console.log("Draw successful, transaction ID:", txid);
         setIsPurchaseDialogOpen(false);
         
-        // Handle post-purchase success
+        // Handle post-draw success
         handlePurchaseSuccess();
       }
     });
@@ -744,7 +744,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             currentHoverPixel={currentHoverPixel}
           />
 
-          {/* Floating purchase button - shown when there is user drawing data */}
+        {/* Floating draw button - shown when there is user drawing data */}
           {userPixels.size > 0 && (
             <div className="absolute bottom-4 right-4">
               <button
@@ -759,20 +759,20 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
                 `}
               >
                 <ShoppingCart className="w-5 h-5" />
-                {isPurchaseLoading ? "Processing..." : `Purchase (${userPixels.size})`}
+                {isPurchaseLoading ? "Processing..." : `Draw (${userPixels.size})`}
               </button>
             </div>
           )}
         </div>
 
-        {/* Purchase refresh loading overlay */}
+        {/* Draw refresh loading overlay */}
         {isPurchaseRefreshing && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center gap-4 shadow-xl">
               <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
               <div className="text-center">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Processing Purchase
+                  Processing Draw
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
                   Waiting for transaction confirmation...

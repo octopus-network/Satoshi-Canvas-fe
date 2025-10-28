@@ -323,7 +323,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </span>
             <TooltipProvider>
               <Tooltip delayDuration={350}>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     className="cursor-pointer"
                     variant="outline"
@@ -343,7 +343,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
             <TooltipProvider>
               <Tooltip delayDuration={350}>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     className="cursor-pointer"
                     variant="outline"

@@ -5,15 +5,15 @@
 
 import type { PixelData } from "@/components/PixelCanvas/types";
 import type { CanvasInfo, Participant } from "@/types/canvas";
+import {
+  CanvasStore,
+  CANVAS_API as CANVAS_API_COMPACT,
+} from "./canvas-client";
+import type { ApiPixel as CompactApiPixel } from "./canvas-client";
+import type { CanvasApiResponse } from "./canvas-client";
 
-// API returned Pixel structure
-export interface ApiPixel {
-  owner: string | null; // None means no owner, Some is the owner's address
-  price: number; // Current price (satoshis)
-  color: string; // 24-bit RGB888 color
-  x: number; // Pixel coordinate x
-  y: number; // Pixel coordinate y
-}
+// API returned Pixel structure（统一使用紧凑协议解包后的类型）
+export type ApiPixel = CompactApiPixel;
 
 // API returned Ranking structure
 export interface ApiRankingItem {
@@ -28,22 +28,18 @@ export interface ApiClaimableResponse {
   claimable_sats: number; // Number of claimable satoshis
 }
 
-// Canvas API response
-export interface CanvasApiResponse {
-  pixels: ApiPixel[];
-}
+// 统一使用 canvas-client 中导出的 CanvasApiResponse 类型
 
-// Canvas API constants
+// Canvas API constants（沿用原常量导出，但 CANVAS 基础信息由紧凑客户端维护）
 export const CANVAS_API = {
-  BASE_URL: "https://p4nzc-yiaaa-aaaao-qkg2q-cai.raw.icp0.io",
+  ...CANVAS_API_COMPACT,
   ENDPOINTS: {
-    CANVAS: "/canvas",
+    ...CANVAS_API_COMPACT.ENDPOINTS,
     RANKING: "/rank",
-    DRAW: "/draw", // New drawing interface
-    CLAIMABLE: "/claimable", // New claimable balance interface
+    DRAW: "/draw",
+    CLAIMABLE: "/claimable",
   },
-  POLLING_INTERVAL: 8000, // 8 second polling interval
-  GRID_SIZE: 1000, // Canvas grid size (1000x1000)
+  POLLING_INTERVAL: 8000,
 } as const;
 
 // Purchase intent interface definition
@@ -59,48 +55,28 @@ export type PurchaseIntents = PurchaseIntent[];
 /**
  * Parse JSON response data
  */
-export async function parseCanvasResponse(response: Response): Promise<ApiPixel[]> {
-  try {
-    const data = await response.json();
-    return Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error("Failed to parse JSON data:", error);
-    return [];
-  }
+// 兼容保留：不再使用旧数组协议，此函数仅作为兜底，不从外部调用
+export async function parseCanvasResponse(_response: Response): Promise<ApiPixel[]> {
+  return [];
 }
 
 /**
  * Fetch canvas data
  */
+// 使用紧凑协议 + 增量同步的本地存储
+const canvasStore = new CanvasStore(CANVAS_API.GRID_SIZE);
+
 export async function fetchCanvasData(): Promise<CanvasApiResponse> {
   try {
-    const response = await fetch(`${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.CANVAS}`, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Cache-Control": "no-cache",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (canvasStore.rev === 0) {
+      const { pixels } = await canvasStore.init();
+      return { pixels, rev: canvasStore.rev };
     }
-
-    const pixels = await parseCanvasResponse(response);
-    
-    // Filter out invalid pixel data (API returns coordinates directly, no calculation needed)
-    const validPixels = pixels.filter((pixel) => 
-      pixel.color && 
-      typeof pixel.x === 'number' && 
-      typeof pixel.y === 'number' &&
-      pixel.x >= 0 && pixel.x < CANVAS_API.GRID_SIZE &&
-      pixel.y >= 0 && pixel.y < CANVAS_API.GRID_SIZE
-    );
-
-    return { pixels: validPixels };
+    const { rev } = await canvasStore.sync();
+    return { pixels: canvasStore.getAllPixels(), rev };
   } catch (error) {
-    console.error("Failed to fetch canvas data:", error);
-    throw error;
+    console.error("Failed to fetch canvas data (compact/incremental):", error);
+    throw error as Error;
   }
 }
 

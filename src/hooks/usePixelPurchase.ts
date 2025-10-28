@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { PIXEL_CONSTANTS } from "@/constants/pixel";
 // import { submitDrawIntents, type PurchaseIntent, type PurchaseIntents } from "@/services/canvas.service"; // Temporarily not used
 import { shortenErrorMessage } from "@/utils/string";
+import { packPX3Base64Url } from "@/services/px3-pack";
+import { CANVAS_API } from "@/services/canvas.service";
 
 export interface UsePixelPurchaseProps {
   userPixels: Map<string, string>;
@@ -157,7 +159,7 @@ export const usePixelPurchase = ({
       const emptyPixelTotalPriceSatoshis = emptyPixelCount * PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE;
       const totalPriceSatoshis = emptyPixelTotalPriceSatoshis + repaintTotalPriceSatoshis;
       
-      console.log("Creating purchase transaction:", {
+      console.log("Creating draw transaction:", {
         pixelCount,
         emptyPixelCount,
         repaintPixelCount: pixelCount - emptyPixelCount,
@@ -177,20 +179,17 @@ export const usePixelPurchase = ({
       // Create transaction
       const tx = await createTransaction();
 
+      const pixels = Array.from(userPixels.entries()).map(([key, color]) => {
+        const [x, y] = key.split(',').map(Number);
+        return { x, y, color };
+      });
+
+      const wire = packPX3Base64Url(paymentAddress, pixels, CANVAS_API.GRID_SIZE);
+
       const tmpIntention = {
         poolAddress: targetPool.address,
         action: PIXEL_CONSTANTS.PURCHASE_ACTION,
-        actionParams: JSON.stringify(
-          Array.from(userPixels.entries()).map(([key, color]) => {
-            const [x, y] = key.split(',').map(Number);
-            return {
-              x,
-              y,
-              owner: paymentAddress,
-              color,
-            };
-          })
-        ),
+        actionParams: wire,
         poolUtxos: poolUtxo ? [
           reeUtils.formatPoolUtxo(
             targetPool.address,
@@ -241,18 +240,26 @@ export const usePixelPurchase = ({
       const txid = await tx.send(signedPsbtHex);
 
       console.log("Transaction sent successfully:", txid);
+      const totalPriceBTC = totalPriceSatoshis / 100000000;
       
-      // Success notification
-      toast.success("Purchase successful!", {
-        description: `Transaction ID: ${txid.slice(0, 8)}...${txid.slice(-8)}`,
-        duration: 5000,
+      // Success notification with mempool link and summary
+      toast.success("Draw success", {
+        description: `claim ${totalPriceBTC.toFixed(8)} BTC, draw on ${pixelCount} pixels`,
+        action: {
+          label: "View",
+          onClick: () => {
+            const url = `https://mempool.space/testnet4/tx/${txid}`;
+            window.open(url, "_blank");
+          },
+        },
+        duration: 8000,
       });
 
       // Call success callback
       onSuccess?.(txid);
 
     } catch (error: any) {
-      console.error("Purchase failed:", error);
+      console.error("Draw failed:", error);
       
       // Don't show error for user cancelling signature
       if (error.code !== 4001) {
