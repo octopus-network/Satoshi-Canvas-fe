@@ -244,7 +244,7 @@ export const usePixelPurchase = ({
       
       // Success notification with mempool link and summary
       toast.success("Draw success", {
-        description: `claim ${totalPriceBTC.toFixed(8)} BTC, draw on ${pixelCount} pixels`,
+        description: `cost ${totalPriceBTC.toFixed(8)} BTC, draw on ${pixelCount} pixels`,
         action: {
           label: "View",
           onClick: () => {
