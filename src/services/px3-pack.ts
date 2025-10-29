@@ -77,17 +77,21 @@ export function packPX3Base64Url(
     colors[i] = toRgb24(it.color);
   }
 
-  // 颜色：是否可用 256 色调色板
+  // 颜色：是否可用 256 色调色板（必须所有颜色都能入表才启用）
   const paletteMap = new Map<number, number>();
   const palette: number[] = [];
+  let usePalette = true; // 仅在"全部颜色 ≤ 256"时保持 true
+
   for (const c of colors) {
     if (!paletteMap.has(c)) {
-      if (palette.length >= 256) break;
+      if (palette.length === 256) {
+        usePalette = false;        // 超过 256 种颜色，禁用调色板
+        break;                     // 后续直接走 RGB24 路径
+      }
       paletteMap.set(c, palette.length);
       palette.push(c);
     }
   }
-  const usePalette = palette.length <= 256;
 
   // 索引：Abs24(3B/idx) vs DeltaVarint（按大小估算择优）
   const idxSorted = [...idxs].sort((a,b) => a-b);
@@ -138,7 +142,11 @@ export function packPX3Base64Url(
     for (let i = 1; i < n; i++) off = writeVaruint(buf, off, pix[i].idx - pix[i-1].idx);
     // colors
     if (usePalette) {
-      for (let i = 0; i < n; i++) buf[off++] = paletteMap.get(pix[i].color)! & 0xff;
+      for (let i = 0; i < n; i++) {
+        const ci = paletteMap.get(pix[i].color);
+        if (ci === undefined) throw new Error("PX3 palette mismatch: color not found in palette");
+        buf[off++] = ci & 0xff;
+      }
     } else {
       for (let i = 0; i < n; i++) {
         const c = pix[i].color;
@@ -157,7 +165,11 @@ export function packPX3Base64Url(
     }
     // colors
     if (usePalette) {
-      for (let i = 0; i < n; i++) buf[off++] = paletteMap.get(colors[i])! & 0xff;
+      for (let i = 0; i < n; i++) {
+        const ci = paletteMap.get(colors[i]);
+        if (ci === undefined) throw new Error("PX3 palette mismatch: color not found in palette");
+        buf[off++] = ci & 0xff;
+      }
     } else {
       for (let i = 0; i < n; i++) {
         const c = colors[i];
