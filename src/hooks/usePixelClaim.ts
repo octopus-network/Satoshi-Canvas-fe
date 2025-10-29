@@ -166,10 +166,17 @@ export const usePixelClaim = ({
 
       // console.log("Claim transaction sent successfully:", txid);
       
-      // Success notification
+      // Success notification with mempool link and consistent style
       toast.success("Claim successful!", {
-        description: `Transaction ID: ${txid.slice(0, 8)}...${txid.slice(-8)}`,
-        duration: 5000,
+        description: `tx ${txid.slice(0, 8)}...${txid.slice(-8)}`,
+        action: {
+          label: "View",
+          onClick: () => {
+            const url = `https://mempool.space/testnet4/tx/${txid}`;
+            window.open(url, "_blank");
+          },
+        },
+        duration: 8000,
       });
 
       // Call success callback
