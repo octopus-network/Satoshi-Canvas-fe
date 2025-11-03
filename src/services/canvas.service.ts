@@ -11,6 +11,7 @@ import {
 } from "./canvas-client";
 import type { ApiPixel as CompactApiPixel } from "./canvas-client";
 import type { CanvasApiResponse } from "./canvas-client";
+import { CanvasPoller } from "./canvas-poller";
 
 // API returned Pixel structure（统一使用紧凑协议解包后的类型）
 export type ApiPixel = CompactApiPixel;
@@ -72,12 +73,53 @@ export async function fetchCanvasData(): Promise<CanvasApiResponse> {
       const { pixels } = await canvasStore.init();
       return { pixels, rev: canvasStore.rev };
     }
-    const { rev } = await canvasStore.sync();
-    return { pixels: canvasStore.getAllPixels(), rev };
+    // ✅ 使用 smartSync；如不想变更行为，可替换回 canvasStore.sync()
+    await canvasStore.smartSync();
+    return { pixels: canvasStore.getAllPixels(), rev: canvasStore.rev };
   } catch (error) {
     console.error("Failed to fetch canvas data (compact/incremental):", error);
     throw error as Error;
   }
+}
+
+// 单例轮询器（可按需调整间隔/回退）
+const poller = new CanvasPoller(new CanvasStore(CANVAS_API.GRID_SIZE), {
+  baseIntervalMs: 8000,
+  maxIntervalMs: 60000,
+  backoffFactor: 1.8,
+  jitter: 0.2,
+  hiddenMultiplier: 2,
+  initialImmediate: true,
+});
+
+// 启动轮询（可在 App 启动处或页面 mount 时调用）
+export function startCanvasPolling(
+  onUpdate?: (p: { pixelData: PixelData[]; fullReload: boolean; rev: number }) => void,
+  onError?: (e: unknown) => void
+) {
+  if (onUpdate) {
+    poller.onUpdate(res => {
+      const all = poller.getPixels();
+      const pixelData = convertApiPixelsToPixelData(all);
+      onUpdate({ pixelData, fullReload: res.fullReload, rev: res.rev });
+    });
+  }
+  if (onError) poller.onError(onError);
+  poller.start();
+  return () => poller.stop(); // 返回停止函数，方便组件卸载时清理
+}
+
+// 需要的时候获取当前快照
+export function getCanvasSnapshot() {
+  const pixels = poller.getPixels();
+  const pixelData = convertApiPixelsToPixelData(pixels);
+  const canvasInfo = generateCanvasInfo(pixels);
+  return { rev: poller.getRev(), pixelData, canvasInfo };
+}
+
+// 如需手动触发一次同步（例如用户点击"刷新"）
+export function forceCanvasSync() {
+  return poller.forceSync();
 }
 
 /**

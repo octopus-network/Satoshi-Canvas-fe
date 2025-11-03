@@ -30,11 +30,18 @@ export interface DeltaResponse {
   payload: CompactOperatedPayload;
 }
 
+export interface HeadResponse {
+  nonce: number;
+  width: number;
+  height: number;
+}
+
 export const CANVAS_API = {
   BASE_URL: "https://p4nzc-yiaaa-aaaao-qkg2q-cai.raw.icp0.io",
   ENDPOINTS: {
     CANVAS: "/canvas",
     DELTA: "/canvas_delta",
+    HEAD: "/head",        // ← 新增
   },
   GRID_SIZE: 1000,
 } as const;
@@ -119,11 +126,24 @@ export async function fetchCanvasDelta(since: number): Promise<DeltaResponse> {
   return data;
 }
 
+// 获取 /head 轻量探测
+export async function fetchHead(): Promise<HeadResponse> {
+  const resp = await fetch(`${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.HEAD}`, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "Cache-Control": "no-cache",
+    },
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return (await resp.json()) as HeadResponse;
+}
+
 // —— 轻量状态容器：把紧凑格式解包成 ApiPixel[] 并支持增量应用 ——
 export class CanvasStore {
   private grid: number;
   private map: Map<number, ApiPixel>;
-  public rev: number; // 当前持有的最新版本号
+  public rev: number; // 语义=后端 nonce
 
   constructor(grid: number = CANVAS_API.GRID_SIZE) {
     this.grid = grid;
@@ -138,7 +158,7 @@ export class CanvasStore {
     for (const p of pixels) {
       this.map.set(keyOf(p.x, p.y, this.grid), p);
     }
-    this.rev = payload.rev;
+    this.rev = payload.rev; // = nonce
   }
 
   // 增量写入（payload 中的像素直接覆盖）
@@ -147,7 +167,7 @@ export class CanvasStore {
     for (const p of pixels) {
       this.map.set(keyOf(p.x, p.y, this.grid), p);
     }
-    this.rev = payload.rev;
+    this.rev = payload.rev; // = nonce
   }
 
   // 对外：初始化（一次全量）
@@ -157,16 +177,39 @@ export class CanvasStore {
     return { pixels: this.getAllPixels(), rev: this.rev };
   }
 
-  // 对外：拉取并应用增量（返回变化的像素，便于局部重绘）
+  // 保留原 sync（不依赖 /head；anyway 服务器会处理回滚为 full=true）
   async sync(): Promise<{ changed: ApiPixel[]; fullReload: boolean; rev: number }> {
     const delta = await fetchCanvasDelta(this.rev);
     if (delta.full) {
       this.applyFull(delta.payload);
       return { changed: this.getAllPixels(), fullReload: true, rev: this.rev };
     } else {
+      const before = this.rev;
       this.applyIncremental(delta.payload);
       const changed = expandCompact(delta.payload, this.grid);
-      return { changed, fullReload: false, rev: this.rev };
+      return { changed, fullReload: before === 0, rev: this.rev };
+    }
+  }
+
+  // ✅ 推荐：先探测 /head，再决定是否调用 /delta
+  async smartSync(): Promise<{ changed: ApiPixel[]; fullReload: boolean; rev: number }> {
+    const head = await fetchHead();
+    const remote = head.nonce;
+
+    if (remote === this.rev) {
+      return { changed: [], fullReload: false, rev: this.rev };
+    }
+
+    // 无论是前进还是回滚，都请求 /delta?since=本地rev
+    const delta = await fetchCanvasDelta(this.rev);
+    if (delta.full) {
+      this.applyFull(delta.payload);
+      return { changed: this.getAllPixels(), fullReload: true, rev: this.rev };
+    } else {
+      const before = this.rev;
+      this.applyIncremental(delta.payload);
+      const changed = expandCompact(delta.payload, this.grid);
+      return { changed, fullReload: before === 0, rev: this.rev };
     }
   }
 
