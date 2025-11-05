@@ -6,11 +6,11 @@ import type { PixelData } from "@/components/PixelCanvas/types";
 
 /**
  * Calculate pixel coordinates from index
- * Pixels are stored in row-major order (0-999999 corresponds to 1000x1000 grid)
+ * Pixels are stored in row-major order (0-1048575 corresponds to 1024x1024 grid)
  * @param index Pixel index
- * @param gridSize Grid size, default 100
+ * @param gridSize Grid size, default 1024
  */
-export function indexToCoordinates(index: number, gridSize: number = 1000): { x: number; y: number } {
+export function indexToCoordinates(index: number, gridSize: number = 1024): { x: number; y: number } {
   const x = index % gridSize;
   const y = Math.floor(index / gridSize);
   return { x, y };
@@ -20,9 +20,9 @@ export function indexToCoordinates(index: number, gridSize: number = 1000): { x:
  * Calculate index from coordinates
  * @param x x coordinate
  * @param y y coordinate
- * @param gridSize Grid size, default 100
+ * @param gridSize Grid size, default 1024
  */
-export function coordinatesToIndex(x: number, y: number, gridSize: number = 1000): number {
+export function coordinatesToIndex(x: number, y: number, gridSize: number = 1024): number {
   return y * gridSize + x;
 }
 
@@ -30,9 +30,9 @@ export function coordinatesToIndex(x: number, y: number, gridSize: number = 1000
  * Validate if pixel coordinates are within valid range
  * @param x x coordinate
  * @param y y coordinate
- * @param gridSize Grid size, default 100
+ * @param gridSize Grid size, default 1024
  */
-export function isValidCoordinates(x: number, y: number, gridSize: number = 1000): boolean {
+export function isValidCoordinates(x: number, y: number, gridSize: number = 1024): boolean {
   return x >= 0 && x < gridSize && y >= 0 && y < gridSize;
 }
 
@@ -88,13 +88,13 @@ export function pixelDistance(p1: { x: number; y: number }, p2: { x: number; y: 
  * @param x Center x coordinate
  * @param y Center y coordinate
  * @param radius Radius, default 1
- * @param gridSize Grid size, default 100
+ * @param gridSize Grid size, default 1024
  */
 export function getNeighborCoordinates(
   x: number, 
   y: number, 
   radius: number = 1, 
-  gridSize: number = 1000
+  gridSize: number = 1024
 ): { x: number; y: number }[] {
   const neighbors: { x: number; y: number }[] = [];
   

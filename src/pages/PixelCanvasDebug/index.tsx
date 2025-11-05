@@ -13,7 +13,7 @@ interface PixelData {
 }
 
 const PixelCanvasDebug: React.FC = () => {
-  const [gridSize, setGridSize] = useState<100 | 1000>(1000);
+  const [gridSize, setGridSize] = useState<100 | 1024>(1024);
   const [drawingOperations, setDrawingOperations] = useState<
     DrawingOperation[]
   >([]);
@@ -174,10 +174,10 @@ const PixelCanvasDebug: React.FC = () => {
             </Button>
             <Button
               className="cursor-pointer"
-              variant={gridSize === 1000 ? "default" : "outline"}
-              onClick={() => setGridSize(1000)}
+              variant={gridSize === 1024 ? "default" : "outline"}
+              onClick={() => setGridSize(1024)}
             >
-              1000×1000
+              1024×1024
             </Button>
 
             {/* Large data testing migrated here */}

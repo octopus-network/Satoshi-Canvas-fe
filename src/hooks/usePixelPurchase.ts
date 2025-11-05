@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { PIXEL_CONSTANTS } from "@/constants/pixel";
 // import { submitDrawIntents, type PurchaseIntent, type PurchaseIntents } from "@/services/canvas.service"; // Temporarily not used
 import { shortenErrorMessage } from "@/utils/string";
-import { packPX3Base64Url } from "@/services/px3-pack";
-import { CANVAS_API } from "@/services/canvas.service";
+import { packPX3Base64UrlRect } from "@/services/px3-pack";
+import { getCurrentDims } from "@/services/canvas.service";
 
 export interface UsePixelPurchaseProps {
   userPixels: Map<string, string>;
@@ -184,7 +184,9 @@ export const usePixelPurchase = ({
         return { x, y, color };
       });
 
-      const wire = packPX3Base64Url(paymentAddress, pixels, CANVAS_API.GRID_SIZE);
+      // 使用动态尺寸打包 PX3
+      const dims = getCurrentDims();
+      const wire = packPX3Base64UrlRect(paymentAddress, pixels, dims);
 
       const tmpIntention = {
         poolAddress: targetPool.address,

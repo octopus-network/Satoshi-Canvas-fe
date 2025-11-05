@@ -41,6 +41,8 @@ export const CANVAS_API = {
     CLAIMABLE: "/claimable",
   },
   POLLING_INTERVAL: 8000,
+  // 保留 GRID_SIZE 作为向后兼容（已废弃，应使用 getCurrentDims()）
+  GRID_SIZE: 1024, // @deprecated 使用 getCurrentDims() 获取动态尺寸
 } as const;
 
 // Purchase intent interface definition
@@ -65,7 +67,7 @@ export async function parseCanvasResponse(_response: Response): Promise<ApiPixel
  * Fetch canvas data
  */
 // 使用紧凑协议 + 增量同步的本地存储
-const canvasStore = new CanvasStore(CANVAS_API.GRID_SIZE);
+const canvasStore = new CanvasStore();
 
 export async function fetchCanvasData(): Promise<CanvasApiResponse> {
   try {
@@ -83,7 +85,7 @@ export async function fetchCanvasData(): Promise<CanvasApiResponse> {
 }
 
 // 单例轮询器（可按需调整间隔/回退）
-const poller = new CanvasPoller(new CanvasStore(CANVAS_API.GRID_SIZE), {
+const poller = new CanvasPoller(new CanvasStore(), {
   baseIntervalMs: 8000,
   maxIntervalMs: 60000,
   backoffFactor: 1.8,
@@ -115,6 +117,11 @@ export function getCanvasSnapshot() {
   const pixelData = convertApiPixelsToPixelData(pixels);
   const canvasInfo = generateCanvasInfo(pixels);
   return { rev: poller.getRev(), pixelData, canvasInfo };
+}
+
+// 获取当前画布尺寸（用于 PX3 打包等场景）
+export function getCurrentDims() {
+  return poller.getStore().getDims();
 }
 
 // 如需手动触发一次同步（例如用户点击"刷新"）

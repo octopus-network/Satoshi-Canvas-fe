@@ -38,15 +38,13 @@ const writeVaruint = (buf: Uint8Array, off: number, x: number): number => {
 };
 
 /**
- * 打包 PX3 base64url 字符串（单买家）
+ * 核心编码器：打包 PX3 base64url 字符串（单买家）
  * @param buyer 购买者地址
- * @param items 像素（x,y,color）
- * @param grid  画布宽（默认 1000）
+ * @param items 像素项（idx, color）
  */
-export function packPX3Base64Url(
+function encodePX3Base64Url(
   buyer: string,
-  items: PurchasePixel[],
-  grid = 1000
+  items: { idx: number; color: string }[]
 ): string {
   if (items.length === 0) {
     const enc = new TextEncoder();
@@ -70,10 +68,7 @@ export function packPX3Base64Url(
   const colors = new Array<number>(n);
   for (let i = 0; i < n; i++) {
     const it = items[i];
-    if (it.x < 0 || it.x >= grid || it.y < 0 || it.y >= grid) {
-      throw new Error("x/y out of range");
-    }
-    idxs[i] = it.x + it.y * grid;
+    idxs[i] = it.idx;
     colors[i] = toRgb24(it.color);
   }
 
@@ -181,6 +176,43 @@ export function packPX3Base64Url(
   }
 
   return bytesToBase64Url(buf);
+}
+
+/**
+ * 打包 PX3 base64url 字符串（矩形画布版本）
+ * @param buyer 购买者地址
+ * @param pixels 像素（x,y,color）
+ * @param dims 画布尺寸 {width, height}
+ */
+export function packPX3Base64UrlRect(
+  buyer: string,
+  pixels: PurchasePixel[],
+  dims: { width: number; height: number }
+): string {
+  const { width, height } = dims;
+  
+  // 1) 过滤非法坐标（按 width/height）
+  const items = pixels
+    .filter(p => p.x >= 0 && p.x < width && p.y >= 0 && p.y < height)
+    .map(p => ({ idx: p.y * width + p.x, color: p.color }));
+  
+  // 2) 调用核心编码器
+  return encodePX3Base64Url(buyer, items);
+}
+
+/**
+ * 打包 PX3 base64url 字符串（单买家，兼容旧版本）
+ * @param buyer 购买者地址
+ * @param items 像素（x,y,color）
+ * @param grid  画布宽（默认 1024）
+ * @deprecated 使用 packPX3Base64UrlRect 替代，支持矩形画布
+ */
+export function packPX3Base64Url(
+  buyer: string,
+  items: PurchasePixel[],
+  grid = 1024
+): string {
+  return packPX3Base64UrlRect(buyer, items, { width: grid, height: grid });
 }
 
 

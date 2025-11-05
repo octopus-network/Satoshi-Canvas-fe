@@ -156,11 +156,11 @@ import type { PixelCanvasRef, PixelData, DrawingOperation } from '@/components/P
 ```
 
 ### Props
-- **gridSize**: 100 | 1000（必填）
+- **gridSize**: 100 | 1024（必填）
   - 网格维度（正方形），决定画布的像素坐标范围为 [0, gridSize-1]。
 - **pixelSize?**: number（默认 4）
-  - 单个像素在“世界坐标”中的边长，用于控制绘制与缩放的基础尺寸。
-- **onGridSizeChange?**: (size: 100 | 1000) => void
+  - 单个像素在"世界坐标"中的边长，用于控制绘制与缩放的基础尺寸。
+- **onGridSizeChange?**: (size: 100 | 1024) => void
   - 供工具栏切换网格大小时回调。
 - **initialData?**: PixelData[]
   - 初始像素数据（静态层）。当传入或变更时，组件会导入为“初始层”，清空用户层，并进入已初始化状态。
@@ -232,7 +232,7 @@ export interface HistoryEntry {
 - **坐标提示**：locate 模式下在画布边缘展示悬停坐标，指示面板会自动左右切换避免遮挡。
 
 ### 工具栏能力
-- **网格大小**：在 100×100 与 1000×1000 之间切换（触发 `onGridSizeChange`）。
+- **网格大小**：在 100×100 与 1024×1024 之间切换（触发 `onGridSizeChange`）。
 - **颜色选择**：
   - 默认色卡（见 `DEFAULT_COLORS`）。
   - 16 进制颜色输入（会校验并自动纠正为合法值）。
@@ -293,7 +293,7 @@ export interface HistoryEntry {
 - 事件：滚轮缩放添加了节流与自适应缩放强度，拖拽过程实时渲染，防抖闪烁被抑制。
 
 ### 边界与限制
-- 仅支持 `gridSize` 为 100 或 1000。
+- 仅支持 `gridSize` 为 100 或 1024。
 - 坐标范围为 [0, gridSize-1]，超界像素会被忽略（导入时亦会自动过滤/裁剪）。
 - 颜色值需为合法 16 进制（`#RRGGBB`），不合法输入会被校正为最近的合法值或回退。
 - 剪贴板能力受浏览器与安全上下文限制（HTTPS/本地文件策略），失败时静默忽略。

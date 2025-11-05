@@ -2,9 +2,9 @@
 import type { CanvasInfo } from "@/types/canvas";
 
 export interface PixelCanvasProps {
-  gridSize: 100 | 1000;
+  gridSize: 100 | 1024;
   pixelSize?: number;
-  onGridSizeChange?: (size: 100 | 1000) => void;
+  onGridSizeChange?: (size: 100 | 1024) => void;
   // New: initial data import
   initialData?: PixelData[];
   // New: drawing operation change callback

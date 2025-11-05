@@ -1,9 +1,9 @@
-// 适配 canister 新接口：/canvas（紧凑全量）与 /canvas_delta?since=REV（增量）
+// 适配 canister 新接口：/head（nonce+尺寸） + /canvas（紧凑全量） + /canvas_delta?since=REV（增量）
 // 浏览器 fetch 会自动解 gzip；无需特殊处理。
 
 export interface ApiPixel {
   owner: string | null; // 兼容旧类型；新协议里一定有 owner，但保留 null 以兼容旧渲染
-  price: number;        // 注意：如需安全处理>2^53-1，请改为 bigint
+  price: number;
   color: string;        // "#RRGGBB"
   x: number;
   y: number;
@@ -14,14 +14,13 @@ export interface CanvasApiResponse {
   rev: number;
 }
 
-// ——新协议类型——
 export interface CompactOperatedPayload {
-  rev: number;          // 最新版本号
-  owners: string[];     // 所有者字典表
-  xs: number[];         // u16，不过 JSON 里就是 number
+  rev: number;          // 最新版本号（= 后端 nonce）
+  owners: string[];     // 所有者字典表（局部）
+  xs: number[];         // u16，但 JSON 里是 number
   ys: number[];
   owners_idx: number[]; // 指向 owners 的下标
-  prices: number[];     // u64 序列化为 JSON number（如需 BigInt 可调整）
+  prices: number[];     // u64 -> number（如需安全可改 bigint）
   colors: number[];     // 0xRRGGBB
 }
 
@@ -41,19 +40,24 @@ export const CANVAS_API = {
   ENDPOINTS: {
     CANVAS: "/canvas",
     DELTA: "/canvas_delta",
-    HEAD: "/head",        // ← 新增
+    HEAD: "/head",
   },
-  GRID_SIZE: 1000,
+  DEFAULT_WIDTH: 1366,   // 默认仅占位；真实以 /head 为准
+  DEFAULT_HEIGHT: 768,
 } as const;
 
-// ———— 工具 ————
+// —— 工具 ——
+
 const hexFromRgb24 = (n: number) =>
   "#" + (n >>> 0).toString(16).padStart(6, "0").slice(-6).toUpperCase();
 
-const keyOf = (x: number, y: number, grid: number = CANVAS_API.GRID_SIZE) => y * grid + x;
+const keyOf = (x: number, y: number, width: number) => y * width + x;
 
-// 解包紧凑载荷 → ApiPixel[]
-export function expandCompact(payload: CompactOperatedPayload, grid: number = CANVAS_API.GRID_SIZE): ApiPixel[] {
+// 紧凑 → ApiPixel[]（校验用 width/height）
+export function expandCompact(
+  payload: CompactOperatedPayload,
+  dims: { width: number; height: number }
+): ApiPixel[] {
   const len = payload.xs.length;
   if (
     payload.ys.length !== len ||
@@ -65,113 +69,100 @@ export function expandCompact(payload: CompactOperatedPayload, grid: number = CA
     return [];
   }
 
-  const out: ApiPixel[] = new Array(len);
+  const { width, height } = dims;
+  const out: ApiPixel[] = [];
   for (let i = 0; i < len; i++) {
     const x = payload.xs[i];
     const y = payload.ys[i];
-
-    // 基础校验（与旧逻辑一致）
     if (
-      typeof x !== "number" ||
-      typeof y !== "number" ||
-      x < 0 ||
-      y < 0 ||
-      x >= grid ||
-      y >= grid
-    ) {
-      continue;
-    }
+      typeof x !== "number" || typeof y !== "number" ||
+      x < 0 || y < 0 || x >= width || y >= height
+    ) continue;
 
     const ownerIdx = payload.owners_idx[i] ?? 0;
-    const owner = payload.owners[ownerIdx] ?? null;
-    out[i] = {
-      x,
-      y,
-      owner,
+    out.push({
+      x, y,
+      owner: payload.owners[ownerIdx] ?? null,
       price: payload.prices[i],
       color: hexFromRgb24(payload.colors[i] ?? 0),
-    };
+    });
   }
-  // 过滤掉可能的空洞
-  return out.filter(Boolean) as ApiPixel[];
+  return out;
 }
 
 // —— HTTP ——
-// 首次全量（紧凑）
-export async function fetchCanvasCompact(): Promise<CompactOperatedPayload> {
-  const resp = await fetch(`${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.CANVAS}`, {
-    method: "GET",
-    headers: {
-      "Accept": "application/json",
-      "Cache-Control": "no-cache",
-    },
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const data = (await resp.json()) as CompactOperatedPayload;
-  return data;
-}
 
-// 增量
-export async function fetchCanvasDelta(since: number): Promise<DeltaResponse> {
-  const url = `${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.DELTA}?since=${since}`;
-  const resp = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Accept": "application/json",
-      "Cache-Control": "no-cache",
-    },
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const data = (await resp.json()) as DeltaResponse;
-  return data;
-}
-
-// 获取 /head 轻量探测
 export async function fetchHead(): Promise<HeadResponse> {
   const resp = await fetch(`${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.HEAD}`, {
     method: "GET",
-    headers: {
-      "Accept": "application/json",
-      "Cache-Control": "no-cache",
-    },
+    headers: { "Accept": "application/json", "Cache-Control": "no-cache" },
   });
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
   return (await resp.json()) as HeadResponse;
 }
 
-// —— 轻量状态容器：把紧凑格式解包成 ApiPixel[] 并支持增量应用 ——
-export class CanvasStore {
-  private grid: number;
-  private map: Map<number, ApiPixel>;
-  public rev: number; // 语义=后端 nonce
+export async function fetchCanvasCompact(): Promise<CompactOperatedPayload> {
+  const resp = await fetch(`${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.CANVAS}`, {
+    method: "GET",
+    headers: { "Accept": "application/json", "Cache-Control": "no-cache" },
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return (await resp.json()) as CompactOperatedPayload;
+}
 
-  constructor(grid: number = CANVAS_API.GRID_SIZE) {
-    this.grid = grid;
+export async function fetchCanvasDelta(since: number): Promise<DeltaResponse> {
+  const url = `${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.DELTA}?since=${since}`;
+  const resp = await fetch(url, {
+    method: "GET",
+    headers: { "Accept": "application/json", "Cache-Control": "no-cache" },
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return (await resp.json()) as DeltaResponse;
+}
+
+// —— 轻量状态容器：现在保存 width/height —— 
+export class CanvasStore {
+  private width: number;
+  private height: number;
+  private map: Map<number, ApiPixel>;
+  public rev: number; // = 后端 nonce
+
+  constructor(
+    width: number = CANVAS_API.DEFAULT_WIDTH,
+    height: number = CANVAS_API.DEFAULT_HEIGHT
+  ) {
+    this.width = width;
+    this.height = height;
     this.map = new Map();
     this.rev = 0;
   }
 
-  // 全量替换
+  getDims() { return { width: this.width, height: this.height }; }
+  getWidth() { return this.width; }
+  getHeight() { return this.height; }
+
   private applyFull(payload: CompactOperatedPayload) {
     this.map.clear();
-    const pixels = expandCompact(payload, this.grid);
-    for (const p of pixels) {
-      this.map.set(keyOf(p.x, p.y, this.grid), p);
-    }
-    this.rev = payload.rev; // = nonce
+    const pixels = expandCompact(payload, { width: this.width, height: this.height });
+    for (const p of pixels) this.map.set(keyOf(p.x, p.y, this.width), p);
+    this.rev = payload.rev;
   }
 
-  // 增量写入（payload 中的像素直接覆盖）
   private applyIncremental(payload: CompactOperatedPayload) {
-    const pixels = expandCompact(payload, this.grid);
-    for (const p of pixels) {
-      this.map.set(keyOf(p.x, p.y, this.grid), p);
-    }
-    this.rev = payload.rev; // = nonce
+    const pixels = expandCompact(payload, { width: this.width, height: this.height });
+    for (const p of pixels) this.map.set(keyOf(p.x, p.y, this.width), p);
+    this.rev = payload.rev;
   }
 
-  // 对外：初始化（一次全量）
+  // 首次：按 /head 设置尺寸，再拉全量
   async init(): Promise<CanvasApiResponse> {
+    const head = await fetchHead();
+    if (head.width !== this.width || head.height !== this.height) {
+      this.width = head.width;
+      this.height = head.height;
+      this.map.clear();
+      this.rev = 0;
+    }
     const full = await fetchCanvasCompact();
     this.applyFull(full);
     return { pixels: this.getAllPixels(), rev: this.rev };
@@ -186,21 +177,28 @@ export class CanvasStore {
     } else {
       const before = this.rev;
       this.applyIncremental(delta.payload);
-      const changed = expandCompact(delta.payload, this.grid);
+      const changed = expandCompact(delta.payload, { width: this.width, height: this.height });
       return { changed, fullReload: before === 0, rev: this.rev };
     }
   }
 
-  // ✅ 推荐：先探测 /head，再决定是否调用 /delta
+  // 推荐：smartSync 先探测尺寸与 nonce
   async smartSync(): Promise<{ changed: ApiPixel[]; fullReload: boolean; rev: number }> {
     const head = await fetchHead();
-    const remote = head.nonce;
+    // 尺寸变化：强制全量对齐
+    if (head.width !== this.width || head.height !== this.height) {
+      this.width = head.width;
+      this.height = head.height;
+      this.map.clear();
+      const full = await fetchCanvasCompact();
+      this.applyFull(full);
+      return { changed: this.getAllPixels(), fullReload: true, rev: this.rev };
+    }
 
-    if (remote === this.rev) {
+    if (head.nonce === this.rev) {
       return { changed: [], fullReload: false, rev: this.rev };
     }
 
-    // 无论是前进还是回滚，都请求 /delta?since=本地rev
     const delta = await fetchCanvasDelta(this.rev);
     if (delta.full) {
       this.applyFull(delta.payload);
@@ -208,7 +206,7 @@ export class CanvasStore {
     } else {
       const before = this.rev;
       this.applyIncremental(delta.payload);
-      const changed = expandCompact(delta.payload, this.grid);
+      const changed = expandCompact(delta.payload, { width: this.width, height: this.height });
       return { changed, fullReload: before === 0, rev: this.rev };
     }
   }
@@ -218,29 +216,31 @@ export class CanvasStore {
   }
 
   getPixel(x: number, y: number): ApiPixel | undefined {
-    return this.map.get(keyOf(x, y, this.grid));
+    return this.map.get(keyOf(x, y, this.width));
   }
 }
 
 // —— 旧导出（保持你原模块的导出名，方便最少侵入改造）——
 
 // 旧的 fetchCanvasData：改为返回 { pixels, rev } 方便上层保存 rev
+// 注意：此函数已由 canvas.service.ts 中的实现替代，保留仅为兼容
 export async function fetchCanvasData(): Promise<{ pixels: ApiPixel[]; rev: number }> {
-  const full = await fetchCanvasCompact();
-  const pixels = expandCompact(full);
-  return { pixels, rev: full.rev };
+  const tempStore = new CanvasStore();
+  await tempStore.init();
+  return { pixels: tempStore.getAllPixels(), rev: tempStore.rev };
 }
 
 // 旧的 parseCanvasResponse：不再使用数组协议，保留一个兜底实现（从紧凑对象转数组）
+// 注意：此函数需要尺寸信息，但 Response 中不包含，需要先获取 head 获取尺寸
 export async function parseCanvasResponse(response: Response): Promise<ApiPixel[]> {
   try {
     const data = (await response.json()) as CompactOperatedPayload;
     if (!data || !Array.isArray(data.xs)) return [];
-    return expandCompact(data);
+    // 需要先获取 head 获取尺寸
+    const head = await fetchHead();
+    return expandCompact(data, { width: head.width, height: head.height });
   } catch (error) {
     console.error("Failed to parse compact JSON:", error);
     return [];
   }
 }
-
-
