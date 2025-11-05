@@ -36,8 +36,8 @@ import {
 
 interface ToolbarProps {
   // Grid related
-  gridSize: 100 | 1024;
-  onGridSizeChange?: (size: 100 | 1024) => void;
+  gridSize: number;
+  onGridSizeChange?: (size: number) => void;
 
   // Color related
   currentColor: string;

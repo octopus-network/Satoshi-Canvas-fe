@@ -156,6 +156,7 @@ export const usePixelPurchase = ({
       });
 
       // Calculate real pixel prices (using real price data)
+      // Note: This price does NOT include network fee, which is automatically calculated by Ree SDK during PSBT building
       const emptyPixelTotalPriceSatoshis = emptyPixelCount * PIXEL_CONSTANTS.DEFAULT_EMPTY_PIXEL_PRICE;
       const totalPriceSatoshis = emptyPixelTotalPriceSatoshis + repaintTotalPriceSatoshis;
       
@@ -206,6 +207,8 @@ export const usePixelPurchase = ({
           {
             coin: {
               id: PIXEL_CONSTANTS.BTC.id, // "0:0" for BTC
+              // This value only includes pixel purchase cost (empty + repaint), 
+              // network fee is automatically calculated by SDK during tx.build()
               value: BigInt(totalPriceSatoshis),
             },
             from: paymentAddress,

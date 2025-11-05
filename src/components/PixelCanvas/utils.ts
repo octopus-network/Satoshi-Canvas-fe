@@ -89,12 +89,14 @@ export const getPixelCoordinates = (
   canvasX: number,
   canvasY: number,
   pixelSize: number,
-  gridSize: number
+  gridSize: number,
+  canvasHeight?: number // 支持矩形画布
 ): PixelCoordinates | null => {
   const pixelX = Math.floor(canvasX / pixelSize);
   const pixelY = Math.floor(canvasY / pixelSize);
+  const effectiveHeight = canvasHeight ?? gridSize; // 如果不提供高度，假设为正方形
 
-  if (pixelX >= 0 && pixelX < gridSize && pixelY >= 0 && pixelY < gridSize) {
+  if (pixelX >= 0 && pixelX < gridSize && pixelY >= 0 && pixelY < effectiveHeight) {
     return { pixelX, pixelY };
   }
   return null;
@@ -104,8 +106,10 @@ export const getPixelCoordinates = (
 export const extractImagePixels = (
   img: HTMLImageElement,
   config: ImageImportConfig,
-  gridSize: number
+  gridSize: number,
+  canvasHeight?: number // 支持矩形画布
 ): ProcessedImageData => {
+  const effectiveHeight = canvasHeight ?? gridSize; // 如果不提供高度，假设为正方形
   // 创建临时canvas用于图片处理（仅创建可见裁剪区域大小，避免巨型内存分配）
   const tempCanvas = document.createElement("canvas");
   const tempCtx = tempCanvas.getContext("2d");
@@ -126,7 +130,7 @@ export const extractImagePixels = (
   const visibleXStart = Math.max(0, -config.offsetX);
   const visibleYStart = Math.max(0, -config.offsetY);
   const visibleXEnd = Math.min(scaledWidth, gridSize - config.offsetX);
-  const visibleYEnd = Math.min(scaledHeight, gridSize - config.offsetY);
+  const visibleYEnd = Math.min(scaledHeight, effectiveHeight - config.offsetY);
 
   const cropWidth = Math.max(0, visibleXEnd - visibleXStart);
   const cropHeight = Math.max(0, visibleYEnd - visibleYStart);
@@ -200,7 +204,7 @@ export const extractImagePixels = (
             canvasX >= 0 &&
             canvasX < gridSize &&
             canvasY >= 0 &&
-            canvasY < gridSize
+            canvasY < effectiveHeight
           ) {
             const finalR = Math.round(r * alpha + 255 * (1 - alpha));
             const finalG = Math.round(g * alpha + 255 * (1 - alpha));
@@ -252,11 +256,13 @@ export const validateOffsetX = (
 export const validateOffsetY = (
   value: string,
   scaledHeight: number,
-  gridSize: number
+  gridSize: number,
+  canvasHeight?: number // 支持矩形画布
 ): boolean => {
   const numValue = parseInt(value);
+  const effectiveHeight = canvasHeight ?? gridSize; // 如果不提供高度，假设为正方形
   const minVal = -Math.floor(scaledHeight / 2);
-  const maxVal = gridSize;
+  const maxVal = effectiveHeight;
   return !isNaN(numValue) && numValue >= minVal && numValue <= maxVal;
 };
 

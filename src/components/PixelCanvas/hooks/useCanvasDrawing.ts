@@ -18,7 +18,8 @@ import { useDrawingStore } from "@/store/useDrawingStore";
 
 interface UseCanvasDrawingParams {
   // 画布状态
-  gridSize: number;
+  gridSize: number; // 画布宽度
+  canvasHeight?: number; // 画布高度（可选，如果不提供则假设为正方形）
   pixelSize: number;
   scale: number;
   offset: Offset;
@@ -54,6 +55,7 @@ interface UseCanvasDrawingParams {
 
 export const useCanvasDrawing = ({
   gridSize,
+  canvasHeight, // 画布高度（可选）
   pixelSize,
   scale,
   offset,
@@ -102,12 +104,14 @@ export const useCanvasDrawing = ({
   const scaleRef = useRef(scale);
   const offsetRef = useRef(offset);
   const gridSizeRef = useRef(gridSize);
+  const canvasHeightRef = useRef(canvasHeight ?? gridSize); // 如果不提供高度，假设为正方形
   const pixelSizeRef = useRef(pixelSize);
   const showGridRef = useRef(showGrid);
 
-  // Tool: ensure layer canvas exists and has correct size (in grid unit size gridSize × gridSize)
+  // Tool: ensure layer canvas exists and has correct size (in grid unit size gridSize × canvasHeight)
   const ensureLayer = useCallback(() => {
-    const size = gridSizeRef.current; // Off-screen layer uses grid size, 1 pixel = 1 grid
+    const width = gridSizeRef.current; // Off-screen layer uses grid size, 1 pixel = 1 grid
+    const height = canvasHeightRef.current;
     // Rebuild on initialization or size change
     const ensure = (
       canvasRef: React.MutableRefObject<HTMLCanvasElement | null>,
@@ -118,9 +122,9 @@ export const useCanvasDrawing = ({
         canvas = document.createElement("canvas");
         canvasRef.current = canvas;
       }
-      if (canvas.width !== size || canvas.height !== size) {
-        canvas.width = size;
-        canvas.height = size;
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
       }
       let ctx = ctxRef.current;
       if (!ctx) {
@@ -191,6 +195,9 @@ export const useCanvasDrawing = ({
     gridSizeRef.current = gridSize;
   }, [gridSize]);
   useEffect(() => {
+    canvasHeightRef.current = canvasHeight ?? gridSize;
+  }, [canvasHeight, gridSize]);
+  useEffect(() => {
     pixelSizeRef.current = pixelSize;
   }, [pixelSize]);
   useEffect(() => {
@@ -240,7 +247,7 @@ export const useCanvasDrawing = ({
       const srcX = Math.max(0, viewLeft / ps);
       const srcY = Math.max(0, viewTop / ps);
       const srcRight = Math.min(gridSizeRef.current, viewRight / ps);
-      const srcBottom = Math.min(gridSizeRef.current, viewBottom / ps);
+      const srcBottom = Math.min(canvasHeightRef.current, viewBottom / ps);
       const srcW = Math.max(0, srcRight - srcX);
       const srcH = Math.max(0, srcBottom - srcY);
       const dxWorld = srcX * ps;
@@ -287,7 +294,7 @@ export const useCanvasDrawing = ({
         );
         const startY = Math.max(0, Math.floor(viewTop / currentPixelSize));
         const endY = Math.min(
-          gridSizeRef.current,
+          canvasHeightRef.current,
           Math.ceil(viewBottom / currentPixelSize)
         );
 
@@ -525,7 +532,7 @@ export const useCanvasDrawing = ({
 
       if (e.button === 0) {
         // 左键
-        const pixelCoords = getPixelCoordinates(x, y, pixelSize, gridSize);
+        const pixelCoords = getPixelCoordinates(x, y, pixelSize, gridSize, canvasHeight);
         if (pixelCoords) {
           if (drawingMode === "locate") {
             // 坐标定位模式：复制坐标
@@ -754,8 +761,9 @@ export const useCanvasDrawing = ({
   const resetView = useCallback(() => {
     const newScale = 1;
     // 计算让画布中心对应视口中心的偏移量
+    const effectiveHeight = canvasHeight ?? gridSize;
     const worldCanvasWidth = gridSize * pixelSize;
-    const worldCanvasHeight = gridSize * pixelSize;
+    const worldCanvasHeight = effectiveHeight * pixelSize;
     const centerX = canvasSize.width / 2 / newScale - worldCanvasWidth / 2;
     const centerY = canvasSize.height / 2 / newScale - worldCanvasHeight / 2;
 
@@ -768,7 +776,7 @@ export const useCanvasDrawing = ({
     setScale(newScale);
     setOffset(newOffset);
     scheduleDraw();
-  }, [gridSize, pixelSize, canvasSize, setScale, setOffset, scheduleDraw]);
+  }, [gridSize, canvasHeight, pixelSize, canvasSize, setScale, setOffset, scheduleDraw]);
 
   // 导出为 PNG（合并离屏静态层与用户层，不包含网格线）
   const exportPNG = useCallback(
@@ -779,12 +787,13 @@ export const useCanvasDrawing = ({
       ensureLayer();
       const staticCanvas = staticLayerCanvasRef.current;
       const userCanvas = userLayerCanvasRef.current;
-      const size = gridSizeRef.current;
-      if (!staticCanvas || !userCanvas || size <= 0) return null;
+      const width = gridSizeRef.current;
+      const height = canvasHeightRef.current;
+      if (!staticCanvas || !userCanvas || width <= 0 || height <= 0) return null;
 
       const exportCanvas = document.createElement("canvas");
-      exportCanvas.width = Math.max(1, Math.floor(size * scale));
-      exportCanvas.height = Math.max(1, Math.floor(size * scale));
+      exportCanvas.width = Math.max(1, Math.floor(width * scale));
+      exportCanvas.height = Math.max(1, Math.floor(height * scale));
       const ctx = exportCanvas.getContext("2d");
       if (!ctx) return null;
       ctx.imageSmoothingEnabled = false;
@@ -803,8 +812,8 @@ export const useCanvasDrawing = ({
           staticCanvas,
           0,
           0,
-          size,
-          size,
+          width,
+          height,
           0,
           0,
           exportCanvas.width,
@@ -814,8 +823,8 @@ export const useCanvasDrawing = ({
           userCanvas,
           0,
           0,
-          size,
-          size,
+          width,
+          height,
           0,
           0,
           exportCanvas.width,

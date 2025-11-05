@@ -35,6 +35,7 @@ interface ImageImportDialogProps {
   onConfigChange: (config: ImageImportConfig) => void;
   processedImageData: ProcessedImageData | null;
   gridSize: number;
+  canvasHeight?: number; // 画布高度（可选，如果不提供则假设为正方形）
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -47,9 +48,11 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
   onConfigChange,
   processedImageData,
   gridSize,
+  canvasHeight, // 画布高度（可选）
   onConfirm,
   onCancel,
 }) => {
+  const effectiveHeight = canvasHeight ?? gridSize; // 如果不提供高度，假设为正方形
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const [inputValues, setInputValues] = useState<InputValues>({
     scale: "1.000",
@@ -163,13 +166,13 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
     (value: string) => {
       if (!processedImageData) return false;
       const numValue = parseInt(value);
-      if (validateOffsetY(value, processedImageData.scaledHeight, gridSize)) {
+      if (validateOffsetY(value, processedImageData.scaledHeight, effectiveHeight)) {
         onConfigChange({ ...config, offsetY: numValue });
         return true;
       }
       return false;
     },
-    [config, onConfigChange, processedImageData, gridSize]
+    [config, onConfigChange, processedImageData, effectiveHeight]
   );
 
   const validateAndApplyOpacity = useCallback(
@@ -308,7 +311,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
             : true;
         case "offsetY":
           return processedImageData
-            ? validateOffsetY(value, processedImageData.scaledHeight, gridSize)
+            ? validateOffsetY(value, processedImageData.scaledHeight, effectiveHeight)
             : true;
         case "opacity":
           return validateOpacity(value);
@@ -316,7 +319,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
           return true;
       }
     },
-    [processedImageData, gridSize]
+    [processedImageData, effectiveHeight]
   );
 
   // 从剪贴板导入坐标，格式示例：614,457
@@ -334,7 +337,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
       const minX = -Math.floor(processedImageData.scaledWidth / 2);
       const maxX = gridSize;
       const minY = -Math.floor(processedImageData.scaledHeight / 2);
-      const maxY = gridSize;
+      const maxY = effectiveHeight;
       const clamp = (v: number, min: number, max: number) =>
         Math.min(Math.max(v, min), max);
 
@@ -350,7 +353,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
     } catch (err) {
       // ignore errors silently
     }
-  }, [processedImageData, gridSize, onConfigChange, config]);
+  }, [processedImageData, gridSize, effectiveHeight, onConfigChange, config]);
 
   if (!selectedImage || !processedImageData) {
     return null;
@@ -695,7 +698,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                       onConfigChange({
                         ...config,
                         offsetX: 0,
-                        offsetY: gridSize - processedImageData.scaledHeight,
+                        offsetY: effectiveHeight - processedImageData.scaledHeight,
                       })
                     }
                   >
@@ -711,7 +714,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                         offsetX: Math.floor(
                           (gridSize - processedImageData.scaledWidth) / 2
                         ),
-                        offsetY: gridSize - processedImageData.scaledHeight,
+                        offsetY: effectiveHeight - processedImageData.scaledHeight,
                       })
                     }
                   >
@@ -725,7 +728,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                       onConfigChange({
                         ...config,
                         offsetX: gridSize - processedImageData.scaledWidth,
-                        offsetY: gridSize - processedImageData.scaledHeight,
+                        offsetY: effectiveHeight - processedImageData.scaledHeight,
                       })
                     }
                   >

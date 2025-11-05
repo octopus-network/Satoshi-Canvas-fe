@@ -195,6 +195,21 @@ export function PurchaseDialog({
                     </span>
                   </div>
                 )}
+
+                {/* Network fee notice */}
+                <div className="border-t pt-2 mt-2">
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-xs text-muted-foreground">
+                      Network Fee
+                    </span>
+                    <span className="text-xs text-muted-foreground italic">
+                      Calculated automatically
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground/70 mt-1">
+                    Additional network fee will be calculated by the wallet when signing the transaction.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -203,11 +218,18 @@ export function PurchaseDialog({
         {/* Fixed Footer */}
         <div className="flex-shrink-0 border-t px-4 py-4">
           {/* Total Price Summary */}
-          <div className="flex items-center justify-between py-3 mb-4 bg-muted/30 rounded-lg px-4">
-            <span className="text-base font-medium">Total Amount (BTC)</span>
-            <span className="text-lg font-bold font-mono">
-              {pricing.totalPrice.toFixed(8)} BTC
-            </span>
+          <div className="flex flex-col gap-2 mb-4 bg-muted/30 rounded-lg px-4 py-3">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium">Pixel Cost (BTC)</span>
+              <span className="text-lg font-bold font-mono">
+                {pricing.totalPrice.toFixed(8)} BTC
+              </span>
+            </div>
+            <div className="flex items-center justify-between pt-1 border-t border-muted">
+              <span className="text-xs text-muted-foreground">
+                + Network Fee (calculated by wallet)
+              </span>
+            </div>
           </div>
 
           {/* Action Buttons */}

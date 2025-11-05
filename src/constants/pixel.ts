@@ -40,6 +40,7 @@ export const PIXEL_CONSTANTS = {
 } as const;
 
 // 像素购买价格计算
+// 注意：此函数计算的价格不包含网络费用，网络费用由 Ree SDK 在构建 PSBT 时自动计算
 export const calculatePixelPrice = (
   emptyPixelCount: number,
   repaintPixelTotalPrice: number, // 重绘像素的总价格（聪为单位）
@@ -50,8 +51,10 @@ export const calculatePixelPrice = (
   return {
     emptyPixelTotal,
     repaintPixelTotal: repaintPixelTotalPrice, 
-    totalPrice: emptyPixelTotal + repaintPixelTotalPrice + PIXEL_CONSTANTS.DEFAULT_NETWORK_FEE,
-    networkFee: PIXEL_CONSTANTS.DEFAULT_NETWORK_FEE,
+    // 总价格不包含网络费用，网络费用由 SDK 自动计算
+    totalPrice: emptyPixelTotal + repaintPixelTotalPrice,
+    // 网络费用仅供参考，实际费用由 SDK 根据交易大小自动计算
+    estimatedNetworkFee: PIXEL_CONSTANTS.DEFAULT_NETWORK_FEE,
   };
 };
 

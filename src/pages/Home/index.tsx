@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Toaster } from "sonner";
 import { useThemeStore } from "@/store/useThemeStore";
 import PixelCanvas from "@/components/PixelCanvas";
@@ -8,10 +7,16 @@ import WalletDebugger from "@/components/WalletDebugger";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { useCanvasData } from "@/hooks/useCanvasData";
 import { useRankingData } from "@/hooks/useRankingData";
+import { useCanvasDims } from "@/hooks/useCanvasDims";
 
 function HomePage() {
   const { theme: themeConfig } = useThemeStore();
-  const [gridSize] = useState<100 | 1024>(1024); // Convention: temporarily only support 1024*1024 size canvas
+  
+  // 从后端动态获取画布尺寸
+  const { width, height } = useCanvasDims(true);
+  
+  // gridSize 使用 width（因为坐标校验和索引计算都基于 width）
+  const gridSize = width;
 
   // Use canvas data Hook
   const { canvasState, refreshData, startPurchasePolling } = useCanvasData({
@@ -77,7 +82,8 @@ function HomePage() {
         <div className="flex-1 min-h-0 flex flex-col">
           <PixelCanvas
             gridSize={gridSize}
-            pixelSize={gridSize === 100 ? 6 : 2}
+            canvasHeight={height}
+            pixelSize={gridSize <= 200 ? 6 : 2}
             initialData={initialPixelData}
             canvasInfo={canvasInfo}
             isRefreshing={dataState.isLoading || rankingDataState.isLoading}

@@ -48,6 +48,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
   (
     {
       gridSize,
+      canvasHeight, // 画布高度（可选，如果不提供则假设为正方形）
       pixelSize = DEFAULT_PIXEL_SIZE,
       initialData,
       onDrawingChange,
@@ -61,6 +62,8 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     },
     ref
   ) => {
+    // 使用 canvasHeight 或 gridSize（正方形画布）
+    const effectiveHeight = canvasHeight ?? gridSize;
     // Canvas state - separate initial data and user data
     const [initialPixels, setInitialPixels] = useState<Map<string, string>>(
       new Map()
@@ -214,6 +217,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       exportPNG,
     } = useCanvasDrawing({
       gridSize,
+      canvasHeight: effectiveHeight,
       pixelSize,
       scale,
       offset,
@@ -248,12 +252,12 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       a.href = url;
       const today = new Date();
       const timestamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}_${String(today.getHours()).padStart(2, "0")}${String(today.getMinutes()).padStart(2, "0")}${String(today.getSeconds()).padStart(2, "0")}`;
-      a.download = `pixel-canvas_${gridSize}x${gridSize}_${timestamp}.png`;
+      a.download = `pixel-canvas_${gridSize}x${effectiveHeight}_${timestamp}.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    }, [exportPNG, gridSize]);
+    }, [exportPNG, gridSize, effectiveHeight]);
 
     // Color change handling
     const handleColorChange = useCallback((color: string) => {
@@ -268,12 +272,12 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         const newUserPixels = new Map<string, string>();
         
         data.forEach(({ x, y, color }) => {
-          if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
+          if (x >= 0 && x < gridSize && y >= 0 && y < effectiveHeight) {
             const key = `${x},${y}`;
             newInitialPixels.set(key, color);
             // console.log(`🎨 Set pixel: (${x}, ${y}) -> ${color}`);
           } else {
-            console.warn(`⚠️  Invalid pixel coordinates: (${x}, ${y}), gridSize: ${gridSize}`);
+            console.warn(`⚠️  Invalid pixel coordinates: (${x}, ${y}), gridSize: ${gridSize}, height: ${effectiveHeight}`);
           }
         });
         
@@ -292,7 +296,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           onUserPixelCountChange?.(newUserPixels.size);
         }, 0);
       },
-      [gridSize] // Only depend on gridSize
+      [gridSize, effectiveHeight] // Depend on gridSize and effectiveHeight
     );
 
     // Update initial data method - only update underlying data, preserve user drawings
@@ -302,12 +306,12 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         const newInitialPixels = new Map<string, string>();
         
         data.forEach(({ x, y, color }) => {
-          if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
+          if (x >= 0 && x < gridSize && y >= 0 && y < effectiveHeight) {
             const key = `${x},${y}`;
             newInitialPixels.set(key, color);
             // console.log(`🎨 Update bottom layer pixel: (${x}, ${y}) -> ${color}`);
           } else {
-            console.warn(`⚠️  Invalid pixel coordinates: (${x}, ${y}), gridSize: ${gridSize}`);
+            console.warn(`⚠️  Invalid pixel coordinates: (${x}, ${y}), gridSize: ${gridSize}, height: ${effectiveHeight}`);
           }
         });
         
@@ -317,7 +321,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         setInitialPixels(newInitialPixels);
         // Don't modify userPixels, preserve user drawing content
       },
-      [gridSize, userPixels]
+      [gridSize, effectiveHeight, userPixels] // Depend on gridSize, effectiveHeight, and userPixels
     );
 
     // Handle image file selection
@@ -333,18 +337,18 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           const img = new Image();
           img.onload = () => {
             setSelectedImage(img);
-            const maxSize = Math.min(gridSize * 0.5, 200);
+            const maxSize = Math.min(Math.min(gridSize, effectiveHeight) * 0.5, 200);
             const scale = Math.min(maxSize / img.width, maxSize / img.height);
             const newConfig = {
               scale: Math.max(0.01, Math.min(10, scale)),
               offsetX: Math.floor((gridSize - img.width * scale) / 2),
-              offsetY: Math.floor((gridSize - img.height * scale) / 2),
+              offsetY: Math.floor((effectiveHeight - img.height * scale) / 2),
               opacity: 1,
             };
             setImageImportConfig(newConfig);
 
             // Process preview data immediately to avoid initial blank
-            const processed = extractImagePixels(img, newConfig, gridSize);
+            const processed = extractImagePixels(img, newConfig, gridSize, effectiveHeight);
             setProcessedImageData(processed);
 
             setIsImportDialogOpen(true);
@@ -721,6 +725,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           onConfigChange={setImageImportConfig}
           processedImageData={processedImageData}
           gridSize={gridSize}
+          canvasHeight={effectiveHeight}
           onConfirm={confirmImageImport}
           onCancel={cancelImageImport}
         />

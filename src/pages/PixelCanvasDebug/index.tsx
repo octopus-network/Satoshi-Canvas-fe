@@ -148,7 +148,12 @@ const PixelCanvasDebug: React.FC = () => {
             ref={canvasRef}
             gridSize={gridSize}
             pixelSize={gridSize === 100 ? 6 : 2}
-            onGridSizeChange={setGridSize}
+            onGridSizeChange={(size) => {
+              // Only allow 100 or 1024 to maintain type safety
+              if (size === 100 || size === 1024) {
+                setGridSize(size);
+              }
+            }}
             initialData={initialData}
             onDrawingChange={handleDrawingChange}
             onUserPixelCountChange={handleUserPixelCountChange}

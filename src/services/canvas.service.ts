@@ -8,6 +8,7 @@ import type { CanvasInfo, Participant } from "@/types/canvas";
 import {
   CanvasStore,
   CANVAS_API as CANVAS_API_COMPACT,
+  fetchHead,
 } from "./canvas-client";
 import type { ApiPixel as CompactApiPixel } from "./canvas-client";
 import type { CanvasApiResponse } from "./canvas-client";
@@ -67,6 +68,7 @@ export async function parseCanvasResponse(_response: Response): Promise<ApiPixel
  * Fetch canvas data
  */
 // 使用紧凑协议 + 增量同步的本地存储
+// 创建单例 CanvasStore 实例，供所有函数共享使用
 const canvasStore = new CanvasStore();
 
 export async function fetchCanvasData(): Promise<CanvasApiResponse> {
@@ -84,8 +86,8 @@ export async function fetchCanvasData(): Promise<CanvasApiResponse> {
   }
 }
 
-// 单例轮询器（可按需调整间隔/回退）
-const poller = new CanvasPoller(new CanvasStore(), {
+// 单例轮询器（使用共享的 CanvasStore 实例，确保状态一致）
+const poller = new CanvasPoller(canvasStore, {
   baseIntervalMs: 8000,
   maxIntervalMs: 60000,
   backoffFactor: 1.8,
@@ -121,7 +123,14 @@ export function getCanvasSnapshot() {
 
 // 获取当前画布尺寸（用于 PX3 打包等场景）
 export function getCurrentDims() {
-  return poller.getStore().getDims();
+  // 使用共享的 canvasStore 实例，确保与 fetchCanvasData 状态一致
+  return canvasStore.getDims();
+}
+
+// 从后端获取画布尺寸（首次加载或需要强制刷新时使用）
+export async function fetchCanvasDims(): Promise<{ width: number; height: number }> {
+  const head = await fetchHead();
+  return { width: head.width, height: head.height };
 }
 
 // 如需手动触发一次同步（例如用户点击"刷新"）

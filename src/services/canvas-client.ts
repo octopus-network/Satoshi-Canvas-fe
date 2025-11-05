@@ -42,8 +42,8 @@ export const CANVAS_API = {
     DELTA: "/canvas_delta",
     HEAD: "/head",
   },
-  DEFAULT_WIDTH: 1366,   // 默认仅占位；真实以 /head 为准
-  DEFAULT_HEIGHT: 768,
+  DEFAULT_WIDTH: 1024,   // 默认仅占位；真实以 /head 为准
+  DEFAULT_HEIGHT: 576,
 } as const;
 
 // —— 工具 ——

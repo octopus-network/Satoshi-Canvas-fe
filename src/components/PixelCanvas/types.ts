@@ -2,9 +2,10 @@
 import type { CanvasInfo } from "@/types/canvas";
 
 export interface PixelCanvasProps {
-  gridSize: 100 | 1024;
+  gridSize: number; // 画布宽度（支持动态尺寸，不再限制为 100 | 1024）
+  canvasHeight?: number; // 画布高度（可选，如果不提供则假设为正方形 gridSize×gridSize）
   pixelSize?: number;
-  onGridSizeChange?: (size: 100 | 1024) => void;
+  onGridSizeChange?: (size: number) => void;
   // New: initial data import
   initialData?: PixelData[];
   // New: drawing operation change callback
