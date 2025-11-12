@@ -121,6 +121,12 @@ export function getCanvasSnapshot() {
   return { rev: poller.getRev(), pixelData, canvasInfo };
 }
 
+// 获取单个像素的完整信息（包括 owner, price, txid）
+export function getPixelInfo(x: number, y: number): CompactApiPixel | null {
+  const store = poller.getStore();
+  return store.getPixel(x, y) || null;
+}
+
 // 获取当前画布尺寸（用于 PX3 打包等场景）
 export function getCurrentDims() {
   // 使用共享的 canvasStore 实例，确保与 fetchCanvasData 状态一致

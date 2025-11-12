@@ -16,6 +16,7 @@ import {
   Trash,
   Undo2,
   Redo2,
+  Search,
 } from "lucide-react";
 import type { DrawingMode } from "../types";
 import { ColorPicker } from "./ColorPicker";
@@ -230,7 +231,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 <Tooltip delayDuration={350}>
                   <TooltipTrigger asChild>
                     <button
-                      className={`flex items-center justify-center w-8 h-8 rounded transition-all duration-200 cursor-pointer ${
+                      className={`flex items-center justify-center w-8 h-8 rounded transition-all duration-200 cursor-pointer mr-1 ${
                         drawingMode === "picker"
                           ? "bg-primary text-primary-foreground shadow-sm"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -243,6 +244,27 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{t("pages.canvas.toolbar.modePicker")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip delayDuration={350}>
+                  <TooltipTrigger asChild>
+                    <button
+                      className={`flex items-center justify-center w-8 h-8 rounded transition-all duration-200 cursor-pointer ${
+                        drawingMode === "inspect"
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      }`}
+                      onClick={() => onDrawingModeChange("inspect")}
+                      type="button"
+                    >
+                      <Search className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{t("pages.canvas.toolbar.modeInspect")}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -395,6 +417,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </AlertDialogContent>
             </AlertDialog>
           </div>
+
           <div className="pr-4" />
         </div>
         <ScrollBar orientation="horizontal" />

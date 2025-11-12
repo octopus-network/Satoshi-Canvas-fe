@@ -592,14 +592,14 @@ export const useCanvasDrawing = ({
       );
       const pixelCoords = getPixelCoordinates(x, y, pixelSize, gridSize);
 
-      // 更新悬停像素坐标（在坐标定位模式下使用）
-      if (drawingMode === "locate" && pixelCoords) {
+      // 更新悬停像素坐标（在坐标定位模式和查看模式下使用）
+      if ((drawingMode === "locate" || drawingMode === "inspect") && pixelCoords) {
         setCurrentHoverPixel({ x: pixelCoords.pixelX, y: pixelCoords.pixelY });
-      } else {
+      } else if (drawingMode !== "locate" && drawingMode !== "inspect") {
         setCurrentHoverPixel(null);
       }
 
-      if (isDrawingRef.current && drawingMode !== "locate") {
+      if (isDrawingRef.current && drawingMode !== "locate" && drawingMode !== "inspect") {
         if (pixelCoords) {
           drawPixel(pixelCoords.pixelX, pixelCoords.pixelY);
         }

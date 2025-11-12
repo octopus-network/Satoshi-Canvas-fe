@@ -55,6 +55,7 @@
         "modeErase": "Eraser Mode",
         "modeLocate": "Locate Mode",
         "modePicker": "Color Picker Mode",
+        "modeInspect": "Inspect Mode",
                   "import": "File:",
           "fileOps": "File",
           "importImage": "Import Image",
@@ -82,6 +83,13 @@
       "canvas": {
         "currentPosition": "Current Position",
         "clickToCopy": "Click to copy coordinates",
+        "pixelInfo": "Pixel Info",
+        "owner": "Owner",
+        "currentPrice": "Current Price",
+        "transactionId": "Transaction ID",
+        "view": "View",
+        "status": "Status",
+        "notPainted": "Not Painted",
         "instructionsTitle": "Instructions:",
         "instructions": {
           "draw": "Left click or drag to draw pixels",

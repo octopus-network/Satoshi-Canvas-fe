@@ -55,6 +55,7 @@
         "modeErase": "橡皮擦模式",
         "modeLocate": "坐标定位模式",
         "modePicker": "取色器模式",
+        "modeInspect": "查看模式",
                   "import": "文件:",
           "fileOps": "文件操作",
           "importImage": "导入图片",
@@ -82,6 +83,13 @@
       "canvas": {
         "currentPosition": "当前坐标",
         "clickToCopy": "点击复制坐标",
+        "pixelInfo": "像素信息",
+        "owner": "所有者",
+        "currentPrice": "当前价格",
+        "transactionId": "交易 ID",
+        "view": "查看",
+        "status": "状态",
+        "notPainted": "未绘制",
         "instructionsTitle": "使用说明:",
         "instructions": {
           "draw": "左键点击或拖拽绘制像素",

@@ -2,6 +2,9 @@ import React, { useRef, useEffect, useState } from "react";
 import type { DrawingMode, CanvasSize } from "../types";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { PixelInfoCard } from "./PixelInfoCard";
+import { getPixelInfo } from "@/services/canvas.service";
+import type { ApiPixel } from "@/services/canvas-client";
 
 interface CanvasContainerProps {
   // Canvas reference
@@ -51,12 +54,20 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const coordPanelRef = useRef<HTMLDivElement>(null);
+  const infoCardRef = useRef<HTMLDivElement>(null);
   const [panelSide, setPanelSide] = useState<"left" | "right">("left");
+  const [infoCardSide, setInfoCardSide] = useState<"left" | "right">("left");
   const wasInsidePanelRef = useRef<boolean>(false);
+  const wasInsideInfoCardRef = useRef<boolean>(false);
   const lastSwitchAtRef = useRef<number>(0);
+  const lastInfoCardSwitchAtRef = useRef<number>(0);
   const { t } = useTranslation();
   const [isHoveringCanvas, setIsHoveringCanvas] = useState(false);
   const [isHoveringZoomPanel, setIsHoveringZoomPanel] = useState(false);
+  const [inspectedPixel, setInspectedPixel] = useState<ApiPixel | null>(null);
+  // Fixed pixel state for inspect mode
+  const [fixedPixelPosition, setFixedPixelPosition] = useState<{ x: number; y: number } | null>(null);
+  const [fixedPixelData, setFixedPixelData] = useState<ApiPixel | null>(null);
 
   // Listen for container size changes, adaptive canvas size
   useEffect(() => {
@@ -132,6 +143,12 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     if (drawingMode === "draw" || drawingMode === "locate") {
       return { cursor: "crosshair" } as const;
     }
+    if (drawingMode === "inspect") {
+      return {
+        cursor:
+          "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><circle cx='9' cy='9' r='5' fill='none' stroke='white' stroke-width='2.5'/><path d='M13 13l4 4' stroke='white' stroke-width='2.5' stroke-linecap='round'/><circle cx='9' cy='9' r='5' fill='none' stroke='%23333' stroke-width='1.5'/><path d='M13 13l4 4' stroke='%23333' stroke-width='1.5' stroke-linecap='round'/></svg>\") 10 10, pointer",
+      } as const;
+    }
     return { cursor: "pointer" } as const;
   };
 
@@ -144,41 +161,111 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
         return ""; // Overridden by inline style
       case "erase":
         return ""; // Overridden by inline style
+      case "inspect":
+        return ""; // Overridden by inline style
       default:
         return "cursor-pointer";
     }
   };
 
+  // Get pixel info for inspect mode (immediate update, no debounce for better UX)
+  // Only update hover pixel info if no fixed pixel is set
+  useEffect(() => {
+    if (drawingMode === "inspect" && currentHoverPixel && !fixedPixelPosition) {
+      const { x, y } = currentHoverPixel;
+      try {
+        const pixel = getPixelInfo(x, y);
+        setInspectedPixel(pixel);
+      } catch (error) {
+        console.error("Failed to get pixel info:", error);
+        setInspectedPixel(null);
+      }
+    } else if (drawingMode !== "inspect" || !currentHoverPixel) {
+      // Clear hover pixel info when leaving inspect mode or no hover pixel
+      // But don't clear if we have a fixed pixel
+      if (!fixedPixelPosition) {
+        setInspectedPixel(null);
+      }
+    }
+  }, [drawingMode, currentHoverPixel, fixedPixelPosition]);
+
+  // Clear fixed pixel when leaving inspect mode
+  useEffect(() => {
+    if (drawingMode !== "inspect") {
+      setFixedPixelPosition(null);
+      setFixedPixelData(null);
+    }
+  }, [drawingMode]);
+
   // Wrap mouse movement, detect if entering panel area, switch to other side if entered
   const handleMouseMove = (e: React.MouseEvent) => {
     onMouseMove(e);
 
-    if (drawingMode !== "locate") return;
-    const panelEl = coordPanelRef.current;
-    if (!panelEl) return;
+    // Handle locate mode panel
+    if (drawingMode === "locate") {
+      const panelEl = coordPanelRef.current;
+      if (panelEl) {
+        const rect = panelEl.getBoundingClientRect();
+        const { clientX, clientY } = e;
+        const margin = 2;
+        const inside =
+          clientX >= rect.left - margin &&
+          clientX <= rect.right + margin &&
+          clientY >= rect.top - margin &&
+          clientY <= rect.bottom + margin;
 
-    const rect = panelEl.getBoundingClientRect();
-    const { clientX, clientY } = e;
-    const margin = 2; // Error tolerance margin, reduce edge jitter
-    const inside =
-      clientX >= rect.left - margin &&
-      clientX <= rect.right + margin &&
-      clientY >= rect.top - margin &&
-      clientY <= rect.bottom + margin;
+        const now = Date.now();
+        const cooldownMs = 150;
 
-    const now = Date.now();
-    const cooldownMs = 150;
+        if (
+          inside &&
+          !wasInsidePanelRef.current &&
+          now - lastSwitchAtRef.current > cooldownMs
+        ) {
+          setPanelSide((side) => (side === "left" ? "right" : "left"));
+          lastSwitchAtRef.current = now;
+        }
 
-    if (
-      inside &&
-      !wasInsidePanelRef.current &&
-      now - lastSwitchAtRef.current > cooldownMs
-    ) {
-      setPanelSide((side) => (side === "left" ? "right" : "left"));
-      lastSwitchAtRef.current = now;
+        wasInsidePanelRef.current = inside;
+      }
     }
 
-    wasInsidePanelRef.current = inside;
+    // Handle inspect mode info card - prevent switching when hovering over the card itself
+    if (drawingMode === "inspect") {
+      const infoCardEl = infoCardRef.current;
+      if (infoCardEl) {
+        const rect = infoCardEl.getBoundingClientRect();
+        const { clientX, clientY } = e;
+        const margin = 2;
+        const inside =
+          clientX >= rect.left - margin &&
+          clientX <= rect.right + margin &&
+          clientY >= rect.top - margin &&
+          clientY <= rect.bottom + margin;
+
+        // If mouse is inside the info card, don't switch sides to avoid flickering
+        wasInsideInfoCardRef.current = inside;
+        
+        // Only switch if mouse is outside the card and approaching from the side
+        if (!inside) {
+          const now = Date.now();
+          const cooldownMs = 200; // Slightly longer cooldown to reduce flickering
+          
+          // Check if mouse is approaching from the side where the card is
+          const isApproachingFromCardSide = 
+            (infoCardSide === "left" && clientX < rect.left) ||
+            (infoCardSide === "right" && clientX > rect.right);
+          
+          if (
+            isApproachingFromCardSide &&
+            now - lastInfoCardSwitchAtRef.current > cooldownMs
+          ) {
+            setInfoCardSide((side) => (side === "left" ? "right" : "left"));
+            lastInfoCardSwitchAtRef.current = now;
+          }
+        }
+      }
+    }
   };
 
   const handleCanvasMouseEnter = () => {
@@ -189,6 +276,56 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     setIsHoveringCanvas(false);
     onMouseLeave();
   };
+
+  // Handle mouse down for inspect mode - fix pixel on left click, unfix on right click
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (drawingMode === "inspect") {
+      if (e.button === 0) {
+        // Left click: fix pixel
+        if (currentHoverPixel) {
+          const { x, y } = currentHoverPixel;
+          try {
+            const pixel = getPixelInfo(x, y);
+            setFixedPixelPosition({ x, y });
+            setFixedPixelData(pixel);
+            setInspectedPixel(pixel);
+          } catch (error) {
+            console.error("Failed to get pixel info:", error);
+            setFixedPixelPosition({ x, y });
+            setFixedPixelData(null);
+            setInspectedPixel(null);
+          }
+        }
+        // Don't call onMouseDown for inspect mode left clicks
+        return;
+      } else if (e.button === 2) {
+        // Right click: unfix pixel
+        e.preventDefault(); // Prevent context menu
+        if (fixedPixelPosition) {
+          setFixedPixelPosition(null);
+          setFixedPixelData(null);
+          // Restore hover pixel info if mouse is over canvas
+          if (currentHoverPixel) {
+            const { x, y } = currentHoverPixel;
+            try {
+              const pixel = getPixelInfo(x, y);
+              setInspectedPixel(pixel);
+            } catch (error) {
+              console.error("Failed to get pixel info:", error);
+              setInspectedPixel(null);
+            }
+          } else {
+            setInspectedPixel(null);
+          }
+        }
+        // Don't call onMouseDown for inspect mode right clicks
+        return;
+      }
+    }
+    // For other modes, call the original handler
+    onMouseDown(e);
+  };
+
 
   return (
     <div className="flex flex-col gap-3 w-full h-full min-h-0">
@@ -203,7 +340,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
           height={canvasSize.height}
           className={`w-full h-full ${getCanvasCursor()}`}
           style={{ ...getCursorStyle(), imageRendering: "pixelated" }}
-          onMouseDown={onMouseDown}
+          onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={onMouseUp}
           onMouseEnter={handleCanvasMouseEnter}
@@ -267,6 +404,17 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
             <div className="text-xs text-muted-foreground mt-1">
               {t("pages.canvas.canvas.clickToCopy")}
             </div>
+          </div>
+        )}
+
+        {/* Pixel info card for inspect mode */}
+        {drawingMode === "inspect" && (fixedPixelPosition || currentHoverPixel) && (
+          <div ref={infoCardRef}>
+            <PixelInfoCard
+              pixel={fixedPixelPosition ? fixedPixelData : inspectedPixel}
+              position={fixedPixelPosition || currentHoverPixel!}
+              panelSide={infoCardSide}
+            />
           </div>
         )}
       </div>

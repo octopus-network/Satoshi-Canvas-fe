@@ -40,7 +40,7 @@ export interface DrawingOperation {
 }
 
 // New: drawing mode type
-export type DrawingMode = "draw" | "erase" | "locate" | "picker";
+export type DrawingMode = "draw" | "erase" | "locate" | "picker" | "inspect";
 
 // New: pixel change records needed for undo/redo (only for user layer userPixels)
 export interface PixelChange {

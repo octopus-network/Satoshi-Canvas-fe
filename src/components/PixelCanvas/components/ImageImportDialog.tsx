@@ -368,10 +368,8 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
       >
         <div className="bg-background border-b px-6 py-4 flex items-center justify-between shrink-0">
           <DialogTitle>{t("pages.canvas.import.title")}</DialogTitle>
-          <DialogClose className="ring-offset-background focus:ring-ring rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
-            <Button variant="ghost" size="icon" className="cursor-pointer">
-              <XIcon className="w-5 h-5" />
-            </Button>
+          <DialogClose className="ring-offset-background focus:ring-ring rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none inline-flex items-center justify-center size-9 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 cursor-pointer">
+            <XIcon className="w-5 h-5" />
             <span className="sr-only">Close</span>
           </DialogClose>
         </div>
