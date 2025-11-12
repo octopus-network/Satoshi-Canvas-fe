@@ -7,6 +7,7 @@ export interface ApiPixel {
   color: string;        // "#RRGGBB"
   x: number;
   y: number;
+  txid: string;         // 交易 ID（必填）
 }
 
 export interface CanvasApiResponse {
@@ -15,13 +16,15 @@ export interface CanvasApiResponse {
 }
 
 export interface CompactOperatedPayload {
-  rev: number;          // 最新版本号（= 后端 nonce）
+  rev: number | string; // 最新版本号（= 后端 nonce）
   owners: string[];     // 所有者字典表（局部）
   xs: number[];         // u16，但 JSON 里是 number
   ys: number[];
   owners_idx: number[]; // 指向 owners 的下标
-  prices: number[];     // u64 -> number（如需安全可改 bigint）
+  prices: number[];     // u64 -> number
   colors: number[];     // 0xRRGGBB
+  txs: string[];        // 本次返回涉及到的 tx 局部字典（必填）
+  txs_idx: number[];    // 与 xs/ys 对齐；必填，指向 txs 局部字典
 }
 
 export interface DeltaResponse {
@@ -63,13 +66,15 @@ export function expandCompact(
     payload.ys.length !== len ||
     payload.owners_idx.length !== len ||
     payload.prices.length !== len ||
-    payload.colors.length !== len
+    payload.colors.length !== len ||
+    payload.txs_idx.length !== len
   ) {
     console.error("expandCompact: column lengths mismatch");
     return [];
   }
 
   const { width, height } = dims;
+  const txs = payload.txs;
   const out: ApiPixel[] = [];
   for (let i = 0; i < len; i++) {
     const x = payload.xs[i];
@@ -80,11 +85,15 @@ export function expandCompact(
     ) continue;
 
     const ownerIdx = payload.owners_idx[i] ?? 0;
+    const ti = payload.txs_idx[i] >>> 0;
+    const txid = txs[ti]; // 一定存在，无需检查哨兵值
+    
     out.push({
       x, y,
       owner: payload.owners[ownerIdx] ?? null,
       price: payload.prices[i],
       color: hexFromRgb24(payload.colors[i] ?? 0),
+      txid,
     });
   }
   return out;
@@ -110,8 +119,10 @@ export async function fetchCanvasCompact(): Promise<CompactOperatedPayload> {
   return (await resp.json()) as CompactOperatedPayload;
 }
 
-export async function fetchCanvasDelta(since: number): Promise<DeltaResponse> {
-  const url = `${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.DELTA}?since=${since}`;
+export async function fetchCanvasDelta(since: number | string): Promise<DeltaResponse> {
+  // since 查询参数建议用字符串传递（避免 JS 精度问题）
+  const sinceStr = String(since);
+  const url = `${CANVAS_API.BASE_URL}${CANVAS_API.ENDPOINTS.DELTA}?since=${sinceStr}`;
   const resp = await fetch(url, {
     method: "GET",
     headers: { "Accept": "application/json", "Cache-Control": "no-cache" },
@@ -145,13 +156,15 @@ export class CanvasStore {
     this.map.clear();
     const pixels = expandCompact(payload, { width: this.width, height: this.height });
     for (const p of pixels) this.map.set(keyOf(p.x, p.y, this.width), p);
-    this.rev = payload.rev;
+    // 将 rev（可能是 number | string）转换为 number
+    this.rev = typeof payload.rev === "string" ? Number(payload.rev) : payload.rev;
   }
 
   private applyIncremental(payload: CompactOperatedPayload) {
     const pixels = expandCompact(payload, { width: this.width, height: this.height });
     for (const p of pixels) this.map.set(keyOf(p.x, p.y, this.width), p);
-    this.rev = payload.rev;
+    // 将 rev（可能是 number | string）转换为 number
+    this.rev = typeof payload.rev === "string" ? Number(payload.rev) : payload.rev;
   }
 
   // 首次：按 /head 设置尺寸，再拉全量
