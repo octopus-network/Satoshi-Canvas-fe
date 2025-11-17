@@ -23,7 +23,7 @@ import { DEFAULT_PIXEL_SIZE, IMAGE_IMPORT } from "./constants";
 import { PIXEL_CONSTANTS } from "@/constants/pixel";
 
 // Import utility functions
-import { extractImagePixels } from "./utils";
+import { extractImagePixels, getCanvasCoordinates, getPixelCoordinates } from "./utils";
 
 // Import child components
 import { Toolbar } from "./components/Toolbar";
@@ -31,6 +31,7 @@ import { ImageImportDialog } from "./components/ImageImportDialog";
 import { CanvasContainer } from "./components/CanvasContainer";
 import { CanvasInfo } from "./components/CanvasInfo";
 import { PurchaseDialog } from "./components/PurchaseDialog";
+import { ExportDialog, type ExportMode } from "./components/ExportDialog";
 
 // Import icons
 import { ShoppingCart } from "lucide-react";
@@ -97,6 +98,13 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       useState<ImageImportConfig>(IMAGE_IMPORT.DEFAULT_CONFIG);
     const [processedImageData, setProcessedImageData] =
       useState<ProcessedImageData | null>(null);
+
+    // Export related state
+    const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+    const [exportMode, setExportMode] = useState<ExportMode>("full");
+    const [exportFirstPoint, setExportFirstPoint] = useState<{ x: number; y: number } | null>(null);
+    const [exportSecondPoint, setExportSecondPoint] = useState<{ x: number; y: number } | null>(null);
+    const [isSelectingExportRegion, setIsSelectingExportRegion] = useState(false);
 
     // View state
     const [scale, setScale] = useState(1);
@@ -206,8 +214,8 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     const {
       canvasRef,
       draw,
-      handleMouseDown,
-      handleMouseMove,
+      handleMouseDown: originalHandleMouseDown,
+      handleMouseMove: originalHandleMouseMove,
       handleMouseUp,
       handleMouseLeave,
       handleWheelZoom,
@@ -215,6 +223,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       zoomOut,
       resetView,
       exportPNG,
+      exportJPEG,
     } = useCanvasDrawing({
       gridSize,
       canvasHeight: effectiveHeight,
@@ -258,6 +267,123 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }, [exportPNG, gridSize, effectiveHeight]);
+
+    // Handle export button click
+    const handleExportClick = useCallback(() => {
+      setIsExportDialogOpen(true);
+      setExportMode("full");
+      setExportFirstPoint(null);
+      setExportSecondPoint(null);
+      setIsSelectingExportRegion(false);
+    }, []);
+
+    // Handle export dialog close
+    const handleExportDialogClose = useCallback((open: boolean) => {
+      setIsExportDialogOpen(open);
+      if (!open) {
+        setExportMode("full");
+        setExportFirstPoint(null);
+        setExportSecondPoint(null);
+        setIsSelectingExportRegion(false);
+      }
+    }, []);
+
+    // Handle export mode selection
+    const handleExportModeSelect = useCallback((mode: ExportMode) => {
+      setExportMode(mode);
+      if (mode === "partial") {
+        setIsSelectingExportRegion(true);
+        setExportFirstPoint(null);
+        setExportSecondPoint(null);
+      } else {
+        setIsSelectingExportRegion(false);
+        setExportFirstPoint(null);
+        setExportSecondPoint(null);
+      }
+    }, []);
+
+    // Handle export region selection reset
+    const handleResetExportSelection = useCallback(() => {
+      setExportFirstPoint(null);
+      setExportSecondPoint(null);
+    }, []);
+
+    // Handle export execution
+    const handleExport = useCallback(async () => {
+      if (exportMode === "full") {
+        const blob = await exportJPEG({ scale: 1, backgroundColor: "#FFFFFF" });
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const today = new Date();
+        const timestamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}_${String(today.getHours()).padStart(2, "0")}${String(today.getMinutes()).padStart(2, "0")}${String(today.getSeconds()).padStart(2, "0")}`;
+        a.download = `pixel-canvas_${gridSize}x${effectiveHeight}_${timestamp}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setIsExportDialogOpen(false);
+      } else if (exportMode === "partial" && exportFirstPoint && exportSecondPoint) {
+        const x1 = Math.min(exportFirstPoint.x, exportSecondPoint.x);
+        const y1 = Math.min(exportFirstPoint.y, exportSecondPoint.y);
+        const x2 = Math.max(exportFirstPoint.x, exportSecondPoint.x);
+        const y2 = Math.max(exportFirstPoint.y, exportSecondPoint.y);
+        const blob = await exportJPEG({ 
+          scale: 1, 
+          backgroundColor: "#FFFFFF",
+          region: { x1, y1, x2, y2 }
+        });
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const today = new Date();
+        const timestamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}_${String(today.getHours()).padStart(2, "0")}${String(today.getMinutes()).padStart(2, "0")}${String(today.getSeconds()).padStart(2, "0")}`;
+        a.download = `pixel-canvas_${x1}-${y1}_${x2}-${y2}_${timestamp}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setIsExportDialogOpen(false);
+        setIsSelectingExportRegion(false);
+        setExportFirstPoint(null);
+        setExportSecondPoint(null);
+      }
+    }, [exportMode, exportFirstPoint, exportSecondPoint, exportJPEG, gridSize, effectiveHeight]);
+
+    // Handle mouse down for export region selection
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+      if (isSelectingExportRegion && e.button === 0) {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        
+        const { x, y } = getCanvasCoordinates(
+          e.clientX,
+          e.clientY,
+          canvas,
+          scale,
+          offset
+        );
+        const pixelCoords = getPixelCoordinates(x, y, pixelSize, gridSize, effectiveHeight);
+        
+        if (pixelCoords) {
+          if (!exportFirstPoint) {
+            setExportFirstPoint({ x: pixelCoords.pixelX, y: pixelCoords.pixelY });
+          } else if (!exportSecondPoint) {
+            setExportSecondPoint({ x: pixelCoords.pixelX, y: pixelCoords.pixelY });
+            setIsSelectingExportRegion(false);
+          }
+        }
+        return;
+      }
+      originalHandleMouseDown(e);
+    }, [isSelectingExportRegion, exportFirstPoint, exportSecondPoint, canvasRef, scale, offset, pixelSize, gridSize, effectiveHeight, originalHandleMouseDown]);
+
+    // Handle mouse move for export region selection
+    const handleMouseMove = useCallback((e: React.MouseEvent) => {
+      originalHandleMouseMove(e);
+    }, [originalHandleMouseMove]);
 
     // Color change handling
     const handleColorChange = useCallback((color: string) => {
@@ -714,6 +840,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           onClearCanvas={clearCanvas}
           onClearUserDrawing={clearUserDrawing}
           onExportPNG={handleExportPNG}
+          onExport={handleExportClick}
         />
 
         {/* Image import dialog */}
@@ -728,6 +855,18 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           canvasHeight={effectiveHeight}
           onConfirm={confirmImageImport}
           onCancel={cancelImageImport}
+        />
+
+        {/* Export dialog */}
+        <ExportDialog
+          isOpen={isExportDialogOpen}
+          onOpenChange={handleExportDialogClose}
+          onModeSelect={handleExportModeSelect}
+          exportMode={exportMode}
+          firstPoint={exportFirstPoint}
+          secondPoint={exportSecondPoint}
+          onExport={handleExport}
+          onResetSelection={handleResetExportSelection}
         />
 
         {/* Canvas container */}

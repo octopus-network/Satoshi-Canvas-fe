@@ -839,6 +839,89 @@ export const useCanvasDrawing = ({
     [ensureLayer]
   );
 
+  // 导出为 JPEG（合并离屏静态层与用户层，不包含网格线）
+  // 支持部分区域导出
+  const exportJPEG = useCallback(
+    async (options?: { 
+      scale?: number; 
+      backgroundColor?: string | null;
+      region?: { x1: number; y1: number; x2: number; y2: number } | null;
+    }) => {
+      const scale = options?.scale ?? 1;
+      const backgroundColor = options?.backgroundColor ?? "#FFFFFF"; // JPEG 默认白色背景
+      const region = options?.region;
+
+      ensureLayer();
+      const staticCanvas = staticLayerCanvasRef.current;
+      const userCanvas = userLayerCanvasRef.current;
+      const width = gridSizeRef.current;
+      const height = canvasHeightRef.current;
+      if (!staticCanvas || !userCanvas || width <= 0 || height <= 0) return null;
+
+      // 计算导出区域
+      let srcX = 0;
+      let srcY = 0;
+      let srcWidth = width;
+      let srcHeight = height;
+
+      if (region) {
+        srcX = Math.max(0, Math.min(region.x1, region.x2));
+        srcY = Math.max(0, Math.min(region.y1, region.y2));
+        const x2 = Math.min(width, Math.max(region.x1, region.x2));
+        const y2 = Math.min(height, Math.max(region.y1, region.y2));
+        srcWidth = x2 - srcX + 1;
+        srcHeight = y2 - srcY + 1;
+      }
+
+      const exportCanvas = document.createElement("canvas");
+      exportCanvas.width = Math.max(1, Math.floor(srcWidth * scale));
+      exportCanvas.height = Math.max(1, Math.floor(srcHeight * scale));
+      const ctx = exportCanvas.getContext("2d");
+      if (!ctx) return null;
+      ctx.imageSmoothingEnabled = false;
+
+      // 填充背景色
+      if (backgroundColor) {
+        ctx.fillStyle = backgroundColor;
+        ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+      }
+
+      // 绘制静态与用户图层（仅绘制选中区域）
+      if (scale === 1) {
+        ctx.drawImage(staticCanvas, srcX, srcY, srcWidth, srcHeight, 0, 0, srcWidth, srcHeight);
+        ctx.drawImage(userCanvas, srcX, srcY, srcWidth, srcHeight, 0, 0, srcWidth, srcHeight);
+      } else {
+        ctx.drawImage(
+          staticCanvas,
+          srcX,
+          srcY,
+          srcWidth,
+          srcHeight,
+          0,
+          0,
+          exportCanvas.width,
+          exportCanvas.height
+        );
+        ctx.drawImage(
+          userCanvas,
+          srcX,
+          srcY,
+          srcWidth,
+          srcHeight,
+          0,
+          0,
+          exportCanvas.width,
+          exportCanvas.height
+        );
+      }
+
+      return await new Promise<Blob | null>((resolve) => {
+        exportCanvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.95);
+      });
+    },
+    [ensureLayer]
+  );
+
   return {
     canvasRef,
     draw,
@@ -851,5 +934,6 @@ export const useCanvasDrawing = ({
     zoomOut,
     resetView,
     exportPNG,
+    exportJPEG,
   };
 };

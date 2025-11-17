@@ -17,6 +17,7 @@ import {
   Undo2,
   Redo2,
   Search,
+  Download,
 } from "lucide-react";
 import type { DrawingMode } from "../types";
 import { ColorPicker } from "./ColorPicker";
@@ -69,6 +70,7 @@ interface ToolbarProps {
 
   // Export
   onExportPNG?: () => void;
+  onExport?: () => void;
 
   // Large data testing (migrated to feature test panel, kept for type compatibility)
   onImportLargeTest?: (size: number) => void;
@@ -91,6 +93,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   canUndo,
   canRedo,
   onClearUserDrawing,
+  onExport,
   // onExportPNG, // Export function removed
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -416,6 +419,24 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            <TooltipProvider>
+              <Tooltip delayDuration={350}>
+                <TooltipTrigger asChild>
+                  <Button
+                    className="cursor-pointer"
+                    variant="outline"
+                    size="sm"
+                    onClick={onExport}
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    {t("pages.canvas.toolbar.export")}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{t("pages.canvas.toolbar.exportTip")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <div className="pr-4" />
