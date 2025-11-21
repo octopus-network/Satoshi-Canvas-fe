@@ -38,30 +38,20 @@ const writeVaruint = (buf: Uint8Array, off: number, x: number): number => {
 };
 
 /**
- * 核心编码器：打包 PX3 base64url 字符串（单买家）
- * @param buyer 购买者地址
+ * 核心编码器：打包 PX3 base64url 字符串（v2协议，不包含buyer）
  * @param items 像素项（idx, color）
  */
 function encodePX3Base64Url(
-  buyer: string,
   items: { idx: number; color: string }[]
 ): string {
   if (items.length === 0) {
-    const enc = new TextEncoder();
-    const bb = enc.encode(buyer);
-    const total = 5 + 2 + bb.length + 4; // hdr + buyer + count(0)
+    const total = 5 + 4; // hdr + count(0)
     const buf = new Uint8Array(total);
     let off = 0;
-    buf.set([0x50,0x58,0x33,0x01,0x00], off); off += 5; // "PX3", v=1, flags=0
-    buf[off++] = bb.length & 0xff; buf[off++] = (bb.length>>>8)&0xff;
-    buf.set(bb, off); off += bb.length;
+    buf.set([0x50,0x58,0x33,0x02,0x00], off); off += 5; // "PX3", v=2, flags=0
     buf[off++] = 0; buf[off++] = 0; buf[off++] = 0; buf[off++] = 0;
     return bytesToBase64Url(buf);
   }
-
-  const enc = new TextEncoder();
-  const buyerBytes = enc.encode(buyer);
-  if (buyerBytes.length > 0xffff) throw new Error("buyer too long");
 
   const n = items.length;
   const idxs = new Array<number>(n);
@@ -96,7 +86,7 @@ function encodePX3Base64Url(
   const useDelta = varintBytes < absBytes;
 
   // 总长度估算
-  let total = 5 + 2 + buyerBytes.length + 4; // hdr + buyer + count
+  let total = 5 + 4; // hdr + count
   if (usePalette) total += 2 + palette.length * 3; // palette_cnt + palette
   total += useDelta ? varintBytes : absBytes;      // indices
   total += usePalette ? n : n * 3;                 // colors
@@ -108,10 +98,8 @@ function encodePX3Base64Url(
     (useDelta ? 0b01 : 0b00) | // idx_mode
     ((usePalette ? 1 : 0) << 2); // color_mode
 
-  // header
-  buf.set([0x50,0x58,0x33,0x01, flags], off); off += 5; // "PX3", v=1, flags
-  buf[off++] = buyerBytes.length & 0xff; buf[off++] = (buyerBytes.length>>>8)&0xff;
-  buf.set(buyerBytes, off); off += buyerBytes.length;
+  // header (v2: 不再包含 buyer)
+  buf.set([0x50,0x58,0x33,0x02, flags], off); off += 5; // "PX3", v=2, flags
   buf[off++] = (n      ) & 0xff;
   buf[off++] = (n >>> 8) & 0xff;
   buf[off++] = (n >>>16) & 0xff;
@@ -179,13 +167,11 @@ function encodePX3Base64Url(
 }
 
 /**
- * 打包 PX3 base64url 字符串（矩形画布版本）
- * @param buyer 购买者地址
+ * 打包 PX3 base64url 字符串（矩形画布版本，v2协议）
  * @param pixels 像素（x,y,color）
  * @param dims 画布尺寸 {width, height}
  */
 export function packPX3Base64UrlRect(
-  buyer: string,
   pixels: PurchasePixel[],
   dims: { width: number; height: number }
 ): string {
@@ -197,22 +183,20 @@ export function packPX3Base64UrlRect(
     .map(p => ({ idx: p.y * width + p.x, color: p.color }));
   
   // 2) 调用核心编码器
-  return encodePX3Base64Url(buyer, items);
+  return encodePX3Base64Url(items);
 }
 
 /**
- * 打包 PX3 base64url 字符串（单买家，兼容旧版本）
- * @param buyer 购买者地址
+ * 打包 PX3 base64url 字符串（兼容旧版本）
  * @param items 像素（x,y,color）
  * @param grid  画布宽（默认 1024）
  * @deprecated 使用 packPX3Base64UrlRect 替代，支持矩形画布
  */
 export function packPX3Base64Url(
-  buyer: string,
   items: PurchasePixel[],
   grid = 1024
 ): string {
-  return packPX3Base64UrlRect(buyer, items, { width: grid, height: grid });
+  return packPX3Base64UrlRect(items, { width: grid, height: grid });
 }
 
 

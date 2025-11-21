@@ -84,33 +84,45 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // 设置canvas尺寸
+    // 设置canvas尺寸 - 根据实际画布的宽高比来设置
     const previewSize = IMAGE_IMPORT.PREVIEW_SIZE;
-    canvas.width = previewSize;
-    canvas.height = previewSize;
+    // 计算缩放比例，保持宽高比
+    const scaleX = previewSize / gridSize;
+    const scaleY = previewSize / effectiveHeight;
+    const scale = Math.min(scaleX, scaleY); // 取较小的缩放比例以保持宽高比
+    
+    // 根据缩放比例计算预览canvas的实际尺寸
+    const previewWidth = Math.floor(gridSize * scale);
+    const previewHeight = Math.floor(effectiveHeight * scale);
+    
+    // 设置canvas的实际像素尺寸，保持宽高比
+    canvas.width = previewWidth;
+    canvas.height = previewHeight;
 
     // 清空画布
-    ctx.clearRect(0, 0, previewSize, previewSize);
+    ctx.clearRect(0, 0, previewWidth, previewHeight);
 
-    // 计算缩放比例
-    const scale = previewSize / gridSize;
-
-    // 绘制网格背景
+    // 绘制网格背景 - 同时考虑宽度和高度
     ctx.strokeStyle = "#e0e0e0";
     ctx.lineWidth = 0.5;
-    for (
-      let i = 0;
-      i <= gridSize;
-      i += Math.max(1, Math.floor(gridSize / 20))
-    ) {
+    
+    // 绘制垂直网格线（X方向）
+    const gridStepX = Math.max(1, Math.floor(gridSize / 20));
+    for (let i = 0; i <= gridSize; i += gridStepX) {
       const pos = i * scale;
       ctx.beginPath();
       ctx.moveTo(pos, 0);
-      ctx.lineTo(pos, previewSize);
+      ctx.lineTo(pos, previewHeight);
       ctx.stroke();
+    }
+    
+    // 绘制水平网格线（Y方向）
+    const gridStepY = Math.max(1, Math.floor(effectiveHeight / 20));
+    for (let i = 0; i <= effectiveHeight; i += gridStepY) {
+      const pos = i * scale;
       ctx.beginPath();
       ctx.moveTo(0, pos);
-      ctx.lineTo(previewSize, pos);
+      ctx.lineTo(previewWidth, pos);
       ctx.stroke();
     }
 
@@ -134,7 +146,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
       processedImageData.scaledWidth * scale,
       processedImageData.scaledHeight * scale
     );
-  }, [processedImageData, config, gridSize, isOpen]);
+  }, [processedImageData, config, gridSize, effectiveHeight, isOpen]);
 
   // 验证和应用函数
   const validateAndApplyScale = useCallback(
@@ -166,13 +178,13 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
     (value: string) => {
       if (!processedImageData) return false;
       const numValue = parseInt(value);
-      if (validateOffsetY(value, processedImageData.scaledHeight, effectiveHeight)) {
+      if (validateOffsetY(value, processedImageData.scaledHeight, gridSize, effectiveHeight)) {
         onConfigChange({ ...config, offsetY: numValue });
         return true;
       }
       return false;
     },
-    [config, onConfigChange, processedImageData, effectiveHeight]
+    [config, onConfigChange, processedImageData, gridSize, effectiveHeight]
   );
 
   const validateAndApplyOpacity = useCallback(
@@ -311,7 +323,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
             : true;
         case "offsetY":
           return processedImageData
-            ? validateOffsetY(value, processedImageData.scaledHeight, effectiveHeight)
+            ? validateOffsetY(value, processedImageData.scaledHeight, gridSize, effectiveHeight)
             : true;
         case "opacity":
           return validateOpacity(value);
@@ -319,7 +331,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
           return true;
       }
     },
-    [processedImageData, effectiveHeight]
+    [processedImageData, gridSize, effectiveHeight]
   );
 
   // 从剪贴板导入坐标，格式示例：614,457
@@ -385,7 +397,14 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                 <div className="mt-2 border border-border rounded-lg p-4 bg-card">
                   <canvas
                     ref={previewCanvasRef}
-                    className="w-full max-w-[300px] mx-auto border border-border rounded"
+                    style={{
+                      aspectRatio: `${gridSize} / ${effectiveHeight}`,
+                      maxWidth: '300px',
+                      maxHeight: '300px',
+                      width: '100%',
+                      height: 'auto',
+                    }}
+                    className="mx-auto border border-border rounded"
                   />
                   <p className="text-xs text-muted-foreground mt-2 text-center">
                     {t("pages.canvas.import.previewHint")}
@@ -522,7 +541,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                       onConfigChange({ ...config, offsetY: value })
                     }
                     min={-Math.floor(processedImageData.scaledHeight / 2)}
-                    max={gridSize}
+                    max={effectiveHeight}
                     step={1}
                     className="flex-1"
                   />
@@ -534,13 +553,13 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                       const minVal = -Math.floor(
                         processedImageData.scaledHeight / 2
                       );
-                      const maxVal = gridSize;
+                      const maxVal = effectiveHeight;
                       if (!isNaN(value) && value >= minVal && value <= maxVal) {
                         onConfigChange({ ...config, offsetY: value });
                       }
                     }}
                     min={-Math.floor(processedImageData.scaledHeight / 2)}
-                    max={gridSize}
+                    max={effectiveHeight}
                     className="w-20 px-2 py-1 text-xs border border-border rounded bg-background text-foreground"
                   />
                   <span className="text-xs text-muted-foreground">px</span>
@@ -648,7 +667,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                         ...config,
                         offsetX: 0,
                         offsetY: Math.floor(
-                          (gridSize - processedImageData.scaledHeight) / 2
+                          (effectiveHeight - processedImageData.scaledHeight) / 2
                         ),
                       })
                     }
@@ -666,7 +685,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                           (gridSize - processedImageData.scaledWidth) / 2
                         ),
                         offsetY: Math.floor(
-                          (gridSize - processedImageData.scaledHeight) / 2
+                          (effectiveHeight - processedImageData.scaledHeight) / 2
                         ),
                       })
                     }
@@ -682,7 +701,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                         ...config,
                         offsetX: gridSize - processedImageData.scaledWidth,
                         offsetY: Math.floor(
-                          (gridSize - processedImageData.scaledHeight) / 2
+                          (effectiveHeight - processedImageData.scaledHeight) / 2
                         ),
                       })
                     }

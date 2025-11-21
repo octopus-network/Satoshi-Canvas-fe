@@ -50,8 +50,7 @@ export const CANVAS_API = {
 export interface PurchaseIntent {
   x: number;
   y: number;
-  owner: string; // Buyer address (paymentAddress)
-  color: string; // Expected color
+  color: string; // Expected color "#RRGGBB"
 }
 
 export type PurchaseIntents = PurchaseIntent[];

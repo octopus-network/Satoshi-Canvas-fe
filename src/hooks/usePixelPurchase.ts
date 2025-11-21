@@ -185,9 +185,9 @@ export const usePixelPurchase = ({
         return { x, y, color };
       });
 
-      // 使用动态尺寸打包 PX3
+      // 使用动态尺寸打包 PX3 (v2协议，不再包含buyer)
       const dims = getCurrentDims();
-      const wire = packPX3Base64UrlRect(paymentAddress, pixels, dims);
+      const wire = packPX3Base64UrlRect(pixels, dims);
 
       const tmpIntention = {
         poolAddress: targetPool.address,

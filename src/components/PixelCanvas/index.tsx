@@ -493,11 +493,12 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         const processed = extractImagePixels(
           selectedImage,
           imageImportConfig,
-          gridSize
+          gridSize,
+          effectiveHeight
         );
         setProcessedImageData(processed);
       }
-    }, [imageImportConfig]); // Only update when configuration changes
+    }, [imageImportConfig, gridSize, effectiveHeight, selectedImage, isImportDialogOpen]); // Only update when configuration changes
 
     // Confirm image import
     const confirmImageImport = useCallback(() => {
