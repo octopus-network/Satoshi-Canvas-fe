@@ -82,7 +82,15 @@
         "regionSelected": "Region Selected",
         "regionSize": "Region Size",
         "resetSelection": "Reset Selection",
-        "exportButton": "Export",
+        "exportButton": "Export"
+      },
+      "export": {
+        "selectFirstPoint": "Select First Point",
+        "selectSecondPoint": "Select Second Point",
+        "clickToSelect": "Click on canvas to select first pixel point",
+        "clickToSelectSecond": "Click on canvas to select second pixel point",
+        "regionSelected": "Region Selected",
+        "pressEnterToConfirm": "Press Enter to confirm, or Esc to cancel",
         "largeDataTest": "Large Data Test:",
         "history": "History:",
         "undo": "Undo",

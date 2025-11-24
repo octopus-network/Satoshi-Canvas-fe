@@ -105,6 +105,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     const [exportFirstPoint, setExportFirstPoint] = useState<{ x: number; y: number } | null>(null);
     const [exportSecondPoint, setExportSecondPoint] = useState<{ x: number; y: number } | null>(null);
     const [isSelectingExportRegion, setIsSelectingExportRegion] = useState(false);
+    const [exportHoverPixel, setExportHoverPixel] = useState<{ x: number; y: number } | null>(null);
 
     // View state
     const [scale, setScale] = useState(1);
@@ -250,6 +251,10 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         setRedoStack([]);
       },
       onColorPicked: handleColorPicked,
+      exportFirstPoint,
+      exportSecondPoint,
+      exportHoverPixel,
+      isSelectingExportRegion,
     });
 
     // Export PNG button callback
@@ -281,17 +286,23 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     const handleExportDialogClose = useCallback((open: boolean) => {
       setIsExportDialogOpen(open);
       if (!open) {
-        setExportMode("full");
-        setExportFirstPoint(null);
-        setExportSecondPoint(null);
-        setIsSelectingExportRegion(false);
+        // 关闭对话框时，如果不在选择模式，则重置所有状态
+        // 如果在选择模式，保持选择状态（因为可能是用户主动关闭对话框，但想继续选择）
+        if (!isSelectingExportRegion) {
+          setExportMode("full");
+          setExportFirstPoint(null);
+          setExportSecondPoint(null);
+          setExportHoverPixel(null);
+        }
       }
-    }, []);
+    }, [isSelectingExportRegion]);
 
     // Handle export mode selection
     const handleExportModeSelect = useCallback((mode: ExportMode) => {
       setExportMode(mode);
       if (mode === "partial") {
+        // 关闭对话框，进入选择模式
+        setIsExportDialogOpen(false);
         setIsSelectingExportRegion(true);
         setExportFirstPoint(null);
         setExportSecondPoint(null);
@@ -306,6 +317,10 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     const handleResetExportSelection = useCallback(() => {
       setExportFirstPoint(null);
       setExportSecondPoint(null);
+      setExportHoverPixel(null);
+      // 重新进入选择模式
+      setIsSelectingExportRegion(true);
+      setIsExportDialogOpen(false);
     }, []);
 
     // Handle export execution
@@ -369,21 +384,93 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         
         if (pixelCoords) {
           if (!exportFirstPoint) {
-            setExportFirstPoint({ x: pixelCoords.pixelX, y: pixelCoords.pixelY });
+            // 选择第一个点，同时设置悬停像素为第一个点，确保立即显示区域
+            const firstPoint = { x: pixelCoords.pixelX, y: pixelCoords.pixelY };
+            setExportFirstPoint(firstPoint);
+            setExportHoverPixel(firstPoint);
+            // 立即触发一次重绘，确保显示选中区域
+            setTimeout(() => {
+              draw();
+            }, 0);
           } else if (!exportSecondPoint) {
+            // 选择第二个点，固定选中区域（不自动打开对话框，等待 Enter 键确认）
             setExportSecondPoint({ x: pixelCoords.pixelX, y: pixelCoords.pixelY });
-            setIsSelectingExportRegion(false);
+            setExportHoverPixel(null); // 清除悬停像素，固定显示
+            // 立即触发一次重绘
+            setTimeout(() => {
+              draw();
+            }, 0);
           }
         }
         return;
       }
       originalHandleMouseDown(e);
-    }, [isSelectingExportRegion, exportFirstPoint, exportSecondPoint, canvasRef, scale, offset, pixelSize, gridSize, effectiveHeight, originalHandleMouseDown]);
+    }, [isSelectingExportRegion, exportFirstPoint, exportSecondPoint, canvasRef, scale, offset, pixelSize, gridSize, effectiveHeight, originalHandleMouseDown, draw]);
 
     // Handle mouse move for export region selection
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
+      // 如果在选择导出区域模式下，且只选择了第一个点，更新悬停像素（用于显示临时选择区域）
+      if (isSelectingExportRegion && exportFirstPoint && !exportSecondPoint) {
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const { x, y } = getCanvasCoordinates(
+            e.clientX,
+            e.clientY,
+            canvas,
+            scale,
+            offset
+          );
+          const pixelCoords = getPixelCoordinates(x, y, pixelSize, gridSize, effectiveHeight);
+          // 如果获取到像素坐标，更新悬停像素；否则保持当前值（不设为 null，以便显示区域）
+          if (pixelCoords) {
+            setExportHoverPixel({ x: pixelCoords.pixelX, y: pixelCoords.pixelY });
+          }
+        }
+      } else if (!isSelectingExportRegion || exportSecondPoint) {
+        // 如果不在选择模式或已选择第二个点，清除悬停像素
+        setExportHoverPixel(null);
+      }
       originalHandleMouseMove(e);
-    }, [originalHandleMouseMove]);
+    }, [isSelectingExportRegion, exportFirstPoint, exportSecondPoint, canvasRef, scale, offset, pixelSize, gridSize, effectiveHeight, originalHandleMouseMove]);
+
+    // Handle mouse leave for export region selection
+    const handleMouseLeaveWrapper = useCallback(() => {
+      // 清除导出悬停像素（仅在未选择第二个点时清除）
+      if (!exportSecondPoint) {
+        setExportHoverPixel(null);
+      }
+      handleMouseLeave();
+    }, [handleMouseLeave, exportSecondPoint]);
+
+    // Handle keyboard events for export region confirmation
+    useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        // 如果在选择导出区域模式下，且已选择两个点，按 Enter 键确认
+        if (isSelectingExportRegion && exportFirstPoint && exportSecondPoint && e.key === "Enter") {
+          e.preventDefault();
+          setIsSelectingExportRegion(false);
+          // 延迟打开对话框，确保状态已更新
+          setTimeout(() => {
+            setIsExportDialogOpen(true);
+          }, 100);
+        }
+        // 按 Escape 键取消选择
+        if (isSelectingExportRegion && e.key === "Escape") {
+          e.preventDefault();
+          setIsSelectingExportRegion(false);
+          setExportFirstPoint(null);
+          setExportSecondPoint(null);
+          setExportHoverPixel(null);
+        }
+      };
+
+      if (isSelectingExportRegion) {
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+          window.removeEventListener("keydown", handleKeyDown);
+        };
+      }
+    }, [isSelectingExportRegion, exportFirstPoint, exportSecondPoint]);
 
     // Color change handling
     const handleColorChange = useCallback((color: string) => {
@@ -879,7 +966,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
+            onMouseLeave={handleMouseLeaveWrapper}
             onWheel={handleWheelZoom}
             scale={scale}
             onZoomIn={zoomIn}
@@ -887,6 +974,9 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
             onResetView={resetView}
             drawingMode={drawingMode}
             currentHoverPixel={currentHoverPixel}
+            isSelectingExportRegion={isSelectingExportRegion}
+            exportFirstPoint={exportFirstPoint}
+            exportSecondPoint={exportSecondPoint}
           />
 
         {/* Floating draw button - shown when there is user drawing data */}

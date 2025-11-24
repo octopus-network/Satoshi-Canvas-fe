@@ -34,6 +34,11 @@ interface CanvasContainerProps {
 
   // Current hover pixel coordinates
   currentHoverPixel: { x: number; y: number } | null;
+
+  // Export region selection
+  isSelectingExportRegion?: boolean;
+  exportFirstPoint?: { x: number; y: number } | null;
+  exportSecondPoint?: { x: number; y: number } | null;
 }
 
 export const CanvasContainer: React.FC<CanvasContainerProps> = ({
@@ -51,6 +56,9 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   onResetView,
   drawingMode,
   currentHoverPixel,
+  isSelectingExportRegion,
+  exportFirstPoint,
+  exportSecondPoint,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const coordPanelRef = useRef<HTMLDivElement>(null);
@@ -128,6 +136,10 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 
   // Get mouse cursor style
   const getCursorStyle = () => {
+    // 导出区域选择模式下使用十字光标
+    if (isSelectingExportRegion) {
+      return { cursor: "crosshair" } as const;
+    }
     if (drawingMode === "erase") {
       return {
         cursor:
@@ -415,6 +427,40 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
               position={fixedPixelPosition || currentHoverPixel!}
               panelSide={infoCardSide}
             />
+          </div>
+        )}
+
+        {/* Export region selection hint */}
+        {isSelectingExportRegion && (
+          <div className="absolute top-2 left-1/2 transform -translate-x-1/2 bg-background/90 border border-border rounded-md px-4 py-2 text-sm shadow-lg pointer-events-none z-20">
+            {!exportFirstPoint ? (
+              <div className="text-center">
+                <div className="text-foreground font-medium mb-1">
+                  {t("pages.canvas.export.selectFirstPoint")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("pages.canvas.export.clickToSelect")}
+                </div>
+              </div>
+            ) : !exportSecondPoint ? (
+              <div className="text-center">
+                <div className="text-foreground font-medium mb-1">
+                  {t("pages.canvas.export.selectSecondPoint")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("pages.canvas.export.clickToSelectSecond")}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center">
+                <div className="text-foreground font-medium mb-1">
+                  {t("pages.canvas.export.regionSelected")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("pages.canvas.export.pressEnterToConfirm")}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

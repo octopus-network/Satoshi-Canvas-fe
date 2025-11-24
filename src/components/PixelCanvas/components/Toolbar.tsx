@@ -14,8 +14,6 @@ import {
   // Grid3X3,
   Pipette,
   Trash,
-  Undo2,
-  Redo2,
   Search,
   Download,
 } from "lucide-react";
@@ -338,54 +336,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </Tooltip>
             </TooltipProvider>
           </div> */}
-
-          <Separator orientation="vertical" className="h-6" />
-
-          {/* History (undo/redo) */}
-          <div className="flex gap-2 items-center">
-            <span className="text-sm font-medium text-foreground">
-              {t("pages.canvas.toolbar.history")}
-            </span>
-            <TooltipProvider>
-              <Tooltip delayDuration={350}>
-                <TooltipTrigger asChild>
-                  <Button
-                    className="cursor-pointer"
-                    variant="outline"
-                    size="sm"
-                    onClick={onUndo}
-                    disabled={!canUndo}
-                  >
-                    <Undo2 className="w-4 h-4 mr-0.5" />
-                    {t("pages.canvas.toolbar.undo")}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{t("pages.canvas.toolbar.undoTip")}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip delayDuration={350}>
-                <TooltipTrigger asChild>
-                  <Button
-                    className="cursor-pointer"
-                    variant="outline"
-                    size="sm"
-                    onClick={onRedo}
-                    disabled={!canRedo}
-                  >
-                    <Redo2 className="w-4 h-4 mr-0.5" />
-                    {t("pages.canvas.toolbar.redo")}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{t("pages.canvas.toolbar.redoTip")}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
 
           <Separator orientation="vertical" className="h-6" />
 

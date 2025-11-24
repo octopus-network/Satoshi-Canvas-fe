@@ -51,6 +51,12 @@ interface UseCanvasDrawingParams {
   onUserPixelCountChange?: (count: number) => void;
   onHistoryEntry?: (entry: HistoryEntry) => void; // 新增：笔触提交后上报历史条目
   onColorPicked?: (color: string) => void; // 新增：取色器颜色选择回调
+
+  // 导出区域选择
+  exportFirstPoint?: { x: number; y: number } | null;
+  exportSecondPoint?: { x: number; y: number } | null;
+  exportHoverPixel?: { x: number; y: number } | null;
+  isSelectingExportRegion?: boolean;
 }
 
 export const useCanvasDrawing = ({
@@ -75,6 +81,10 @@ export const useCanvasDrawing = ({
   onUserPixelCountChange,
   onHistoryEntry,
   onColorPicked,
+  exportFirstPoint,
+  exportSecondPoint,
+  exportHoverPixel,
+  isSelectingExportRegion,
 }: UseCanvasDrawingParams) => {
   // 全局绘制状态管理
   const { setIsDrawing } = useDrawingStore();
@@ -107,6 +117,12 @@ export const useCanvasDrawing = ({
   const canvasHeightRef = useRef(canvasHeight ?? gridSize); // 如果不提供高度，假设为正方形
   const pixelSizeRef = useRef(pixelSize);
   const showGridRef = useRef(showGrid);
+  
+  // Export region selection refs
+  const exportFirstPointRef = useRef(exportFirstPoint);
+  const exportSecondPointRef = useRef(exportSecondPoint);
+  const exportHoverPixelRef = useRef(exportHoverPixel);
+  const isSelectingExportRegionRef = useRef(isSelectingExportRegion);
 
   // Tool: ensure layer canvas exists and has correct size (in grid unit size gridSize × canvasHeight)
   const ensureLayer = useCallback(() => {
@@ -208,6 +224,20 @@ export const useCanvasDrawing = ({
   useEffect(() => {
     userPixelsRef.current = userPixels;
   }, [userPixels]);
+
+  // 同步导出区域选择相关值到 ref，避免闭包旧值
+  useEffect(() => {
+    exportFirstPointRef.current = exportFirstPoint;
+  }, [exportFirstPoint]);
+  useEffect(() => {
+    exportSecondPointRef.current = exportSecondPoint;
+  }, [exportSecondPoint]);
+  useEffect(() => {
+    exportHoverPixelRef.current = exportHoverPixel;
+  }, [exportHoverPixel]);
+  useEffect(() => {
+    isSelectingExportRegionRef.current = isSelectingExportRegion;
+  }, [isSelectingExportRegion]);
 
   // RAF 合批重绘（只做合成与可见区域网格线）
   const scheduleDraw = useCallback(() => {
@@ -314,6 +344,70 @@ export const useCanvasDrawing = ({
         }
       }
 
+      // 绘制导出区域选择框（从 ref 读取最新值）
+      const currentIsSelecting = isSelectingExportRegionRef.current;
+      const currentFirstPoint = exportFirstPointRef.current;
+      if (currentIsSelecting && currentFirstPoint) {
+        const point1 = currentFirstPoint;
+        // 如果已选择第二个点，使用第二个点；否则使用悬停像素（临时选择）
+        // 如果没有悬停像素，使用第一个点作为临时第二个点（显示单个像素点）
+        const point2 = exportSecondPointRef.current || exportHoverPixelRef.current || point1;
+        
+        // 计算选择区域的边界
+        const minX = Math.min(point1.x, point2.x);
+        const maxX = Math.max(point1.x, point2.x);
+        const minY = Math.min(point1.y, point2.y);
+        const maxY = Math.max(point1.y, point2.y);
+        
+        const x1 = minX * currentPixelSize;
+        const y1 = minY * currentPixelSize;
+        const width = (maxX - minX + 1) * currentPixelSize;
+        const height = (maxY - minY + 1) * currentPixelSize;
+        
+        // 绘制选中区域内部的浅灰色半透明阴影
+        ctx.fillStyle = "rgba(128, 128, 128, 0.3)"; // 浅灰色，30% 透明度（更明显）
+        ctx.fillRect(x1, y1, width, height);
+        
+        // 绘制半透明遮罩（选中区域外的部分）
+        ctx.fillStyle = "rgba(0, 0, 0, 0.4)"; // 更深的遮罩，40% 透明度
+        // 绘制上方遮罩
+        if (y1 > viewTop) {
+          ctx.fillRect(viewLeft, viewTop, viewRight - viewLeft, Math.min(y1 - viewTop, viewBottom - viewTop));
+        }
+        // 绘制下方遮罩
+        const bottomY = y1 + height;
+        if (bottomY < viewBottom) {
+          ctx.fillRect(viewLeft, bottomY, viewRight - viewLeft, viewBottom - bottomY);
+        }
+        // 绘制左侧遮罩
+        if (x1 > viewLeft) {
+          const leftHeight = Math.min(height, viewBottom - y1);
+          ctx.fillRect(viewLeft, Math.max(y1, viewTop), x1 - viewLeft, Math.max(0, leftHeight));
+        }
+        // 绘制右侧遮罩
+        const rightX = x1 + width;
+        if (rightX < viewRight) {
+          const rightHeight = Math.min(height, viewBottom - y1);
+          ctx.fillRect(rightX, Math.max(y1, viewTop), viewRight - rightX, Math.max(0, rightHeight));
+        }
+        
+        // 绘制选中区域的醒目边框（外层粗边框）
+        ctx.strokeStyle = "#2563eb"; // 深蓝色，更醒目
+        ctx.lineWidth = 3 / currentScale;
+        ctx.setLineDash([]);
+        ctx.strokeRect(x1, y1, width, height);
+        
+        // 绘制选中区域的内部边框（白色高光，增加对比度）
+        ctx.strokeStyle = "#ffffff"; // 白色边框
+        ctx.lineWidth = 1 / currentScale;
+        ctx.strokeRect(x1 + 1 / currentScale, y1 + 1 / currentScale, width - 2 / currentScale, height - 2 / currentScale);
+        
+        // 绘制选中区域的内部边框（蓝色细线）
+        ctx.strokeStyle = "#3b82f6"; // 蓝色边框
+        ctx.lineWidth = 1.5 / currentScale;
+        ctx.strokeRect(x1, y1, width, height);
+      }
+
       ctx.restore();
     });
   }, []);
@@ -322,6 +416,11 @@ export const useCanvasDrawing = ({
   useEffect(() => {
     scheduleDraw();
   }, [showGrid, scheduleDraw]);
+
+  // 导出区域选择变化时，立即触发一次重绘
+  useEffect(() => {
+    scheduleDraw();
+  }, [exportFirstPoint, exportSecondPoint, exportHoverPixel, isSelectingExportRegion, scheduleDraw]);
 
   // 对外提供的 draw API：触发一次 RAF 合批
   const draw = useCallback(() => {

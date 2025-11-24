@@ -82,7 +82,15 @@
         "regionSelected": "已选择区域",
         "regionSize": "区域大小",
         "resetSelection": "重置选择",
-        "exportButton": "导出",
+        "exportButton": "导出"
+      },
+      "export": {
+        "selectFirstPoint": "选择第一个点",
+        "selectSecondPoint": "选择第二个点",
+        "clickToSelect": "在画布上点击选择第一个像素点",
+        "clickToSelectSecond": "在画布上点击选择第二个像素点",
+        "regionSelected": "区域已选择",
+        "pressEnterToConfirm": "按 Enter 键确认，或按 Esc 键取消",
         "largeDataTest": "大数据量测试:",
         "history": "历史:",
         "undo": "撤销",
