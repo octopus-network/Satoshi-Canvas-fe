@@ -90,7 +90,9 @@
         "pixelUsageLabel": "像素使用",
         "pixelUsage": "{{current}} / {{max}}",
         "pixelUsageTooltip": "一次draw最多可以draw {{max}} 个pixel，当前已经draw的pixel为: {{current}} / {{max}}",
-        "pixelLimitReached": "已达到像素限制"
+        "pixelLimitReached": "已达到像素限制",
+        "confirmClearUserTitle": "确认清空用户绘制",
+        "confirmClearUserDesc": "此操作将清空用户绘制数据，且不可撤销。是否继续？"
       },
       "export": {
         "selectFirstPoint": "选择第一个点",
@@ -104,9 +106,7 @@
         "undo": "撤销",
         "redo": "重做",
         "undoTip": "撤销上一次笔触或导入",
-        "redoTip": "重做最近一次被撤销的操作",
-        "confirmClearUserTitle": "确认清空用户绘制",
-        "confirmClearUserDesc": "此操作将清空用户绘制数据，且不可撤销。是否继续？"
+        "redoTip": "重做最近一次被撤销的操作"
       },
       "canvas": {
         "currentPosition": "当前坐标",

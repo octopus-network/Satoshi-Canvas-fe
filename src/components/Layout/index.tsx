@@ -63,9 +63,11 @@ const Layout: React.FC = () => {
   const navItems = [{ path: "/canvas", key: "nav.canvas" }];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Pixel style background pattern overlay */}
+      <div className="absolute inset-0 pixel-bg pointer-events-none z-0" />
       {/* Header */}
-      <header className="sticky top-0 z-50 h-16 flex items-center justify-between px-4 md:px-6 border-b border-border/50 bg-background">
+      <header className="sticky top-0 z-50 h-14 sm:h-16 flex items-center justify-between px-2 sm:px-4 md:px-6 border-b-2 border-border bg-background pixel-shadow-sm relative">
         <div className="flex items-center basis-1/4">
           {/* Mobile hamburger menu button */}
           <div className="md:hidden mr-2">
@@ -76,7 +78,7 @@ const Layout: React.FC = () => {
                   size="sm"
                   className="w-10 h-10 p-0 cursor-pointer"
                 >
-                  <Bars3Icon className="size-6" />
+                  <Bars3Icon className="size-6 pixel-icon" />
                   <span className="sr-only">{t("nav.menu")}</span>
                 </Button>
               </SheetTrigger>
@@ -172,7 +174,7 @@ const Layout: React.FC = () => {
               alt={t("app.title")}
               className="w-11 h-11"
             />
-            <div className="text-xl font-bold text-foreground whitespace-nowrap">
+            <div className="text-lg sm:text-xl font-bold text-foreground whitespace-nowrap pixel-font-sm">
               {t("app.title")}
             </div>
           </div>
@@ -180,7 +182,7 @@ const Layout: React.FC = () => {
 
         {/* Narrow screen centered text display */}
         <div className="md:hidden absolute left-1/2 -translate-x-1/2">
-          <div className="text-xl font-bold text-foreground whitespace-nowrap">
+          <div className="text-lg sm:text-xl font-bold text-foreground whitespace-nowrap pixel-font-sm">
             {t("app.title")}
           </div>
         </div>
@@ -222,7 +224,7 @@ const Layout: React.FC = () => {
                 onClick={toggleTheme}
                 className="w-11 h-11 rounded-lg transition-all duration-200 scale-in cursor-pointer"
               >
-                {theme.mode === "light" ? <MoonIcon /> : <SunIcon />}
+                {theme.mode === "light" ? <MoonIcon className="pixel-icon" /> : <SunIcon className="pixel-icon" />}
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom" align="center">
@@ -240,7 +242,7 @@ const Layout: React.FC = () => {
                 className="w-11 h-11 rounded-lg transition-all duration-200 scale-in cursor-pointer"
                 aria-label={t("theme.languageSelect")}
               >
-                <GlobeAltIcon className="w-5 h-5" />
+                <GlobeAltIcon className="w-5 h-5 pixel-icon" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -261,12 +263,12 @@ const Layout: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 bg-background">
+      <main className="flex-1 bg-background relative z-10">
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="bg-muted/30 border-t border-border text-center py-6">
+      <footer className="bg-muted/30 border-t-2 border-border text-center py-6 relative z-10">
         <div className="container">
           <p className="text-muted-foreground text-sm">
             <a

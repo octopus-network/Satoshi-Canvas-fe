@@ -90,7 +90,9 @@
         "pixelUsageLabel": "Pixel Usage",
         "pixelUsage": "{{current}} / {{max}}",
         "pixelUsageTooltip": "Maximum {{max}} pixels per draw session. Currently drawn: {{current}} / {{max}}",
-        "pixelLimitReached": "Pixel limit reached"
+        "pixelLimitReached": "Pixel limit reached",
+        "confirmClearUserTitle": "Confirm Clear",
+        "confirmClearUserDesc": "This will clear all user drawing data and cannot be undone. Continue?"
       },
       "export": {
         "selectFirstPoint": "Select First Point",
@@ -104,9 +106,7 @@
         "undo": "Undo",
         "redo": "Redo",
         "undoTip": "Undo last stroke or import",
-        "redoTip": "Redo the last undone operation",
-        "confirmClearUserTitle": "Confirm Clear",
-        "confirmClearUserDesc": "This will clear all user drawing data and cannot be undone. Continue?"
+        "redoTip": "Redo the last undone operation"
       },
       "canvas": {
         "currentPosition": "Current Position",

@@ -924,7 +924,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     }));
 
     return (
-      <div className="flex flex-col gap-4 p-4 w-full h-full min-h-0 overflow-hidden">
+      <div className="flex flex-col gap-2 sm:gap-4 p-2 sm:p-4 w-full h-full min-h-0 overflow-hidden">
         {/* Canvas Information Bar */}
         <CanvasInfo 
           canvasInfo={canvasInfo}
@@ -1007,20 +1007,22 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
 
         {/* Floating draw button - shown when there is user drawing data */}
           {userPixels.size > 0 && (
-            <div className="absolute bottom-4 right-4">
+            <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4">
               <button
                 onClick={handlePurchase}
                 disabled={!canPurchase || isPurchaseLoading}
                 className={`
-                  px-6 py-3 rounded-full shadow-lg transition-all duration-200 flex items-center gap-2 font-medium cursor-pointer
+                  px-3 py-2 sm:px-6 sm:py-3 border-2 transition-all duration-200 flex items-center gap-1 sm:gap-2 font-medium cursor-pointer pixel-shadow-md text-xs sm:text-sm
                   ${canPurchase && !isPurchaseLoading
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105'
-                    : 'bg-gray-400 text-gray-200 cursor-not-allowed opacity-70'
+                    ? 'bg-primary text-primary-foreground border-primary hover:bg-primary/90 active:translate-x-[1px] active:translate-y-[1px] active:shadow-sm'
+                    : 'bg-gray-400 text-gray-200 border-gray-400 cursor-not-allowed opacity-70'
                   }
                 `}
+                style={{ borderRadius: "var(--radius)" }}
               >
-                <ShoppingCart className="w-5 h-5" />
-                {isPurchaseLoading ? "Processing..." : `Draw (${userPixels.size})`}
+                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 pixel-icon" />
+                <span className="hidden sm:inline">{isPurchaseLoading ? "Processing..." : `Draw (${userPixels.size})`}</span>
+                <span className="sm:hidden">{isPurchaseLoading ? "..." : userPixels.size}</span>
               </button>
             </div>
           )}

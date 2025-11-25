@@ -170,7 +170,7 @@ const result = await transaction.send(signedPsbt.toHex());
 ### React Integration
 
 ```tsx
-import { ReeProvider, useRee, useBtcBalance } from "@omnity/ree-client-ts-sdk";
+import { ReeProvider, useRee, useBtcBalance } from "@omnity/ree-client-ts-sdk/react";
 
 function App() {
   return (
@@ -259,7 +259,7 @@ function WalletComponent() {
 
 ```tsx
 import { LaserEyesProvider, useLaserEyes } from "@omnisat/lasereyes-core";
-import { ReeProvider, useRee } from "@ree-network/ts-sdk";
+import { ReeProvider, useRee } from "@omnity/ree-client-ts-sdk/react";
 
 function App() {
   return (
@@ -448,7 +448,7 @@ import {
   useRuneInfo,
   usePoolList,
   usePoolInfo,
-} from "@ree-network/ts-sdk";
+} from "@omnity/ree-client-ts-sdk/react";
 
 function TradingDashboard() {
   // Balance & UTXO hooks
@@ -551,7 +551,7 @@ import type {
   Intention,
   TransactionConfig,
   AddressType,
-} from "@ree-network/ts-sdk";
+} from "@omnity/ree-client-ts-sdk";
 ```
 
 ### Configuration

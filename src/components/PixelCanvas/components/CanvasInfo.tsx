@@ -30,11 +30,12 @@ export function CanvasInfo({
             <button
               onClick={onRefresh}
               disabled={isRefreshing}
-              className="p-1.5 rounded hover:bg-background/50 transition-colors disabled:opacity-50"
+              className="p-1.5 border-2 border-border hover:bg-accent hover:border-accent transition-all disabled:opacity-50 cursor-pointer pixel-shadow-sm active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+              style={{ borderRadius: "var(--radius-sm)" }}
               title="Refresh data"
             >
               <RefreshCw
-                className={`w-3 h-3 ${isRefreshing ? "animate-spin" : ""}`}
+                className={`w-3 h-3 pixel-icon ${isRefreshing ? "animate-spin" : ""}`}
               />
             </button>
           )}
@@ -47,23 +48,23 @@ export function CanvasInfo({
     <Card className="p-3">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h3 className="font-semibold text-sm">Pixel Land Canvas</h3>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>
+          <h3 className="font-semibold text-xs sm:text-sm pixel-font-sm">Satoshi Canvas</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
+            <span className="whitespace-nowrap">
               Total Painted:{" "}
               <span className="font-medium text-foreground">
                 {canvasInfo.paintedPixelCount.toLocaleString()}
               </span>{" "}
               pixels
             </span>
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2 flex-wrap">
               Total Value:{" "}
               <span className="font-medium text-foreground">
                 {canvasInfo.totalValue.toFixed(6)}
               </span>{" "}
               BTC
               {lastRefreshTime && (
-                <span className="text-xs">
+                <span className="text-xs hidden lg:inline">
                   (Last Updated: {lastRefreshTime.toLocaleTimeString()})
                 </span>
               )}
@@ -75,7 +76,8 @@ export function CanvasInfo({
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="p-1.5 rounded hover:bg-background/50 transition-colors disabled:opacity-50 cursor-pointer"
+            className="p-1.5 border-2 border-border hover:bg-accent hover:border-accent transition-all disabled:opacity-50 cursor-pointer pixel-shadow-sm active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+            style={{ borderRadius: "var(--radius-sm)" }}
             title="Refresh data"
           >
             <RefreshCw

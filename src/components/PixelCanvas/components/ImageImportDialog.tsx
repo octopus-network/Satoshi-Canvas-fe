@@ -10,7 +10,6 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import {
   Image as ImageIcon,
-  Clipboard as ClipboardIcon,
   XIcon,
 } from "lucide-react";
 import type {
@@ -346,38 +345,6 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
     [processedImageData, gridSize, effectiveHeight]
   );
 
-  // 从剪贴板导入坐标，格式示例：614,457
-  const handlePasteCoordinates = useCallback(async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      if (!text) return;
-      const match = text.match(/(-?\d+)\s*,\s*(-?\d+)/);
-      if (!match) return;
-      const pastedX = parseInt(match[1], 10);
-      const pastedY = parseInt(match[2], 10);
-      if (isNaN(pastedX) || isNaN(pastedY)) return;
-      if (!processedImageData) return;
-
-      const minX = -Math.floor(processedImageData.scaledWidth / 2);
-      const maxX = gridSize;
-      const minY = -Math.floor(processedImageData.scaledHeight / 2);
-      const maxY = effectiveHeight;
-      const clamp = (v: number, min: number, max: number) =>
-        Math.min(Math.max(v, min), max);
-
-      const newX = clamp(pastedX, minX, maxX);
-      const newY = clamp(pastedY, minY, maxY);
-
-      onConfigChange({ ...config, offsetX: newX, offsetY: newY });
-      setInputValues((prev) => ({
-        ...prev,
-        offsetX: String(newX),
-        offsetY: String(newY),
-      }));
-    } catch (err) {
-      // ignore errors silently
-    }
-  }, [processedImageData, gridSize, effectiveHeight, onConfigChange, config]);
 
   if (!selectedImage || !processedImageData) {
     return null;
@@ -605,19 +572,6 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                   />
                   <span className="text-xs text-muted-foreground">px</span>
                 </div>
-              </div>
-
-              {/* 从剪贴板导入坐标 */}
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handlePasteCoordinates}
-                  className="cursor-pointer"
-                >
-                  <ClipboardIcon className="w-4 h-4 mr-0.5" />
-                  {t("pages.canvas.import.pasteFromClipboard")}
-                </Button>
               </div>
 
               {/* 透明度控制 */}

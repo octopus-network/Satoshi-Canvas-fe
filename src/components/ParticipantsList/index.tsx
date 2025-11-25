@@ -128,9 +128,10 @@ export default function ParticipantsList({
   return (
     <div className="flex-1 min-h-0 flex flex-col">
       <div className="p-3 shrink-0">
-        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <Trophy size={16} className="text-amber-500" />
-          Leaderboard
+        <h3 className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2 pixel-font-sm">
+          <Trophy size={14} className="sm:w-4 sm:h-4 text-primary pixel-icon" />
+          <span className="hidden sm:inline">Leaderboard</span>
+          <span className="sm:hidden">Top</span>
         </h3>
         {/* <p className="text-xs text-muted-foreground mt-1">Top pixel artists</p> */}
       </div>
@@ -142,11 +143,16 @@ export default function ParticipantsList({
             {sortedParticipants.map((participant, index) => (
               <div
                 key={participant.address}
+                onClick={() => {
+                  window.open(`https://mempool.space/testnet4/address/${participant.address}`, '_blank');
+                }}
                 className={`
-                relative p-3 rounded-lg border transition-all duration-200
+                relative p-3 border-2 transition-all duration-200 pixel-shadow-sm
                 ${getRankStyling(index)}
-                hover:shadow-md
+                hover:shadow-md hover:translate-x-[1px] hover:translate-y-[1px]
+                cursor-pointer
               `}
+                style={{ borderRadius: "var(--radius)" }}
               >
                 {/* Rank indicator */}
                 <div className="flex items-center justify-between mb-3">

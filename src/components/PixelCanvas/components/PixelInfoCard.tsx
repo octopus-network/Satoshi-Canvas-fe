@@ -40,13 +40,13 @@ export const PixelInfoCard: React.FC<PixelInfoCardProps> = ({
 
   return (
     <div
-      className={`absolute top-2 ${panelSide === "left" ? "left-2" : "right-2"} bg-background/95 border border-border rounded-lg px-4 py-3 text-sm shadow-lg pointer-events-auto min-w-[240px] max-w-[320px]`}
-      style={{ zIndex: 20 }}
+      className={`absolute top-2 ${panelSide === "left" ? "left-2" : "right-2"} bg-background/95 border-2 border-border px-4 py-3 text-sm pixel-shadow-lg pointer-events-auto min-w-[240px] max-w-[320px]`}
+      style={{ zIndex: 20, borderRadius: "var(--radius)" }}
     >
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Search className="w-3.5 h-3.5 text-muted-foreground" />
+            <Search className="w-3.5 h-3.5 text-muted-foreground pixel-icon" />
             <span className="text-xs text-muted-foreground font-medium">
               {t("pages.canvas.canvas.pixelInfo")}
             </span>
@@ -106,7 +106,7 @@ export const PixelInfoCard: React.FC<PixelInfoCardProps> = ({
                   className="h-7 px-2 text-xs"
                   onClick={handleViewTx}
                 >
-                  <ExternalLink className="w-3 h-3 mr-1" />
+                  <ExternalLink className="w-3 h-3 mr-1 pixel-icon" />
                   {t("pages.canvas.canvas.view")}
                 </Button>
               </div>

@@ -4,7 +4,7 @@ import {
   XVERSE,
   ProviderType,
 } from "@omnisat/lasereyes";
-import { useRee } from "@omnity/ree-client-ts-sdk";
+import { useRee } from "@omnity/ree-client-ts-sdk/react";
 import { useWalletStore } from "@/store/useWalletStore";
 import { WALLETS } from "@/constants/wallets";
 import { toast } from "sonner";

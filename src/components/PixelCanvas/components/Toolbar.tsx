@@ -152,7 +152,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         className="w-full overscroll-none"
         viewportClassName="overscroll-none"
       >
-        <div className="w-full flex flex-nowrap gap-4 items-center bg-muted/50 p-4 rounded-lg border border-border">
+        <div className="w-full flex flex-nowrap gap-2 sm:gap-4 items-center bg-muted/50 p-2 sm:p-4 border-2 border-border pixel-shadow" style={{ borderRadius: "var(--radius)" }}>
           {/* Global hidden file input, ensure change can still be triggered after Dropdown closes */}
           <input
             ref={fileInputRef}
@@ -164,23 +164,24 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           {/* Drawing mode selection */}
           <div className="flex gap-2 items-center">
-            <span className="text-sm font-medium text-foreground">
+            <span className="text-xs sm:text-sm font-medium text-foreground hidden sm:inline">
               {t("pages.canvas.toolbar.mode")}
             </span>
-            <div className="flex rounded-md border border-border bg-background p-1">
+            <div className="flex border-2 border-border bg-background p-1 pixel-shadow-sm" style={{ borderRadius: "var(--radius-sm)" }}>
               <TooltipProvider>
                 <Tooltip delayDuration={350}>
                   <TooltipTrigger asChild>
                     <button
-                      className={`flex items-center justify-center w-8 h-8 rounded transition-all duration-200 cursor-pointer mr-1 ${
+                      className={`flex items-center justify-center w-8 h-8 transition-all duration-200 cursor-pointer mr-1 border-2 ${
                         drawingMode === "draw"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          ? "bg-primary text-primary-foreground border-primary pixel-shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted border-transparent"
                       }`}
+                      style={{ borderRadius: "var(--radius-sm)" }}
                       onClick={() => onDrawingModeChange("draw")}
                       type="button"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="w-4 h-4 pixel-icon" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -193,15 +194,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 <Tooltip delayDuration={350}>
                   <TooltipTrigger asChild>
                     <button
-                      className={`flex items-center justify-center w-8 h-8 rounded transition-all duration-200 cursor-pointer mr-1 ${
+                      className={`flex items-center justify-center w-8 h-8 transition-all duration-200 cursor-pointer mr-1 border-2 ${
                         drawingMode === "picker"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          ? "bg-primary text-primary-foreground border-primary pixel-shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted border-transparent"
                       }`}
+                      style={{ borderRadius: "var(--radius-sm)" }}
                       onClick={() => onDrawingModeChange("picker")}
                       type="button"
                     >
-                      <Pipette className="w-4 h-4" />
+                      <Pipette className="w-4 h-4 pixel-icon" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -214,15 +216,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 <Tooltip delayDuration={350}>
                   <TooltipTrigger asChild>
                     <button
-                      className={`flex items-center justify-center w-8 h-8 rounded transition-all duration-200 cursor-pointer ${
+                      className={`flex items-center justify-center w-8 h-8 transition-all duration-200 cursor-pointer border-2 ${
                         drawingMode === "inspect"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          ? "bg-primary text-primary-foreground border-primary pixel-shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted border-transparent"
                       }`}
+                      style={{ borderRadius: "var(--radius-sm)" }}
                       onClick={() => onDrawingModeChange("inspect")}
                       type="button"
                     >
-                      <Search className="w-4 h-4" />
+                      <Search className="w-4 h-4 pixel-icon" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -255,7 +258,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <ImagePlus className="w-4 h-4 mr-1" />
+                  <ImagePlus className="w-4 h-4 mr-1 pixel-icon" />
                   {t("pages.canvas.toolbar.importImage")}
                 </Button>
               </TooltipTrigger>
@@ -313,7 +316,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                           variant="destructive"
                           size="sm"
                         >
-                          <Trash className="w-4 h-4 mr-1" />
+                          <Trash className="w-4 h-4 mr-1 pixel-icon" />
                           {t("pages.canvas.toolbar.clearUser")}
                         </Button>
                       </AlertDialogTrigger>
@@ -350,7 +353,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     size="sm"
                     onClick={onExport}
                   >
-                    <Download className="w-4 h-4 mr-1" />
+                    <Download className="w-4 h-4 mr-1 pixel-icon" />
                     {t("pages.canvas.toolbar.export")}
                   </Button>
                 </TooltipTrigger>

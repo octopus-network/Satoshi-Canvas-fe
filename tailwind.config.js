@@ -8,21 +8,35 @@ export default {
   theme: {
     extend: {
       colors: {
+        // BTC Orange color palette
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: '#fff4e6',
+          100: '#ffe0b3',
+          200: '#ffcc80',
+          300: '#ffb84d',
+          400: '#ffa31a',
+          500: '#F7931A', // BTC Orange
+          600: '#cc7a15',
+          700: '#996210',
+          800: '#66490a',
+          900: '#333105',
         },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        pixel: ['Courier New', 'monospace'], // Pixel style font fallback
+      },
+      borderRadius: {
+        'pixel': 'var(--radius)',
+        'pixel-sm': 'var(--radius-sm)',
+        'pixel-md': 'var(--radius-md)',
+      },
+      boxShadow: {
+        'pixel-sm': 'var(--shadow-sm)',
+        'pixel': 'var(--shadow)',
+        'pixel-md': 'var(--shadow-md)',
+        'pixel-lg': 'var(--shadow-lg)',
+        'pixel-xl': 'var(--shadow-xl)',
       },
     },
   },

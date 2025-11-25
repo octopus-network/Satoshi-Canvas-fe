@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useLaserEyes } from "@omnisat/lasereyes";
-import { useRee, usePoolList, utils as reeUtils, Network } from "@omnity/ree-client-ts-sdk";
+import { useRee, usePoolList } from "@omnity/ree-client-ts-sdk/react";
+import { utils as reeUtils, Network } from "@omnity/ree-client-ts-sdk";
 import { toast } from "sonner";
 import { PIXEL_CONSTANTS } from "@/constants/pixel";
 import { shortenErrorMessage } from "@/utils/string";

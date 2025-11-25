@@ -66,10 +66,12 @@ function HomePage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen h-screen bg-background text-foreground flex">
+      <div className="min-h-screen h-screen bg-background text-foreground flex relative">
+        {/* Pixel style background pattern overlay */}
+        <div className="absolute inset-0 pixel-bg pointer-events-none" />
       {/* Left Sidebar (Participants Leaderboard) */}
-      <aside className="hidden md:flex w-64 h-full min-h-0 flex-col border-r bg-sidebar text-sidebar-foreground">
-        <div className="shrink-0 p-3 border-b">
+      <aside className="hidden md:flex w-56 lg:w-64 h-full min-h-0 flex-col border-r-2 border-border bg-sidebar text-sidebar-foreground relative z-10">
+        <div className="shrink-0 p-2 lg:p-3 border-b-2 border-border">
           <WalletInfo className="w-full" />
         </div>
         
@@ -78,7 +80,7 @@ function HomePage() {
       </aside>
 
       {/* Right main view: Top toolbar + Bottom canvas fill */}
-      <main className="flex-1 min-w-0 h-full flex flex-col overflow-hidden">
+      <main className="flex-1 min-w-0 h-full flex flex-col overflow-hidden relative z-10">
         <div className="flex-1 min-h-0 flex flex-col">
           <PixelCanvas
             gridSize={gridSize}

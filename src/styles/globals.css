@@ -8,46 +8,45 @@ html {
 }
 
 :root {
-  /* Base color system */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Base color system - BTC Orange Theme */
+  --background: oklch(0.98 0.01 85);
+  --foreground: oklch(0.15 0.02 30);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.15 0.02 30);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.15 0.02 30);
+  /* BTC Orange: #F7931A equivalent in oklch */
+  --primary: oklch(0.65 0.15 60);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.95 0.02 85);
+  --secondary-foreground: oklch(0.15 0.02 30);
+  --muted: oklch(0.95 0.01 85);
+  --muted-foreground: oklch(0.5 0.02 30);
+  --accent: oklch(0.7 0.12 55);
+  --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(98% 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.85 0.02 30);
+  --input: oklch(0.95 0.01 85);
+  --ring: oklch(0.65 0.15 60);
   --success: oklch(60% 0.15 145);
-  --warning: oklch(75% 0.15 85);
-  --info: oklch(55% 0.15 250);
+  --warning: oklch(0.7 0.15 60);
+  --info: oklch(0.6 0.15 220);
 
-  /* Border radius */
-  --radius: 0.625rem;
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
+  /* Border radius - Pixel style (smaller, more square) */
+  --radius: 0.25rem;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
 
-  /* Shadow system */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg:
-    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl:
-    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  /* Shadow system - Pixel style (harder edges, no blur) */
+  --shadow-sm: 2px 2px 0px 0px rgb(0 0 0 / 0.1);
+  --shadow: 3px 3px 0px 0px rgb(0 0 0 / 0.15);
+  --shadow-md: 4px 4px 0px 0px rgb(0 0 0 / 0.2);
+  --shadow-lg: 6px 6px 0px 0px rgb(0 0 0 / 0.25);
+  --shadow-xl: 8px 8px 0px 0px rgb(0 0 0 / 0.3);
 
   /* Animation duration */
   --duration-fast: 150ms;
@@ -87,28 +86,29 @@ html {
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.12 0.02 30);
+  --foreground: oklch(0.95 0.01 85);
+  --card: oklch(0.18 0.02 30);
+  --card-foreground: oklch(0.95 0.01 85);
+  --popover: oklch(0.18 0.02 30);
+  --popover-foreground: oklch(0.95 0.01 85);
+  /* Dark mode BTC Orange - brighter for contrast */
+  --primary: oklch(0.7 0.15 60);
+  --primary-foreground: oklch(0.12 0.02 30);
+  --secondary: oklch(0.25 0.02 30);
+  --secondary-foreground: oklch(0.95 0.01 85);
+  --muted: oklch(0.25 0.02 30);
+  --muted-foreground: oklch(0.65 0.02 30);
+  --accent: oklch(0.75 0.12 55);
+  --accent-foreground: oklch(0.12 0.02 30);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(98% 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --border: oklch(0.3 0.02 30);
+  --input: oklch(0.25 0.02 30);
+  --ring: oklch(0.7 0.15 60);
   --success: oklch(55% 0.15 145);
-  --warning: oklch(70% 0.15 85);
-  --info: oklch(60% 0.15 250);
+  --warning: oklch(0.75 0.15 60);
+  --info: oklch(60% 0.15 220);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -180,24 +180,65 @@ html {
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans;
+    /* Pixel style: disable antialiasing for crisp edges */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
     font-variation-settings: normal;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
   }
 
-  /* Custom scrollbar */
+  /* Pixel style font classes */
+  .pixel-font {
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+  }
+
+  .pixel-font-sm {
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: 0.625rem;
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+  }
+
+  .pixel-font-lg {
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+  }
+
+  /* Pixel style scrollbar */
   ::-webkit-scrollbar {
-    @apply w-2;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
     @apply bg-muted;
+    border: 1px solid oklch(0.2 0.02 30);
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full hover:bg-muted-foreground/30;
+    @apply bg-primary;
+    border: 1px solid oklch(0.2 0.02 30);
+    box-shadow: inset 1px 1px 0px 0px rgb(0 0 0 / 0.1);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/90;
+  }
+
+  ::-webkit-scrollbar-corner {
+    @apply bg-muted;
+    border: 1px solid oklch(0.2 0.02 30);
   }
 
   /* Focus ring effect */
@@ -207,21 +248,50 @@ html {
 }
 
 @layer components {
-  /* Button component styles */
+  /* Pixel style button component styles */
   .btn {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    border-radius: var(--radius);
+    border: 2px solid;
+    border-color: oklch(0.2 0.02 30);
+    box-shadow: var(--shadow-sm);
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm;
+    @apply bg-primary text-primary-foreground border-primary;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-primary:hover {
+    @apply bg-primary/90;
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px 0px rgb(0 0 0 / 0.1);
+  }
+
+  .btn-primary:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
   }
 
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm;
+    @apply bg-secondary text-secondary-foreground border-secondary;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-secondary:hover {
+    @apply bg-secondary/80;
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px 0px rgb(0 0 0 / 0.1);
   }
 
   .btn-ghost {
-    @apply hover:bg-accent hover:text-accent-foreground;
+    @apply hover:bg-accent hover:text-accent-foreground border-transparent;
+    box-shadow: none;
+  }
+
+  .btn-ghost:hover {
+    border-color: oklch(0.3 0.02 30);
+    box-shadow: var(--shadow-sm);
   }
 
   .btn-sm {
@@ -236,9 +306,12 @@ html {
     @apply h-11 px-8;
   }
 
-  /* Card component styles */
+  /* Pixel style card component styles */
   .card {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+    border-radius: var(--radius);
+    @apply border-2 bg-card text-card-foreground;
+    border-color: oklch(0.2 0.02 30);
+    box-shadow: var(--shadow);
   }
 
   .card-header {
@@ -253,9 +326,15 @@ html {
     @apply flex items-center p-6 pt-0;
   }
 
-  /* Input styles */
+  /* Pixel style input styles */
   .input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-10 w-full border-2 border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    border-radius: var(--radius);
+    box-shadow: inset 2px 2px 0px 0px rgb(0 0 0 / 0.05);
+  }
+
+  .input:focus-visible {
+    box-shadow: inset 2px 2px 0px 0px rgb(0 0 0 / 0.05), 0 0 0 2px var(--ring);
   }
 
   /* Container styles */
@@ -272,9 +351,51 @@ html {
     );
   }
 
-  /* Glass effect */
+  /* Glass effect - Pixel style */
   .glass {
-    @apply backdrop-blur-md bg-background/80 border border-border/50;
+    @apply bg-background/90 border-2 border-border/70;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Pixel style utility classes */
+  .pixel-border {
+    border: 2px solid;
+    border-color: oklch(0.2 0.02 30);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .pixel-shadow-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .pixel-shadow {
+    box-shadow: var(--shadow);
+  }
+
+  .pixel-shadow-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  .pixel-shadow-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .pixel-button {
+    border: 2px solid;
+    border-color: oklch(0.2 0.02 30);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.1s ease;
+  }
+
+  .pixel-button:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px 0px rgb(0 0 0 / 0.1);
+  }
+
+  .pixel-button:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
   }
 
   /* Animation classes */
@@ -288,6 +409,70 @@ html {
 
   .scale-in {
     animation: scale-in var(--duration-fast) ease-out;
+  }
+
+  /* Pixel style icon rendering */
+  .pixel-icon {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    /* Add slight pixelation effect using filter */
+    filter: contrast(1.1) brightness(0.98);
+    /* Disable antialiasing */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    shape-rendering: crispEdges;
+  }
+
+  /* Apply pixel icon style to all SVG icons */
+  svg.pixel-icon,
+  svg[class*="lucide"],
+  svg[class*="heroicon"] {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    shape-rendering: crispEdges;
+  }
+
+  /* Global pixel icon style for all icons in buttons and interactive elements */
+  button svg,
+  .btn svg,
+  [role="button"] svg {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    shape-rendering: crispEdges;
+  }
+
+  /* Pixel style animations */
+  @keyframes pixel-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes pixel-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @keyframes pixel-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+  }
+
+  .pixel-blink {
+    animation: pixel-blink 1s step-end infinite;
+  }
+
+  .pixel-pulse {
+    animation: pixel-pulse 0.5s step-end infinite;
+  }
+
+  .pixel-shake {
+    animation: pixel-shake 0.3s step-end;
   }
 }
 
@@ -309,6 +494,42 @@ html {
 
   .content-padding {
     @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Responsive pixel font sizes */
+  .pixel-font-responsive {
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: clamp(0.5rem, 2vw, 0.75rem);
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+  }
+
+  .pixel-font-sm-responsive {
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: clamp(0.4rem, 1.5vw, 0.625rem);
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+  }
+
+  .pixel-font-lg-responsive {
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: clamp(0.625rem, 2.5vw, 0.875rem);
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+  }
+
+  /* Responsive pixel spacing */
+  .pixel-gap {
+    gap: clamp(0.5rem, 1vw, 1rem);
+  }
+
+  .pixel-padding {
+    padding: clamp(0.5rem, 1.5vw, 1rem);
+  }
+
+  /* Responsive border radius */
+  .pixel-radius-responsive {
+    border-radius: clamp(0.125rem, 0.5vw, 0.25rem);
   }
 }
 
@@ -403,19 +624,21 @@ html {
   }
 }
 
-/* Toast custom styles */
+/* Pixel style Toast custom styles */
 .custom-toast {
-  background: white !important;
-  border: 1px solid rgb(229, 231, 235) !important;
-  color: rgb(17, 24, 39) !important;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  background: var(--background) !important;
+  border: 2px solid var(--border) !important;
+  color: var(--foreground) !important;
+  box-shadow: var(--shadow-md) !important;
+  border-radius: var(--radius) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
 }
 
 /* Toast styles in dark mode */
 .dark .custom-toast {
-  background: rgb(28, 28, 28) !important;
-  border: 1px solid rgb(100, 100, 100) !important;
-  color: rgb(249, 250, 251) !important;
+  background: var(--background) !important;
+  border: 2px solid var(--border) !important;
+  color: var(--foreground) !important;
 }
 
 /* Keep success icon green */

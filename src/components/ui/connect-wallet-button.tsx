@@ -39,7 +39,7 @@ const ConnectWalletButton: React.FC<ConnectWalletButtonProps> = ({
         onClick={handleClick}
         className={cn("gap-2 cursor-pointer", className)}
       >
-        <Wallet className="w-4 h-4" />
+        <Wallet className="w-4 h-4 pixel-icon" />
         {children || "Connect Wallet"}
       </Button>
 

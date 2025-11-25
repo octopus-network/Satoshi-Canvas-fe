@@ -95,8 +95,8 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
             <TooltipTrigger asChild>
               <PopoverTrigger asChild>
                 <button
-                  className="w-10 h-10 rounded border-2 border-border cursor-pointer shadow-sm hover:shadow-md transition-shadow"
-                  style={{ backgroundColor: currentColor }}
+                  className="w-10 h-10 border-2 border-border cursor-pointer pixel-shadow-sm hover:pixel-shadow transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                  style={{ backgroundColor: currentColor, borderRadius: "var(--radius-sm)" }}
                 />
               </PopoverTrigger>
             </TooltipTrigger>
