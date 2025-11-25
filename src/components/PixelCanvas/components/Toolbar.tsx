@@ -8,9 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   Pencil,
-  Eraser,
   ImagePlus,
-  LocateFixed,
   // Grid3X3,
   Pipette,
   Trash,
@@ -20,6 +18,7 @@ import {
 import type { DrawingMode } from "../types";
 import { ColorPicker } from "./ColorPicker";
 import { useTranslation } from "react-i18next";
+import { PIXEL_LIMIT } from "../constants";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
@@ -72,6 +71,9 @@ interface ToolbarProps {
 
   // Large data testing (migrated to feature test panel, kept for type compatibility)
   onImportLargeTest?: (size: number) => void;
+
+  // Pixel limit info
+  currentUserPixelCount?: number;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -93,6 +95,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onClearUserDrawing,
   onExport,
   // onExportPNG, // Export function removed
+  currentUserPixelCount = 0,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -182,48 +185,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{t("pages.canvas.toolbar.modeDraw")}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip delayDuration={350}>
-                  <TooltipTrigger asChild>
-                    <button
-                      className={`flex items-center justify-center w-8 h-8 rounded transition-all duration-200 cursor-pointer mr-1 ${
-                        drawingMode === "erase"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                      }`}
-                      onClick={() => onDrawingModeChange("erase")}
-                      type="button"
-                    >
-                      <Eraser className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{t("pages.canvas.toolbar.modeErase")}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip delayDuration={350}>
-                  <TooltipTrigger asChild>
-                    <button
-                      className={`flex items-center justify-center w-8 h-8 rounded transition-all duration-200 cursor-pointer ${
-                        drawingMode === "locate"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                      }`}
-                      onClick={() => onDrawingModeChange("locate")}
-                      type="button"
-                    >
-                      <LocateFixed className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{t("pages.canvas.toolbar.modeLocate")}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -341,34 +302,45 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           {/* Action buttons (cleanup) */}
           <div className="flex gap-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  className="cursor-pointer"
-                  variant="destructive"
-                  size="sm"
-                >
-                  <Trash className="w-4 h-4 mr-1" />
-                  {t("pages.canvas.toolbar.clearUser")}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    {t("pages.canvas.toolbar.confirmClearUserTitle")}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t("pages.canvas.toolbar.confirmClearUserDesc")}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-                  <AlertDialogAction onClick={onClearUserDrawing}>
-                    {t("pages.canvas.toolbar.clearUser")}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <TooltipProvider>
+              <Tooltip delayDuration={350}>
+                <TooltipTrigger asChild>
+                  <div>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          className="cursor-pointer"
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <Trash className="w-4 h-4 mr-1" />
+                          {t("pages.canvas.toolbar.clearUser")}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {t("pages.canvas.toolbar.confirmClearUserTitle")}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t("pages.canvas.toolbar.confirmClearUserDesc")}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                          <AlertDialogAction onClick={onClearUserDrawing}>
+                            {t("pages.canvas.toolbar.clearUser")}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{t("pages.canvas.toolbar.clearUserTip")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <TooltipProvider>
               <Tooltip delayDuration={350}>
                 <TooltipTrigger asChild>
@@ -388,6 +360,67 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </Tooltip>
             </TooltipProvider>
           </div>
+
+          <Separator orientation="vertical" className="h-6" />
+
+          {/* Pixel limit info */}
+          <TooltipProvider>
+            <Tooltip delayDuration={350}>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-3 px-3 py-2 text-xs cursor-help hover:bg-muted/50 transition-colors rounded">
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className="text-muted-foreground text-[10px] leading-tight whitespace-nowrap">
+                      {t("pages.canvas.toolbar.pixelUsageLabel")}
+                    </span>
+                    <span className="text-foreground font-semibold leading-tight whitespace-nowrap">
+                      {t("pages.canvas.toolbar.pixelUsage", {
+                        current: currentUserPixelCount.toLocaleString(),
+                        max: PIXEL_LIMIT.MAX_PIXELS.toLocaleString(),
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <div
+                      className={`h-2.5 w-24 rounded-full bg-muted/50 overflow-hidden shadow-inner ${
+                        currentUserPixelCount >= PIXEL_LIMIT.MAX_PIXELS
+                          ? "bg-destructive/20"
+                          : ""
+                      }`}
+                    >
+                      <div
+                        className={`h-full transition-all duration-300 ease-out ${
+                          currentUserPixelCount >= PIXEL_LIMIT.MAX_PIXELS
+                            ? "bg-destructive"
+                            : currentUserPixelCount / PIXEL_LIMIT.MAX_PIXELS > 0.8
+                            ? "bg-orange-500"
+                            : "bg-primary"
+                        }`}
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            (currentUserPixelCount / PIXEL_LIMIT.MAX_PIXELS) * 100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                    {currentUserPixelCount >= PIXEL_LIMIT.MAX_PIXELS && (
+                      <span className="text-destructive font-bold text-sm leading-none" title={t("pages.canvas.toolbar.pixelLimitReached")}>
+                        ⚠
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs p-3">
+                <p className="text-sm leading-relaxed">
+                  {t("pages.canvas.toolbar.pixelUsageTooltip", {
+                    max: PIXEL_LIMIT.MAX_PIXELS.toLocaleString(),
+                    current: currentUserPixelCount.toLocaleString(),
+                  })}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <div className="pr-4" />
         </div>

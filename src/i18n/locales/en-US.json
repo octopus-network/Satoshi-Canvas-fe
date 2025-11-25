@@ -31,7 +31,10 @@
   "toast": {
     "coordinateCopied": "Coordinates copied",
     "currentCoordinate": "Current coordinates: ({{x}}, {{y}})",
-    "copyFailed": "Copy failed"
+    "copyFailed": "Copy failed",
+    "pixelLimitExceeded": "Pixel limit exceeded",
+    "pixelLimitExceededDesc": "Currently using {{current}} pixels, maximum limit is {{max}} pixels (128×128)",
+    "pixelLimitExceededImportDesc": "Currently using {{current}} pixels, import will add {{newPixels}} pixels, total {{total}} pixels, exceeding limit by {{exceed}} pixels. Maximum limit is {{max}} pixels (128×128)"
   },
   "pages": {
     "notFound": {
@@ -69,6 +72,7 @@
         "showGrid": "Show grid lines",
         "clearCanvas": "Clear Canvas",
         "clearUser": "Clear",
+        "clearUserTip": "Clear all pixels drawn in this session",
         "saveImage": "Save Image",
         "exportPngTip": "Export as PNG (without grid lines)",
         "export": "Export",
@@ -82,7 +86,11 @@
         "regionSelected": "Region Selected",
         "regionSize": "Region Size",
         "resetSelection": "Reset Selection",
-        "exportButton": "Export"
+        "exportButton": "Export",
+        "pixelUsageLabel": "Pixel Usage",
+        "pixelUsage": "{{current}} / {{max}}",
+        "pixelUsageTooltip": "Maximum {{max}} pixels per draw session. Currently drawn: {{current}} / {{max}}",
+        "pixelLimitReached": "Pixel limit reached"
       },
       "export": {
         "selectFirstPoint": "Select First Point",
@@ -147,7 +155,12 @@
         "bottomCenter": "Bottom Center",
         "bottomRight": "Bottom Right",
         "confirm": "Import Image",
-        "pasteFromClipboard": "Paste coordinates from clipboard"
+        "pasteFromClipboard": "Paste coordinates from clipboard",
+        "pixelLimit": "Pixel Limit",
+        "currentPixels": "Currently used: {{current}} / {{max}} pixels",
+        "newPixels": "This import will add: {{newPixels}} pixels",
+        "remainingPixels": "Remaining after import: {{remaining}} pixels",
+        "willExceedLimit": "⚠️ Import will exceed limit by {{exceed}} pixels (total {{total}} / {{max}})"
       },
       "page": {
         "title": "Canvas Demo",

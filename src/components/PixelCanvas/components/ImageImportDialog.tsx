@@ -18,7 +18,7 @@ import type {
   ProcessedImageData,
   InputValues,
 } from "../types";
-import { IMAGE_IMPORT } from "../constants";
+import { IMAGE_IMPORT, PIXEL_LIMIT } from "../constants";
 import {
   validateScale,
   validateOffsetX,
@@ -36,6 +36,7 @@ interface ImageImportDialogProps {
   processedImageData: ProcessedImageData | null;
   gridSize: number;
   canvasHeight?: number; // 画布高度（可选，如果不提供则假设为正方形）
+  currentUserPixelCount?: number; // 当前用户已绘制的像素数量
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -49,10 +50,21 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
   processedImageData,
   gridSize,
   canvasHeight, // 画布高度（可选）
+  currentUserPixelCount = 0, // 当前用户已绘制的像素数量
   onConfirm,
   onCancel,
 }) => {
   const effectiveHeight = canvasHeight ?? gridSize; // 如果不提供高度，假设为正方形
+  
+  // 计算导入后的像素数量
+  const newPixelsSet = new Set<string>();
+  processedImageData?.pixels.forEach(({ x, y }) => {
+    const key = `${x},${y}`;
+    newPixelsSet.add(key);
+  });
+  const totalAfterImport = currentUserPixelCount + newPixelsSet.size;
+  const willExceedLimit = totalAfterImport > PIXEL_LIMIT.MAX_PIXELS;
+  const remainingPixels = Math.max(0, PIXEL_LIMIT.MAX_PIXELS - currentUserPixelCount);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const [inputValues, setInputValues] = useState<InputValues>({
     scale: "1.000",
@@ -431,6 +443,35 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
                   <strong>{t("pages.canvas.import.position")}:</strong> (
                   {config.offsetX}, {config.offsetY})
                 </p>
+                <div className="pt-2 mt-2 border-t border-border">
+                  <p className="font-medium text-foreground mb-1">
+                    {t("pages.canvas.import.pixelLimit")}
+                  </p>
+                  <p className="text-xs">
+                    {t("pages.canvas.import.currentPixels", {
+                      current: currentUserPixelCount,
+                      max: PIXEL_LIMIT.MAX_PIXELS,
+                    })}
+                  </p>
+                  <p className="text-xs">
+                    {t("pages.canvas.import.newPixels", {
+                      newPixels: newPixelsSet.size,
+                    })}
+                  </p>
+                  <p className={`text-xs font-medium ${
+                    willExceedLimit ? "text-destructive" : "text-muted-foreground"
+                  }`}>
+                    {willExceedLimit
+                      ? t("pages.canvas.import.willExceedLimit", {
+                          total: totalAfterImport,
+                          max: PIXEL_LIMIT.MAX_PIXELS,
+                          exceed: totalAfterImport - PIXEL_LIMIT.MAX_PIXELS,
+                        })
+                      : t("pages.canvas.import.remainingPixels", {
+                          remaining: remainingPixels - newPixelsSet.size,
+                        })}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -758,7 +799,11 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
         </div>
 
         <div className="bg-background border-t px-6 py-4 flex gap-2 justify-end shrink-0">
-          <Button onClick={onConfirm} className="cursor-pointer">
+          <Button 
+            onClick={onConfirm} 
+            className="cursor-pointer"
+            disabled={willExceedLimit}
+          >
             <ImageIcon className="w-4 h-4 mr-0.5" />
             {t("pages.canvas.import.confirm")}
           </Button>

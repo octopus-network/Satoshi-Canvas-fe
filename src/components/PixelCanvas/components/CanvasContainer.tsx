@@ -61,13 +61,9 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   exportSecondPoint,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const coordPanelRef = useRef<HTMLDivElement>(null);
   const infoCardRef = useRef<HTMLDivElement>(null);
-  const [panelSide, setPanelSide] = useState<"left" | "right">("left");
   const [infoCardSide, setInfoCardSide] = useState<"left" | "right">("left");
-  const wasInsidePanelRef = useRef<boolean>(false);
   const wasInsideInfoCardRef = useRef<boolean>(false);
-  const lastSwitchAtRef = useRef<number>(0);
   const lastInfoCardSwitchAtRef = useRef<number>(0);
   const { t } = useTranslation();
   const [isHoveringCanvas, setIsHoveringCanvas] = useState(false);
@@ -140,19 +136,13 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     if (isSelectingExportRegion) {
       return { cursor: "crosshair" } as const;
     }
-    if (drawingMode === "erase") {
-      return {
-        cursor:
-          "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><rect x='2' y='8' width='12' height='8' rx='2' fill='%23ff6b6b' stroke='%23333' stroke-width='1'/><path d='M14 8L18 4' stroke='%23333' stroke-width='2' stroke-linecap='round'/></svg>\") 10 10, pointer",
-      } as const;
-    }
     if (drawingMode === "picker") {
       return {
         cursor:
           "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path d='M3 17l4-4m0 0l1.5-1.5a2 2 0 0 1 2.83 0l.17.17a2 2 0 0 1 0 2.83L10 16m-3-3l9-9a2.12 2.12 0 0 1 3 3l-9 9m-3-3l3 3' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/><path d='M3 17l4-4m0 0l1.5-1.5a2 2 0 0 1 2.83 0l.17.17a2 2 0 0 1 0 2.83L10 16m-3-3l9-9a2.12 2.12 0 0 1 3 3l-9 9m-3-3l3 3' stroke='%23333' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='4' cy='16' r='1.5' fill='white'/><circle cx='4' cy='16' r='1' fill='%234f46e5'/></svg>\") 10 10, pointer",
       } as const;
     }
-    if (drawingMode === "draw" || drawingMode === "locate") {
+    if (drawingMode === "draw") {
       return { cursor: "crosshair" } as const;
     }
     if (drawingMode === "inspect") {
@@ -167,11 +157,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   const getCanvasCursor = () => {
     switch (drawingMode) {
       case "draw":
-      case "locate":
         return "cursor-crosshair";
       case "picker":
-        return ""; // Overridden by inline style
-      case "erase":
         return ""; // Overridden by inline style
       case "inspect":
         return ""; // Overridden by inline style
@@ -212,35 +199,6 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   // Wrap mouse movement, detect if entering panel area, switch to other side if entered
   const handleMouseMove = (e: React.MouseEvent) => {
     onMouseMove(e);
-
-    // Handle locate mode panel
-    if (drawingMode === "locate") {
-      const panelEl = coordPanelRef.current;
-      if (panelEl) {
-        const rect = panelEl.getBoundingClientRect();
-        const { clientX, clientY } = e;
-        const margin = 2;
-        const inside =
-          clientX >= rect.left - margin &&
-          clientX <= rect.right + margin &&
-          clientY >= rect.top - margin &&
-          clientY <= rect.bottom + margin;
-
-        const now = Date.now();
-        const cooldownMs = 150;
-
-        if (
-          inside &&
-          !wasInsidePanelRef.current &&
-          now - lastSwitchAtRef.current > cooldownMs
-        ) {
-          setPanelSide((side) => (side === "left" ? "right" : "left"));
-          lastSwitchAtRef.current = now;
-        }
-
-        wasInsidePanelRef.current = inside;
-      }
-    }
 
     // Handle inspect mode info card - prevent switching when hovering over the card itself
     if (drawingMode === "inspect") {
@@ -400,24 +358,6 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
             </Button>
           </div>
         </div>
-
-        {/* Coordinate display */}
-        {drawingMode === "locate" && currentHoverPixel && (
-          <div
-            ref={coordPanelRef}
-            className={`absolute top-2 ${panelSide === "left" ? "left-2" : "right-2"} bg-background/90 border border-border rounded-md px-3 py-2 text-sm font-mono shadow-lg pointer-events-none`}
-          >
-            <div className="text-xs text-muted-foreground mb-1">
-              {t("pages.canvas.canvas.currentPosition")}
-            </div>
-            <div className="text-foreground">
-              X: {currentHoverPixel.x}, Y: {currentHoverPixel.y}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {t("pages.canvas.canvas.clickToCopy")}
-            </div>
-          </div>
-        )}
 
         {/* Pixel info card for inspect mode */}
         {drawingMode === "inspect" && (fixedPixelPosition || currentHoverPixel) && (

@@ -19,7 +19,7 @@ import type {
 } from "./types";
 
 // Import constants
-import { DEFAULT_PIXEL_SIZE, IMAGE_IMPORT } from "./constants";
+import { DEFAULT_PIXEL_SIZE, IMAGE_IMPORT, PIXEL_LIMIT } from "./constants";
 import { PIXEL_CONSTANTS } from "@/constants/pixel";
 
 // Import utility functions
@@ -44,6 +44,10 @@ import { usePixelPurchase } from "@/hooks/usePixelPurchase";
 
 // Import debug store
 import { useDebugStore } from "@/store/useDebugStore";
+
+// Import toast and i18n for error messages
+import { toast } from "sonner";
+import i18n from "@/i18n";
 
 const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
   (
@@ -591,6 +595,32 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
     const confirmImageImport = useCallback(() => {
       if (!processedImageData) return;
 
+      // 检查像素数量限制
+      const currentUserPixelCount = userPixels.size;
+      const newPixelsSet = new Set<string>();
+      processedImageData.pixels.forEach(({ x, y }) => {
+        const key = `${x},${y}`;
+        // 只计算新像素（不包括已存在的像素）
+        if (!userPixels.has(key)) {
+          newPixelsSet.add(key);
+        }
+      });
+      
+      const totalAfterImport = currentUserPixelCount + newPixelsSet.size;
+      if (totalAfterImport > PIXEL_LIMIT.MAX_PIXELS) {
+        // 超出限制，显示提示并阻止导入
+        toast.error(i18n.t("toast.pixelLimitExceeded"), {
+          description: i18n.t("toast.pixelLimitExceededImportDesc", {
+            current: currentUserPixelCount,
+            newPixels: newPixelsSet.size,
+            max: PIXEL_LIMIT.MAX_PIXELS,
+            exceed: totalAfterImport - PIXEL_LIMIT.MAX_PIXELS,
+          }),
+          duration: 4000,
+        });
+        return;
+      }
+
       // Calculate new user pixel data
       const newUserPixels = new Map(userPixels);
       processedImageData.pixels.forEach(({ x, y, color }) => {
@@ -711,15 +741,9 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
         setDrawingOperations((prev) => {
           const ops = entry.operations;
           if (direction === "undo") {
-            // Undo: append a reverse operation snapshot for panel display
-            const reversed: DrawingOperation[] = ops.map((op) => ({
-              x: op.x,
-              y: op.y,
-              color: op.color,
-              timestamp: Date.now(),
-              type: op.type === "draw" ? ("erase" as const) : ("draw" as const),
-            }));
-            const updated = [...prev, ...reversed];
+            // Undo: remove operations (since we only have draw type now, we just remove them)
+            // For display purposes, we keep the operations list as is since undo is handled by history
+            const updated = prev;
             setTimeout(() => onDrawingChange?.(updated), 0);
             return updated;
           }
@@ -929,6 +953,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           onClearUserDrawing={clearUserDrawing}
           onExportPNG={handleExportPNG}
           onExport={handleExportClick}
+          currentUserPixelCount={userPixels.size}
         />
 
         {/* Image import dialog */}
@@ -941,6 +966,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           processedImageData={processedImageData}
           gridSize={gridSize}
           canvasHeight={effectiveHeight}
+          currentUserPixelCount={userPixels.size}
           onConfirm={confirmImageImport}
           onCancel={cancelImageImport}
         />

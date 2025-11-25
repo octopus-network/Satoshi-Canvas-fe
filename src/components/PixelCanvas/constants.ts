@@ -75,5 +75,10 @@ export const CANVAS = {
   GRID_THRESHOLD_SCALE: 0.5, // 从2改为0.5，让网格在更小缩放时也显示
 } as const;
 
+// 像素限制常量
+export const PIXEL_LIMIT = {
+  MAX_PIXELS: 128 * 128, // 最大像素数量限制：128*128 = 16384
+} as const;
+
 // 默认像素大小
 export const DEFAULT_PIXEL_SIZE = 4;

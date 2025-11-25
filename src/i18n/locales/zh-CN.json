@@ -31,7 +31,10 @@
   "toast": {
     "coordinateCopied": "坐标已复制",
     "currentCoordinate": "当前坐标: ({{x}}, {{y}})",
-    "copyFailed": "复制失败"
+    "copyFailed": "复制失败",
+    "pixelLimitExceeded": "像素数量超出限制",
+    "pixelLimitExceededDesc": "当前已使用 {{current}} 个像素，最大限制为 {{max}} 个像素（128×128）",
+    "pixelLimitExceededImportDesc": "当前已使用 {{current}} 个像素，导入后将新增 {{newPixels}} 个像素，总计 {{total}} 个像素，超出限制 {{exceed}} 个。最大限制为 {{max}} 个像素（128×128）"
   },
   "pages": {
     "notFound": {
@@ -69,6 +72,7 @@
         "showGrid": "显示网格线",
         "clearCanvas": "清空画布",
         "clearUser": "清空用户绘制",
+        "clearUserTip": "清空本次draw的所有pixel",
         "saveImage": "保存图片",
         "exportPngTip": "导出为 PNG（不包含网格线）",
         "export": "导出",
@@ -82,7 +86,11 @@
         "regionSelected": "已选择区域",
         "regionSize": "区域大小",
         "resetSelection": "重置选择",
-        "exportButton": "导出"
+        "exportButton": "导出",
+        "pixelUsageLabel": "像素使用",
+        "pixelUsage": "{{current}} / {{max}}",
+        "pixelUsageTooltip": "一次draw最多可以draw {{max}} 个pixel，当前已经draw的pixel为: {{current}} / {{max}}",
+        "pixelLimitReached": "已达到像素限制"
       },
       "export": {
         "selectFirstPoint": "选择第一个点",
@@ -147,7 +155,12 @@
         "bottomCenter": "底部中心",
         "bottomRight": "右下角",
         "confirm": "导入图片",
-        "pasteFromClipboard": "从剪贴板导入坐标"
+        "pasteFromClipboard": "从剪贴板导入坐标",
+        "pixelLimit": "像素限制",
+        "currentPixels": "当前已使用: {{current}} / {{max}} 像素",
+        "newPixels": "本次导入将新增: {{newPixels}} 像素",
+        "remainingPixels": "导入后剩余: {{remaining}} 像素",
+        "willExceedLimit": "⚠️ 导入后将超出限制 {{exceed}} 像素（总计 {{total}} / {{max}}）"
       },
       "page": {
         "title": "像素画板演示",

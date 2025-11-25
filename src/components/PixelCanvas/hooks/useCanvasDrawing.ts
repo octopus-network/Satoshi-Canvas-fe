@@ -6,15 +6,16 @@ import type {
   DrawingOperation,
   HistoryEntry,
 } from "../types";
-import { ZOOM_LIMITS, CANVAS, ZOOM_PRESETS } from "../constants";
+import { ZOOM_LIMITS, CANVAS, ZOOM_PRESETS, PIXEL_LIMIT } from "../constants";
 import {
   getCanvasCoordinates,
   getPixelCoordinates,
-  copyCoordinateToClipboard,
   calculateMouseCenteredZoom,
   calculateCenterZoomToTargetScale,
 } from "../utils";
 import { useDrawingStore } from "@/store/useDrawingStore";
+import { toast } from "sonner";
+import i18n from "@/i18n";
 
 interface UseCanvasDrawingParams {
   // 画布状态
@@ -500,6 +501,41 @@ export const useCanvasDrawing = ({
           : userPixelsRef.current.get(key);
         if (currentOverlayColor === currentColor) return;
 
+        // 检查像素数量限制：计算如果添加这个像素后的总数量
+        const currentUserPixelCount = userPixelsRef.current.size;
+        const pendingChanges = pendingUserChangesRef.current;
+        
+        // 检查当前像素是否是新像素（不在userPixels中）
+        const isNewPixel = !userPixelsRef.current.has(key);
+        
+        // 计算pendingChanges中除了当前像素之外的其他新像素数量
+        let otherNewPixelsCount = 0;
+        if (pendingChanges) {
+          pendingChanges.forEach((val, k) => {
+            // 排除当前像素，只计算其他新像素（值不为null且不在userPixels中）
+            if (k !== key && val !== null && !userPixelsRef.current.has(k)) {
+              otherNewPixelsCount++;
+            }
+          });
+        }
+        
+        // 如果当前像素是新像素，则总的新像素数量 = 其他新像素 + 1
+        // 否则总的新像素数量 = 其他新像素
+        const totalNewPixels = isNewPixel ? otherNewPixelsCount + 1 : otherNewPixelsCount;
+        const totalAfterDraw = currentUserPixelCount + totalNewPixels;
+        
+        if (totalAfterDraw > PIXEL_LIMIT.MAX_PIXELS) {
+          // 超出限制，显示提示并阻止绘制
+          toast.error(i18n.t("toast.pixelLimitExceeded"), {
+            description: i18n.t("toast.pixelLimitExceededDesc", {
+              current: currentUserPixelCount,
+              max: PIXEL_LIMIT.MAX_PIXELS,
+            }),
+            duration: 3000,
+          });
+          return;
+        }
+
         // 记录增量改动
         pendingUserChangesRef.current?.set(key, currentColor);
 
@@ -518,34 +554,6 @@ export const useCanvasDrawing = ({
             color: currentColor,
             timestamp: Date.now(),
             type: "draw",
-          });
-        }
-
-        // 合成
-        scheduleDraw();
-      } else if (drawingMode === "erase") {
-        // 仅当确有覆盖像素或本笔触已写入时才执行擦除
-        const hadOverlay = pendingUserChangesRef.current?.has(key)
-          ? pendingUserChangesRef.current?.get(key) !== null
-          : userPixelsRef.current.has(key);
-        if (!hadOverlay) return;
-
-        pendingUserChangesRef.current?.set(key, null);
-
-        // 增量擦除离屏用户层
-        ensureLayer();
-        const ctx = userLayerCtxRef.current;
-        if (ctx) {
-          ctx.clearRect(pixelX, pixelY, 1, 1);
-        }
-
-        if (isInitialized) {
-          pendingOperationsRef.current.push({
-            x: pixelX,
-            y: pixelY,
-            color: "",
-            timestamp: Date.now(),
-            type: "erase",
           });
         }
 
@@ -633,10 +641,7 @@ export const useCanvasDrawing = ({
         // 左键
         const pixelCoords = getPixelCoordinates(x, y, pixelSize, gridSize, canvasHeight);
         if (pixelCoords) {
-          if (drawingMode === "locate") {
-            // 坐标定位模式：复制坐标
-            copyCoordinateToClipboard(pixelCoords.pixelX, pixelCoords.pixelY);
-          } else if (drawingMode === "picker") {
+          if (drawingMode === "picker") {
             // 取色器模式：获取该坐标的颜色
             const pickedColor = getPixelColor(
               pixelCoords.pixelX,
@@ -691,14 +696,14 @@ export const useCanvasDrawing = ({
       );
       const pixelCoords = getPixelCoordinates(x, y, pixelSize, gridSize);
 
-      // 更新悬停像素坐标（在坐标定位模式和查看模式下使用）
-      if ((drawingMode === "locate" || drawingMode === "inspect") && pixelCoords) {
+      // 更新悬停像素坐标（在查看模式下使用）
+      if (drawingMode === "inspect" && pixelCoords) {
         setCurrentHoverPixel({ x: pixelCoords.pixelX, y: pixelCoords.pixelY });
-      } else if (drawingMode !== "locate" && drawingMode !== "inspect") {
+      } else if (drawingMode !== "inspect") {
         setCurrentHoverPixel(null);
       }
 
-      if (isDrawingRef.current && drawingMode !== "locate" && drawingMode !== "inspect") {
+      if (isDrawingRef.current && drawingMode !== "inspect") {
         if (pixelCoords) {
           drawPixel(pixelCoords.pixelX, pixelCoords.pixelY);
         }
