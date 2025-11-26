@@ -74,6 +74,9 @@ interface ToolbarProps {
 
   // Pixel limit info
   currentUserPixelCount?: number;
+
+  // Dialog states for tooltip control
+  isImportDialogOpen?: boolean;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -96,12 +99,73 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onExport,
   // onExportPNG, // Export function removed
   currentUserPixelCount = 0,
+  isImportDialogOpen = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
+  const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
+  const [disableClearTooltip, setDisableClearTooltip] = useState(false);
+  const [disableImportTooltip, setDisableImportTooltip] = useState(false);
   const { t } = useTranslation();
+
+  // 当import dialog关闭后，暂时禁用tooltip，防止自动显示（无论是确认还是取消）
+  const prevImportDialogOpenRef = useRef(isImportDialogOpen);
+  const importButtonRef = useRef<HTMLButtonElement | null>(null);
+  const importTooltipTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    const wasOpen = prevImportDialogOpenRef.current;
+    const isNowOpen = isImportDialogOpen;
+    
+    // 清除之前的timer
+    if (importTooltipTimerRef.current) {
+      clearTimeout(importTooltipTimerRef.current);
+      importTooltipTimerRef.current = null;
+    }
+    
+    // 当dialog打开时，禁用tooltip
+    if (isNowOpen) {
+      setDisableImportTooltip(true);
+    }
+    // 当dialog从打开变为关闭时，继续禁用tooltip
+    // 设置一个最大延迟时间，即使鼠标不离开也会恢复
+    else if (wasOpen && !isNowOpen) {
+      setDisableImportTooltip(true);
+      // 设置最大延迟时间（3秒），如果用户鼠标一直不离开，也会恢复
+      importTooltipTimerRef.current = setTimeout(() => {
+        setDisableImportTooltip(false);
+        importTooltipTimerRef.current = null;
+      }, 3000);
+    }
+    
+    // 更新ref以跟踪当前状态
+    prevImportDialogOpenRef.current = isNowOpen;
+    
+    return () => {
+      if (importTooltipTimerRef.current) {
+        clearTimeout(importTooltipTimerRef.current);
+        importTooltipTimerRef.current = null;
+      }
+    };
+  }, [isImportDialogOpen]);
+  
+  // 处理鼠标离开import按钮
+  const handleImportButtonMouseLeave = () => {
+    // 如果dialog已关闭且tooltip被禁用，则恢复tooltip
+    if (!isImportDialogOpen && disableImportTooltip) {
+      // 清除最大延迟timer
+      if (importTooltipTimerRef.current) {
+        clearTimeout(importTooltipTimerRef.current);
+        importTooltipTimerRef.current = null;
+      }
+      // 延迟一点时间再恢复，确保鼠标真的离开了
+      setTimeout(() => {
+        setDisableImportTooltip(false);
+      }, 100);
+    }
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -250,20 +314,29 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           {/* Image import button */}
           <TooltipProvider>
-            <Tooltip delayDuration={350}>
+            <Tooltip 
+              delayDuration={350}
+              open={isImportDialogOpen || disableImportTooltip ? false : undefined}
+            >
               <TooltipTrigger asChild>
                 <Button
+                  ref={importButtonRef}
                   className="cursor-pointer"
                   variant="outline"
                   size="sm"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    fileInputRef.current?.click();
+                    // 点击时暂时禁用tooltip，防止在文件选择对话框打开时显示
+                    // useEffect会在dialog关闭时处理tooltip的禁用
+                  }}
+                  onMouseLeave={handleImportButtonMouseLeave}
                 >
                   <ImagePlus className="w-4 h-4 mr-1 pixel-icon" />
                   {t("pages.canvas.toolbar.importImage")}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{t("pages.canvas.toolbar.importImage")}</p>
+                <p>{t("pages.canvas.toolbar.importTip")}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -306,10 +379,23 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           {/* Action buttons (cleanup) */}
           <div className="flex gap-2">
             <TooltipProvider>
-              <Tooltip delayDuration={350}>
-                <TooltipTrigger asChild>
-                  <div>
-                    <AlertDialog>
+              <AlertDialog 
+                open={isClearDialogOpen} 
+                onOpenChange={(open) => {
+                  setIsClearDialogOpen(open);
+                  // 当对话框关闭时（无论是确认还是取消），暂时禁用tooltip
+                  if (!open) {
+                    setDisableClearTooltip(true);
+                    setTimeout(() => setDisableClearTooltip(false), 500);
+                  }
+                }}
+              >
+                <Tooltip 
+                  delayDuration={350} 
+                  open={isClearDialogOpen || disableClearTooltip ? false : undefined}
+                >
+                  <TooltipTrigger asChild>
+                    <div>
                       <AlertDialogTrigger asChild>
                         <Button
                           className="cursor-pointer"
@@ -320,29 +406,34 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                           {t("pages.canvas.toolbar.clearUser")}
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            {t("pages.canvas.toolbar.confirmClearUserTitle")}
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            {t("pages.canvas.toolbar.confirmClearUserDesc")}
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-                          <AlertDialogAction onClick={onClearUserDrawing}>
-                            {t("pages.canvas.toolbar.clearUser")}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{t("pages.canvas.toolbar.clearUserTip")}</p>
-                </TooltipContent>
-              </Tooltip>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{t("pages.canvas.toolbar.clearUserTip")}</p>
+                  </TooltipContent>
+                </Tooltip>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {t("pages.canvas.toolbar.confirmClearUserTitle")}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("pages.canvas.toolbar.confirmClearUserDesc")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        onClearUserDrawing();
+                        setIsClearDialogOpen(false);
+                      }}
+                    >
+                      {t("pages.canvas.toolbar.clearUser")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </TooltipProvider>
             <TooltipProvider>
               <Tooltip delayDuration={350}>

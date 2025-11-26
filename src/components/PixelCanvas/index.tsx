@@ -954,6 +954,7 @@ const PixelCanvas = forwardRef<PixelCanvasRef, PixelCanvasProps>(
           onExportPNG={handleExportPNG}
           onExport={handleExportClick}
           currentUserPixelCount={userPixels.size}
+          isImportDialogOpen={isImportDialogOpen}
         />
 
         {/* Image import dialog */}
